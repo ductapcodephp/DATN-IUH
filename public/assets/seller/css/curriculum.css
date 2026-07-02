@@ -1,0 +1,58 @@
+/* === FILE: resources/css/curriculum.css === */
+
+/* Bố cục chính */
+.curriculum-container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+.curriculum-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+.curriculum-col-main { display: flex; flex-direction: column; gap: 24px; }
+
+/* Khối Card chung (Dùng cho Form, Video, Quiz) */
+.card-box { background: #fff; border: 1px solid var(--border, #e2e8f0); border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+.card-box.sticky { position: sticky; top: 24px; }
+.card-header { margin: 0 0 16px 0; font-size: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; color: #1e293b; }
+.card-header h3, .card-header h4 { margin: 0; font-size: 16px; font-weight: bold; color: #1e293b; }
+.card-empty { text-align: center; color: #94a3b8; padding: 24px 0; font-size: 13px; font-style: italic; }
+
+/* Form Elements */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #334155; }
+.form-control { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; outline: none; background: #fff; transition: border-color 0.2s; }
+.form-control:focus { border-color: #f97316; }
+.form-checkbox-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.form-checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: #475569; }
+
+/* Buttons */
+.btn { padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s ease; border: none; display: inline-flex; align-items: center; gap: 6px; justify-content: center; text-decoration: none; }
+.btn-primary { background: #f97316; color: #fff; } /* Tone cam thương hiệu */
+.btn-primary:hover { background: #ea580c; }
+.btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+.btn-secondary { background: #fff; border: 1px solid #cbd5e1; color: #475569; }
+.btn-secondary:hover { background: #f8fafc; }
+
+/* Drag and Drop Items (Bài học, Câu hỏi) */
+.dnd-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #fff; border: 1px solid var(--border, #e2e8f0); border-radius: 6px; margin-bottom: 4px; transition: box-shadow 0.2s, background 0.2s; }
+.dnd-item.is-dragging { background: #f8fafc; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.dnd-handle { cursor: grab; color: #a1a5b7; padding: 4px 0; }
+.dnd-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+.dnd-right { display: flex; align-items: center; gap: 12px; }
+
+/* Text & Icons trong item */
+.item-title-box { display: flex; flex-direction: column; }
+.item-title { font-size: 14px; font-weight: 500; color: #334155; }
+.item-meta { font-size: 11px; color: var(--muted, #94a3b8); }
+.badge-type { font-size: 11px; font-weight: normal; color: #475569; margin-left: 8px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0; }
+
+/* Action Buttons (Thùng rác, Nút Edit...) */
+.action-btn { background: none; border: none; cursor: pointer; padding: 4px; transition: color 0.2s; }
+.action-btn.text-muted { color: #a1a5b7; }
+.action-btn.text-muted:hover { color: var(--red, #ef4444); }
+.action-btn.text-orange { color: #f97316; }
+
+/* Icon Cấu hình (Bánh răng) */
+.btn-detail-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #fff; color: #64748b; border-radius: 6px; text-decoration: none; font-size: 14px; border: 1px solid #e2e8f0; transition: all 0.2s ease; }
+.btn-detail-icon:hover { background: #fff7ed; color: #f97316; border-color: #ffedd5; }
+
+/* Quiz Styles */
+.quiz-box { padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; margin-bottom: 16px;}
+.quiz-answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.quiz-ans-item { font-size: 13px; padding: 8px 12px; border-radius: 4px; font-weight: normal; color: #475569; background: #f8fafc; border: 1px solid #f1f5f9; }
+.quiz-ans-item.correct { background: #f0fdf4; border-color: #bbf7d0; color: #166534; font-weight: 500; }

@@ -1,0 +1,163 @@
+/* --- Global & Interactive Utility Styles --- */
+.ef-input:focus { 
+    outline: none !important; 
+    border-color: #f97316 !important; 
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18); 
+}
+.ef-section { 
+    transition: box-shadow .15s ease; 
+}
+.ef-chip:hover { 
+    transform: translateY(-1px); 
+}
+.ef-segment:hover { 
+    color: #111827; 
+}
+.ef-btn-primary:hover:not(:disabled) { 
+    filter: brightness(1.06); 
+    transform: translateY(-1px); 
+}
+.ef-btn-primary:disabled { 
+    opacity: .65; 
+    cursor: not-allowed; 
+    transform: none; 
+}
+.ef-btn-secondary:hover { 
+    background: #f3f4f6; 
+}
+.ef-backlink:hover { 
+    color: #f97316 !important; 
+}
+.ef-dropzone:hover { 
+    border-color: #f97316; 
+    background: rgba(249, 115, 22, 0.05); 
+}
+.ef-spinner { 
+    border: 2px solid rgba(255,255,255,.4); 
+    border-top-color: #fff; 
+    border-radius: 50%; 
+    animation: ef-spin .6s linear infinite; 
+}
+@keyframes ef-spin { 
+    to { transform: rotate(360deg); } 
+}
+
+/* --- Layout Grid --- */
+.ef-grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.ef-grid-1-1 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* --- Base Form Elements --- */
+.ef-backlink {
+    display: inline-flex; 
+    align-items: center; 
+    gap: 6px;
+    font-size: 13.5px; 
+    font-weight: 600; 
+    color: #6b7280; 
+    text-decoration: none;
+}
+.ef-label { 
+    display: block; 
+    margin-bottom: 6px;     
+    font-size: 13px; 
+    font-weight: 600; 
+    color: #4b5563; 
+}
+.ef-input-custom {
+    width: 100%;
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #111827;
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+    outline: none;
+}
+
+/* --- Section Card --- */
+.ef-section-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+}
+.ef-section-header { display: flex; align-items: flex-start; gap: 12px; }
+.ef-section-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(249, 115, 22, 0.1);
+    color: #f97316;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ef-section-title { font-size: 15px; font-weight: 700; color: #111827; }
+.ef-section-desc { font-size: 12.5px; color: #9ca3af; margin-top: 2px; }
+
+/* --- Badges & Texts --- */
+.ef-error-text { color: #dc2626; font-size: 12px; margin-top: 6px; }
+.ef-hint-text { color: #9ca3af; font-size: 11.5px; margin-top: 6px; }
+.ef-discount-badge {
+    display: inline-block; margin-top: 10px;
+    font-size: 12px; font-weight: 700; color: #16a34a;
+    background: rgba(22, 163, 74, 0.12);
+    padding: 5px 12px; border-radius: 999px;
+}
+.ef-status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+}
+
+/* --- Buttons & Action Bar --- */
+.ef-actions-bar { display: flex; gap: 12px; justify-content: flex-end; padding: 4px 0; }
+.ef-btn-secondary-custom {
+    padding: 11px 22px; border-radius: 10px; border: 1.5px solid #e5e7eb;
+    color: #374151; text-decoration: none; font-weight: 600; font-size: 14px;
+    display: inline-flex; align-items: center;
+}
+.ef-btn-primary-custom {
+    padding: 11px 26px; border-radius: 10px; border: none; background: #f97316;
+    color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
+    display: inline-flex; align-items: center;
+}
+
+/* --- Interactive Chips & Segments --- */
+.ef-chip-custom {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border-radius: 10px;
+    font-weight: 600; font-size: 13.5px; cursor: pointer; white-space: nowrap;
+}
+.ef-segment-group {
+    display: flex; gap: 4px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px; padding: 4px;
+}
+.ef-segment-item {
+    flex: 1; text-align: center; padding: 10px 14px;
+    border-radius: 9px; border: none; cursor: pointer;
+    font-weight: 700; font-size: 13.5px;
+    background: transparent;
+    color: #6b7280;
+    transition: all .15s ease;
+}
+.ef-segment-item.active {
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+/* --- Upload Dropzone --- */
+.ef-dropzone-custom {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; min-height: 140px; border-radius: 12px;
+    border: 1.5px dashed #d1d5db; background: #f9fafb;
+    cursor: pointer; overflow: hidden;
+}
+.ef-dropzone-preview { max-height: 160px; max-width: 100%; object-fit: contain; border-radius: 8px; }
+
+/* --- Free Banner --- */
+.ef-free-banner {
+    margin-top: 16px; padding: 12px 16px; border-radius: 12px;
+    background: rgba(22, 163, 74, 0.1);
+    border: 1px solid rgba(22, 163, 74, 0.3);
+    color: #16a34a; font-size: 13.5px; font-weight: 600;
+}
