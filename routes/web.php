@@ -28,7 +28,12 @@ Route::middleware('auth')->group(function () {
 
     // --- SELLER ROUTES (Bọc trong prefix 'seller' và name 'seller.') ---
     Route::prefix('seller')->name('seller.')->group(function () {
-
+// 1. QUẢN LÝ MÃ GIẢM GIÁ (COUPONS)
+        Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index');
+        Route::post('coupons', [CouponController::class, 'store'])->name('coupons.store');
+        Route::put('coupons/{coupon}', [CouponController::class, 'update'])->name('coupons.update');
+        Route::delete('coupons/{coupon}', [CouponController::class, 'destroy'])->name('coupons.destroy');
+        Route::patch('coupons/{coupon}/toggle-status', [CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');
 
         // 2. QUẢN LÝ HỌC VIÊN (STUDENTS)
         Route::get('students', [StudentController::class, 'index'])->name('students.index');

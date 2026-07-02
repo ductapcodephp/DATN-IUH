@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import Pagination from "@/Components/Pagination.jsx";
-import Modal from '@/Components/Modal.jsx'; // 1. IMPORT MODAL VÀO ĐÂY
+import Modal from '@/Components/Modal.jsx';
 
 export default function Coupons({ coupons }) {
     const [showModal, setShowModal] = useState(false);
