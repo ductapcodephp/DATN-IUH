@@ -30,6 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('seller')->name('seller.')->group(function () {
 
 
+        // 2. QUẢN LÝ HỌC VIÊN (STUDENTS)
+        Route::get('students', [StudentController::class, 'index'])->name('students.index');
+        Route::patch('students/{id}/block', [StudentController::class, 'block'])->name('students.block');
+
         // 3. QUẢN LÝ KHÓA HỌC CHUNG (COURSES)
         Route::resource('courses', SellerCourseController::class)->except(['show']);
 
