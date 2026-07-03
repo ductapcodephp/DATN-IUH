@@ -44,7 +44,7 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
         }
     };
 
-  const uploadChunks = async (e) => {
+    const uploadChunks = async (e) => {
         e.preventDefault();
         if (!videoFile) return;
 
@@ -69,7 +69,7 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
                 route('seller.courses.curriculum.lessons.upload.check', [course?.id, lesson?.id]),
                 { params: { file_uid: fileUid } }
             );
-            
+
             const uploadedChunksFromServer = checkResponse.data.uploaded_chunks || [];
 
             // 🔧 FIX: theo dõi response của request CUỐI CÙNG thực sự được gửi lên,
@@ -101,7 +101,7 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
                 cancelTokenRef.current = axios.CancelToken.source();
 
                 const res = await axios.post(
-                    route('seller.courses.curriculum.lessons.upload', [course?.id, lesson?.id]),
+                   route('seller.courses.curriculum.lessons.upload', [course?.id, lesson?.id]),
                     formData,
                     {
                         headers: { 'Content-Type': 'multipart/form-data' },

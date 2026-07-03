@@ -8,11 +8,13 @@ use App\Http\Controllers\Seller\Courses\LessonController;
 use App\Http\Controllers\Seller\Courses\LessonVideoController;
 use App\Http\Controllers\Seller\Courses\QuizController;
 use App\Http\Controllers\Seller\Courses\SellerCourseController;
-use App\Http\Controllers\Frontend\IndexController;
 use App\Http\Controllers\Seller\StudentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
+use App\Http\Controllers\Frontend\HomeController;
+// ==========================================
+// ROUTES CHO KHÁCH (CHƯA ĐĂNG NHẬP)
+// ==========================================
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -20,17 +22,22 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-
+// ==========================================
+// ROUTES YÊU CẦU ĐĂNG NHẬP (AUTH)
+// ==========================================
 Route::middleware('auth')->group(function () {
+
+    // --- Các route cơ bản ---
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
     Route::get('/profile', fn () => 'Profile edit page placeholder')->name('profile.edit');
 
-    // --- SELLER ROUTES (Bọc trong prefix 'seller' và name 'seller.') ---
+    // --- SELLER ROUTES ---
     Route::prefix('seller')->name('seller.')->group(function () {
-// 1. QUẢN LÝ MÃ GIẢM GIÁ (COUPONS)
+
+        // 1. QUẢN LÝ MÃ GIẢM GIÁ (COUPONS) - Đã sửa lại đường dẫn store cho khớp chính xác
         Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index');
-        Route::post('coupons', [CouponController::class, 'store'])->name('coupons.store');
+        Route::post('coupons/store', [CouponController::class, 'store'])->name('coupons.store');
         Route::put('coupons/{coupon}', [CouponController::class, 'update'])->name('coupons.update');
         Route::delete('coupons/{coupon}', [CouponController::class, 'destroy'])->name('coupons.destroy');
         Route::patch('coupons/{coupon}/toggle-status', [CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');
@@ -42,10 +49,9 @@ Route::middleware('auth')->group(function () {
         // 3. QUẢN LÝ KHÓA HỌC CHUNG (COURSES)
         Route::resource('courses', SellerCourseController::class)->except(['show']);
 
-        // 4. QUẢN LÝ GIÁO TRÌNH (CURRICULUM)
+        // 4. QUẢN LÝ GIÁO TRÌNH CHUYÊN SÂU
         Route::prefix('courses/{course}/curriculum')->name('courses.curriculum.')->group(function () {
 
-            // Xem danh sách giáo trình (Index)
             Route::get('/', [CurriculumController::class, 'index'])->name('index');
 
             // --- CHAPTERS (CHƯƠNG MỤC) ---
@@ -56,21 +62,33 @@ Route::middleware('auth')->group(function () {
 
             // --- LESSONS (BÀI HỌC) ---
             Route::post('chapters/{chapter}/lessons', [LessonController::class, 'store'])->name('chapters.lessons.store');
-
-            // Chi tiết, Cập nhật, Xóa và Sắp xếp bài học
+            Route::post('lessons/reorder', [LessonController::class, 'reorder'])->name('lessons.reorder');
             Route::get('lessons/{lesson}', [LessonController::class, 'show'])->name('lessons.show');
             Route::put('lessons/{lesson}', [LessonController::class, 'update'])->name('lessons.update');
             Route::delete('lessons/{lesson}', [LessonController::class, 'destroy'])->name('lessons.destroy');
-            Route::post('lessons/reorder', [LessonController::class, 'reorder'])->name('lessons.reorder');
 
-            Route::post('lessons/{lesson}/video/upload', [LessonVideoController::class, 'upload'])->name('lessons.video.upload');
-            Route::get('lessons/{lesson}/video/check-chunk', [LessonVideoController::class, 'checkChunks'])->name('lessons.video.check-chunk');
+            // --- VIDEO TRONG BÀI HỌC ---
+            Route::post('lessons/{lesson}/video/upload', [LessonVideoController::class, 'upload'])->name('lessons.upload');
+            Route::get('lessons/{lesson}/video/check-chunk', [LessonVideoController::class, 'checkChunks'])->name('lessons.upload.check');
+            // --- QUIZ (CÂU HỎI TRẮC NGHIỆM) ---
             Route::post('quiz/{lesson}/questions', [QuizController::class, 'storeQuestion'])->name('quiz.store-question');
             Route::post('quiz/{lesson}/reorder', [QuizController::class, 'reorderQuizzes'])->name('quiz.reorder');
             Route::put('quiz/questions/{questionId}', [QuizController::class, 'updateQuestion'])->name('quiz.update-question');
             Route::delete('quiz/questions/{questionId}', [QuizController::class, 'destroyQuestion'])->name('quiz.delete-question');
         });
 
-    });
+        Route::get('/dashboard', fn () => Inertia::render('Seller/Dashboard'))->name('dashboard');
+        Route::get('revenues', function () {
+            return Inertia::render('Seller/Revenues');
+        })->name('revenues.index');
+        Route::get('reviews', function () {
+            return Inertia::render('Seller/Reviews');
+        })->name('reviews.index');
 
+    }); // Kết thúc Route Group của Seller
+
+}); // Kết thúc Route Group của Auth
+Route::prefix('tech-education')->name('frontend.')->group(function () {
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    
 });
