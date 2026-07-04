@@ -1,94 +1,94 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Seller\Courses;
 
+use App\DTO\Course\CourseData;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Seller\Courses\StoreCourseRequest;
+use App\Http\Requests\Seller\Courses\UpdateCourseRequest;
 use App\Models\Course;
 use App\Services\Seller\Courses\CourseService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class SellerCourseController extends Controller
 {
-    protected $courseService;
+    public function __construct(
+        protected CourseService $courseService
+    ) {}
 
-    public function __construct(CourseService $courseService)
+    public function index(Request $request): Response
     {
-        $this->courseService = $courseService;
-    }
-
-    public function index(Request $request)
-    {
-
-      $result = $this->courseService->getCoursesIndexData($request->all(), auth()->id());
+        $result = $this->courseService->getCoursesIndexData(
+            $request->only(['search', 'status', 'per_page']),
+            (int) auth()->id()
+        );
 
         return Inertia::render('Seller/Courses/Index', [
             'courses' => $result['paginated'],
-            'totalCoursesCount' => $result['total_courses_count'], // Truyền tổng số khóa học sang React
+            'totalCoursesCount' => $result['total_courses_count'],
             'filters' => $request->only(['search', 'status', 'per_page']),
         ]);
     }
 
-    public function create()
+    public function create(): Response
     {
         return Inertia::render('Seller/Courses/Create', [
-            'parentCourses' => $this->courseService->getParentCoursesForCreate(),
+            'parentCourses' => $this->courseService->getParentCourses(),
         ]);
     }
 
-    public function store(Request $request)
+    // 🔥 Thay Request bằng StoreCourseRequest: Tự động validate trước khi vào hàm!
+    public function store(StoreCourseRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'title'           => 'required|string|max:255',
-            'status'          => 'required|in:draft,published,hidden',
-            'level'           => 'required|in:beginner,intermediate,advanced',
-            'is_free'         => 'boolean',
-            'is_vip'          => 'boolean',
-            'price'           => 'nullable|numeric',
-            'original_price'  => 'nullable|numeric',
-            'description'     => 'required|string',
-            'requirements'    => 'nullable|string',
-            'outcomes'        => 'nullable|string',
-            'thumbnail'       => 'nullable|image|max:2048',
-        ]);
+        $dto = CourseData::fromRequest($request);
+        $this->courseService->createCourse($dto, (int) auth()->id());
 
-        $this->courseService->createCourse($validated, auth()->id(), $request->file('thumbnail'));
-
-        return redirect()->route('seller.courses.index')->with('success', 'Tạo khóa học thành công!');
+        return redirect()->route('seller.courses.index')
+            ->with('success', 'Tạo khóa học thành công!');
     }
 
-    public function edit(Course $course)
+    public function edit(Course $course): Response
     {
+        $this->authorizeAccess($course);
+
         return Inertia::render('Seller/Courses/Edit', [
             'course'        => $course,
-            'parentCourses' => $this->courseService->getParentCoursesForEdit($course->id),
+            'parentCourses' => $this->courseService->getParentCourses((int) $course->id),
         ]);
     }
 
-    public function update(Request $request, Course $course)
+    // 🔥 Thay Request bằng UpdateCourseRequest: Tự động chặn nếu không chính chủ + tự validate!
+    public function update(UpdateCourseRequest $request, Course $course): RedirectResponse
     {
-        $validated = $request->validate([
-            'title'          => 'required|string|max:255',
-            'description'    => 'required|string',
-            'price'          => 'required_if:is_free,false|nullable|numeric',
-            'original_price' => 'nullable|numeric',
-            'level'          => 'required|in:beginner,intermediate,advanced',
-            'status'         => 'required|in:draft,published,hidden',
-            'is_free'        => 'boolean',
-            'is_vip'         => 'boolean',
-            'requirements'   => 'nullable|string',
-            'outcomes'       => 'nullable|string',
-        ]);
+        $dto = CourseData::fromRequest($request);
+        $this->courseService->updateCourse($course, $dto);
 
-        $this->courseService->updateCourse($course, $validated, $request->boolean('is_free'));
-
-        return redirect()->route('seller.courses.index')->with('success', 'Cập nhật khóa học thành công!');
+        return redirect()->route('seller.courses.index')
+            ->with('success', 'Cập nhật khóa học thành công!');
     }
 
-    public function destroy(Course $course)
+    public function destroy(Course $course): RedirectResponse
     {
+        $this->authorizeAccess($course);
+
         $this->courseService->deleteCourse($course);
 
-        return redirect()->route('seller.courses.index')->with('success', 'Đã xóa khóa học!');
+        return redirect()->route('seller.courses.index')
+            ->with('success', 'Đã xóa khóa học!');
+    }
+
+    /**
+     * Helper bảo mật dùng riêng cho hàm edit và destroy (do 2 hàm này dùng GET/DELETE không qua Form Request)
+     */
+    protected function authorizeAccess(Course $course): void
+    {
+        if ((int) $course->seller_id !== (int) auth()->id()) {
+            abort(403, 'Bạn không có quyền thao tác trên khóa học này.');
+        }
     }
 }

@@ -1,70 +1,69 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Seller\Courses;
 
+use App\DTO\Course\Chapter\ChapterData;
+use App\DTO\Course\Chapter\ReorderChapterData;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Seller\Course\Chapters\ReorderChapterRequest;
+use App\Http\Requests\Seller\Course\Chapters\StoreChapterRequest;
+use App\Http\Requests\Seller\Course\Chapters\UpdateChapterRequest;
 use App\Models\Chapter;
 use App\Models\Course;
-use App\Services\Seller\Courses\CurriculumService;
-use Illuminate\Http\Request;
+use App\Services\Seller\Courses\ChapterService;
+use Illuminate\Http\RedirectResponse;
 
 class ChapterController extends Controller
 {
-    protected $curriculumService;
+    public function __construct(
+        protected ChapterService $chapterService
+    ) {}
 
-    public function __construct(CurriculumService $curriculumService)
+    public function store(StoreChapterRequest $request, Course $course): RedirectResponse
     {
-        $this->curriculumService = $curriculumService;
-    }
-
-    private function authorizeSeller(Course $course)
-    {
-        if ($course->seller_id !== auth()->id()) {
-            abort(403, 'Mày không có quyền truy cập khóa học này!');
-        }
-    }
-
-    public function store(Request $request, Course $course)
-    {
-        $this->authorizeSeller($course);
-
-        $request->validate([
-            'title' => 'required|string|max:255',
-        ]);
-
-        $this->curriculumService->createChapter($course, $request->title);
+        $dto = ChapterData::fromRequest($request);
+        $this->chapterService->createChapter($course, $dto);
 
         return back()->with('success', 'Đã thêm chương mới!');
     }
 
-    public function update(Request $request, Course $course, Chapter $chapter)
+    public function update(UpdateChapterRequest $request, Course $course, Chapter $chapter): RedirectResponse
     {
-        $this->authorizeSeller($course);
-
-        $request->validate([
-            'title' => 'required|string|max:255',
-        ]);
-
-        $this->curriculumService->updateChapterTitle($course->id, $chapter->id, $request->input('title'));
+        $dto = ChapterData::fromRequest($request);
+        $this->chapterService->updateChapter($chapter, $dto);
 
         return back()->with('success', 'Đã cập nhật tên chương thành công!');
     }
 
-    public function destroy(Course $course, Chapter $chapter)
+    public function destroy(Course $course, Chapter $chapter): RedirectResponse
     {
-        $this->authorizeSeller($course);
+        $this->authorizeAccess($course, $chapter);
 
-        $this->curriculumService->deleteChapter($chapter);
+        $this->chapterService->deleteChapter($chapter);
 
         return back()->with('success', 'Đã xóa chương thành công!');
     }
 
-    public function reorder(Request $request, Course $course)
+    public function reorder(ReorderChapterRequest $request, Course $course): RedirectResponse
     {
-        $this->authorizeSeller($course);
-
-        $this->curriculumService->reorderChapters($course->id, $request->input('ids'));
+        $dto = ReorderChapterData::fromRequest($request);
+        $this->chapterService->reorderChapters((int) $course->id, $dto);
 
         return back()->with('success', 'Đã cập nhật vị trí chương!');
+    }
+
+    /**
+     * Helper kiểm tra phân quyền riêng cho hành động Destroy (do không có Form Request riêng)
+     */
+    protected function authorizeAccess(Course $course, Chapter $chapter): void
+    {
+        $isSellerCourse = (int) $course->seller_id === (int) auth()->id();
+        $isChapterInCourse = (int) $chapter->course_id === (int) $course->id;
+
+        if (!$isSellerCourse || !$isChapterInCourse) {
+            abort(403, 'Bạn không có quyền thao tác trên chương học này!');
+        }
     }
 }

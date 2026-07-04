@@ -45,7 +45,7 @@ class User extends Authenticatable
         'password',
         'avatar',
         'phone',
-        'role',
+        'roles',
         'current_role',
         'referral_code',
         'referred_by',
@@ -57,13 +57,13 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
+ protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
-        'role' => UserRole::class,
+        'roles' => 'array',             
+        'current_role' => UserRole::class, 
     ];
-
     // ===== RELATIONSHIPS =====
 
     public function referrer(): BelongsTo
@@ -174,6 +174,7 @@ class User extends Authenticatable
     {
         return $query->where('role', UserRole::ROOT);
     }
+    
 
     // ===== HELPERS =====
 
@@ -225,4 +226,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(SellerStudentBlock::class, 'student_id');
     }
+    public function blockedBySellers(): HasMany
+{
+    return $this->hasMany(SellerStudentBlock::class, 'student_id');
+}
 }
