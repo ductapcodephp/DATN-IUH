@@ -9,7 +9,8 @@ use App\Events\Auth\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Services\AuthService;
+use App\Models\User;
+use App\Services\Auth\AuthService;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -60,13 +61,15 @@ class AuthController extends Controller
                 ->with('success', 'Đăng ký tài khoản thành công!');
 
         } catch (Exception $e) {
-            Log::error('Register Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            Log::error('Register Error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
             return back()->withErrors(['system' => 'Đăng ký thất bại. Đã có lỗi hệ thống xảy ra.']);
         }
     }
 
     public function login(LoginRequest $request): RedirectResponse
     {
+
         $context = $this->extractRequestContext($request);
 
         try {
@@ -80,13 +83,16 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // Kích hoạt Event
-            /** @var \App\Models\User $user */
+            /** @var User $user */
             $user = Auth::user();
             UserLoggedIn::dispatch($user, $context);
+            Log::info('After dispatch UserLoggedIn');
 
             return redirect()->intended($redirectUrl);
 
         } catch (Exception $e) {
+            Log::error('Login Error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
             return back()
                 ->withErrors(['email' => $e->getMessage()])
                 ->withInput($request->only('email', 'remember'));
