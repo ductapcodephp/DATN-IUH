@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/Message.php ===
 
 namespace App\Models;
 
@@ -12,9 +11,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $conversation_id
  * @property int $sender_id
  * @property string $content
- * @property string|null $read_at
- * @property Conversation $conversation
- * @property User $sender
+ * @property \Illuminate\Support\Carbon|null $read_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Conversation $conversation
+ * @property-read \App\Models\User|null $sender
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message bySender($senderId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message read()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message recent()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message unread()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereConversationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereReadAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereSenderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class Message extends Model
 {

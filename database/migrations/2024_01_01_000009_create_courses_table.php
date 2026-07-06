@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('seller_id')->constrained('users')->onDelete('restrict')->comment('Course creator');
             $table->string('title');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->string('slug')->unique();
             $table->longText('description')->comment('Course full description');
             $table->string('thumbnail')->nullable();
@@ -21,6 +22,7 @@ return new class extends Migration {
             $table->boolean('is_free')->default(false);
             $table->integer('total_lessons')->default(0);
             $table->integer('total_duration_seconds')->default(0);
+            $table->decimal('total_revenue', 15, 2)->default(0.00);
             $table->boolean('is_vip')->default(false)->comment('Only VIP members can view');
             $table->timestamp('vip_expires_at')->nullable()->comment('VIP access expiration');
             $table->json('requirements')->nullable()->comment('Prerequisites array');

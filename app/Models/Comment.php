@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/Comment.php ===
 
 namespace App\Models;
 
@@ -7,30 +6,92 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Kalnoy\Nestedset\NodeTrait; // 🚀 1. Nạp vũ khí tối tân vào đây
+use Kalnoy\Nestedset\NodeTrait;
+
 
 /**
  * @property int $id
  * @property int $user_id
  * @property int $lesson_id
  * @property int|null $parent_id
- * @property int $_lft
- * @property int $_rgt
  * @property string $content
- * @property bool $is_hidden
- * @property User $user
- * @property Lesson $lesson
- * @property Comment|null $parent
- * @property \Illuminate\Database\Eloquent\Collection $children
+ * @property bool $is_hidden Hidden by instructor
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Kalnoy\Nestedset\Collection<int, Comment> $children
+ * @property-read int|null $children_count
+ * @property-read \App\Models\Lesson|null $lesson
+ * @property-read Comment|null $parent
+ * @property-read \App\Models\User|null $user
+ * @method static \Kalnoy\Nestedset\Collection<int, static> all($columns = ['*'])
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment ancestorsAndSelf($id, array $columns = [])
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment ancestorsOf($id, array $columns = [])
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment applyNestedSetScope(?string $table = null)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment byLesson($lessonId)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment countErrors()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment d()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment defaultOrder(string $dir = 'asc')
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment descendantsAndSelf($id, array $columns = [])
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment descendantsOf($id, array $columns = [], $andSelf = false)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment fixSubtree($root)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment fixTree($root = null)
+ * @method static \Kalnoy\Nestedset\Collection<int, static> get($columns = ['*'])
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment getNodeData($id, $required = false)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment getPlainNodeData($id, $required = false)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment getTotalErrors()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment hasChildren()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment hasParent()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment hidden()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment isBroken()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment leaves(array $columns = [])
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment makeGap(int $cut, int $height)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment moveNode($key, $position)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment newModelQuery()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment onlyTrashed()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment orWhereAncestorOf(bool $id, bool $andSelf = false)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment orWhereDescendantOf($id)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment orWhereNodeBetween($values)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment orWhereNotDescendantOf($id)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment query()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment rebuildSubtree($root, array $data, $delete = false)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment rebuildTree(array $data, $delete = false, $root = null)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment replies()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment reversed()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment root(array $columns = [])
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment topLevel()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment visible()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereAncestorOf($id, $andSelf = false, $boolean = 'and')
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereAncestorOrSelf($id)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereContent($value)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereCreatedAt($value)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereDescendantOf($id, $boolean = 'and', $not = false, $andSelf = false)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereDescendantOrSelf(string $id, string $boolean = 'and', string $not = false)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereId($value)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereIsAfter($id, $boolean = 'and')
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereIsBefore($id, $boolean = 'and')
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereIsHidden($value)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereIsLeaf()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereIsRoot()
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereLessonId($value)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereNodeBetween($values, $boolean = 'and', $not = false, $query = null)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereNotDescendantOf($id)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereParentId($value)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereUpdatedAt($value)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereUserId($value)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment withDepth(string $as = 'depth')
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment withTrashed(bool $withTrashed = true)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment withoutRoot()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment withoutTrashed()
+ * @mixin \Eloquent
  */
 class Comment extends Model
 {
-    use HasFactory, SoftDeletes, NodeTrait; // 🚀 2. Kích hoạt tính năng Cây cho Bình luận
+    use HasFactory, SoftDeletes, NodeTrait;
 
     protected $fillable = [
         'user_id',
-        'lesson_id',
-        'parent_id', // Vẫn giữ để định vị quan hệ
+        'lesson_id',// Vẫn giữ để định vị quan hệ
         'content',
         'is_hidden',
     ];
@@ -50,10 +111,6 @@ class Comment extends Model
     {
         return $this->belongsTo(Lesson::class);
     }
-
-    // 🔴 CHÚ Ý: ĐÃ XÓA hàm parent() và replies() cũ của ông.
-    // Thư viện NodeTrait đã tự lo hàm parent() và children() rồi.
-    // Lát nữa ở Frontend React, mớ bình luận con sẽ tự động nằm trong key đặt tên là `children` luôn nhé!
 
     // ===== SCOPES =====
 
@@ -75,7 +132,6 @@ class Comment extends Model
 
     public function scopeReplies($query)
     {
-        // Lấy tất cả các bình luận là câu trả lời
         return $query->whereIsChild();
     }
 

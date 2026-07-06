@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/Coupon.php ===
 
 namespace App\Models;
 
@@ -8,23 +7,54 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 /**
  * @property int $id
  * @property int|null $seller_id
  * @property string $code
- * @property string $type percent|fixed
- * @property float $value
- * @property float|null $min_order_amount
- * @property float|null $max_discount_amount
- * @property int|null $max_uses
+ * @property string $type Discount type
+ * @property numeric $value Discount value (% or amount)
+ * @property numeric|null $min_order_amount Minimum order amount to apply
+ * @property numeric|null $max_discount_amount Max discount cap
+ * @property int|null $max_uses Max total uses, null = unlimited
  * @property int $used_count
  * @property int|null $course_id
- * @property string|null $starts_at
- * @property string|null $expires_at
+ * @property \Illuminate\Support\Carbon|null $starts_at
+ * @property \Illuminate\Support\Carbon|null $expires_at
  * @property bool $is_active
- * @property User|null $seller
- * @property Course|null $course
- * @property \Illuminate\Database\Eloquent\Collection $usages
+ * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Course|null $course
+ * @property-read \App\Models\User|null $seller
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CouponUsage> $usages
+ * @property-read int|null $usages_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon available()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon fixed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon forCourse($courseId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon percent()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon validNow()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereCourseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereMaxDiscountAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereMaxUses($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereMinOrderAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereSellerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereStartsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereUsedCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereValue($value)
+ * @mixin \Eloquent
  */
 class Coupon extends Model
 {

@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/Lesson.php ===
 
 namespace App\Models;
 
@@ -17,16 +16,49 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $title
  * @property string|null $description
  * @property int $sort_order
- * @property string $type video|document|quiz_only
- * @property bool $is_preview
+ * @property string $type
+ * @property bool $is_preview Free preview, no purchase needed
  * @property bool $is_published
- * @property Chapter $chapter
- * @property Course $course
- * @property Video|null $video
- * @property \Illuminate\Database\Eloquent\Collection $progressRecords
- * @property \Illuminate\Database\Eloquent\Collection $notes
- * @property \Illuminate\Database\Eloquent\Collection $comments
- * @property \Illuminate\Database\Eloquent\Collection $quizzes
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\Chapter|null $chapter
+ * @property-read \Kalnoy\Nestedset\Collection<int, \App\Models\Comment> $comments
+ * @property-read int|null $comments_count
+ * @property-read \App\Models\Course|null $course
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VideoNote> $notes
+ * @property-read int|null $notes_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CourseProgress> $progressRecords
+ * @property-read int|null $progress_records_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Quiz> $quizzes
+ * @property-read int|null $quizzes_count
+ * @property-read \App\Models\Video|null $video
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson accessible()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson document()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson ordered()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson preview()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson published()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson quizOnly()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson video()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereChapterId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereCourseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereIsPreview($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereIsPublished($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereSortOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson withoutTrashed()
+ * @mixin \Eloquent
  */
 class Lesson extends Model
 {

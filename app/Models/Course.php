@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -15,30 +16,82 @@ use Illuminate\Support\Str;
 /**
  * @property int $id
  * @property int $seller_id
- * @property int $category_id
  * @property string $title
  * @property string $slug
- * @property string $description
+ * @property string $description Course full description
  * @property string|null $thumbnail
- * @property float $price
- * @property float|null $original_price
- * @property float $total_revenue <-- Thêm vào Docblock để gợi ý code tốt hơn
- * @property string $level beginner|intermediate|advanced
- * @property string $status draft|published|hidden
+ * @property numeric $price
+ * @property numeric|null $original_price Price before discount
+ * @property string $level
+ * @property string $status
  * @property bool $is_free
  * @property int $total_lessons
  * @property int $total_duration_seconds
- * @property bool $is_vip
- * @property string|null $vip_expires_at
- * @property array|null $requirements
- * @property array|null $outcomes
- * @property User $seller
- * @property Category $category
- * @property Collection $chapters
- * @property Collection $lessons
- * @property Collection $orders
- * @property Collection $reviews
- * @property Collection $coupons
+ * @property bool $is_vip Only VIP members can view
+ * @property string|null $vip_expires_at VIP access expiration
+ * @property array<array-key, mixed>|null $requirements Prerequisites array
+ * @property array<array-key, mixed>|null $outcomes Learning outcomes array
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\Category|null $category
+ * @property-read Collection<int, \App\Models\Chapter> $chapters
+ * @property-read int|null $chapters_count
+ * @property-read Collection<int, \App\Models\Coupon> $coupons
+ * @property-read int|null $coupons_count
+ * @property-read Collection<int, \App\Models\CourseEnrollment> $enrollments
+ * @property-read int|null $enrollments_count
+ * @property-read Collection<int, \App\Models\Lesson> $lessons
+ * @property-read int|null $lessons_count
+ * @property-read Collection<int, \App\Models\Order> $orders
+ * @property-read int|null $orders_count
+ * @property-read Collection<int, \App\Models\CourseProgress> $progressRecords
+ * @property-read int|null $progress_records_count
+ * @property-read Collection<int, \App\Models\Review> $reviews
+ * @property-read int|null $reviews_count
+ * @property-read \App\Models\User|null $seller
+ * @property-read Collection<int, \App\Models\User> $students
+ * @property-read int|null $students_count
+ * @property-read Collection<int, \App\Models\Wishlist> $wishlists
+ * @property-read int|null $wishlists_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course byCategory($categoryId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course bySeller($sellerId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course draft()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course free()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course hidden()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course level($level)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course paid()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course published()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course search($keyword)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course vip()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereIsFree($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereIsVip($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereLevel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereOriginalPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereOutcomes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereRequirements($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereSellerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereThumbnail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereTotalDurationSeconds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereTotalLessons($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereVipExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Course withoutTrashed()
+ * @mixin \Eloquent
  */
 class Course extends Model
 {
@@ -61,15 +114,41 @@ class Course extends Model
 
     // ===== RELATIONSHIPS =====
 
+   /**
+     * Khóa học thuộc về một Người bán (Seller)
+     */
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
     }
 
+    /**
+     * Khóa học thuộc về một Danh mục
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
+
+    /**
+     * Danh sách các lượt đăng ký học của khóa học này
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(CourseEnrollment::class, 'course_id');
+    }
+
+    /**
+     * Danh sách các Học viên đang tham gia khóa học này (Quan hệ nhiều - nhiều với User)
+     */
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'course_enrollments', 'course_id', 'student_id')
+            ->withPivot(['progress', 'is_banned', 'ban_reason', 'banned_at'])
+            ->withTimestamps();
+    }
+
+
 
     public function chapters(): HasMany
     {
@@ -198,9 +277,6 @@ class Course extends Model
         return $this->orders()->where('status', 'completed')->count();
     }
 
-    /**
-     * 🚀 Hàm lấy doanh thu siêu tốc từ cột lưu trữ sẵn
-     */
     public function getTotalRevenue()
     {
         return $this->total_revenue ?? 0;

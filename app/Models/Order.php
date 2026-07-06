@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/Order.php ===
 
 namespace App\Models;
 
@@ -13,20 +12,49 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $user_id
  * @property int $course_id
  * @property int|null $coupon_id
- * @property float $amount_original
- * @property float $discount_amount
- * @property float $amount_paid
- * @property float $commission_rate
- * @property float $commission_amount
- * @property float $seller_amount
- * @property string $status pending|completed|refunded
- * @property string $payment_method
- * @property string|null $refunded_at
+ * @property numeric $amount_original Original course price
+ * @property numeric $discount_amount Total discount from coupon
+ * @property numeric $amount_paid Final amount paid
+ * @property numeric $commission_rate Commission % at purchase time
+ * @property numeric $commission_amount Commission for platform
+ * @property numeric $seller_amount Amount paid to seller
+ * @property string $status
+ * @property string $payment_method wallet, vnpay, etc
+ * @property \Illuminate\Support\Carbon|null $refunded_at
  * @property string|null $refund_reason
- * @property User $user
- * @property Course $course
- * @property Coupon|null $coupon
- * @property \Illuminate\Database\Eloquent\Collection $couponUsages
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Coupon|null $coupon
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CouponUsage> $couponUsages
+ * @property-read int|null $coupon_usages_count
+ * @property-read \App\Models\Course|null $course
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byCourse($courseId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byPaymentMethod($method)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byUser($userId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order completed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order pending()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order refunded()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereAmountOriginal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereAmountPaid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCommissionAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCommissionRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCouponId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCourseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDiscountAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePaymentMethod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereRefundReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereRefundedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSellerAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUserId($value)
+ * @mixin \Eloquent
  */
 class Order extends Model
 {

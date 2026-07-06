@@ -1,6 +1,5 @@
 <?php
 // === FILE: app/Models/VideoNote.php ===
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,10 +10,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $user_id
  * @property int $lesson_id
- * @property int $timestamp_seconds
- * @property string $content
- * @property User $user
- * @property Lesson $lesson
+ * @property int $timestamp_seconds Timestamp in the video where note was taken
+ * @property string $content Note content
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Lesson|null $lesson
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote byLesson($lessonId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote byUser($userId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote ordered()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereLessonId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereTimestampSeconds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereUserId($value)
+ * @mixin \Eloquent
  */
 class VideoNote extends Model
 {
