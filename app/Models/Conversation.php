@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/Conversation.php ===
 
 namespace App\Models;
 
@@ -12,10 +11,25 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $user_one_id
  * @property int $user_two_id
- * @property string|null $last_message_at
- * @property User $userOne
- * @property User $userTwo
- * @property \Illuminate\Database\Eloquent\Collection $messages
+ * @property \Illuminate\Support\Carbon|null $last_message_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Message> $messages
+ * @property-read int|null $messages_count
+ * @property-read \App\Models\User|null $userOne
+ * @property-read \App\Models\User|null $userTwo
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation recent()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation whereLastMessageAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation whereUserOneId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation whereUserTwoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Conversation withUser($userId)
+ * @mixin \Eloquent
  */
 class Conversation extends Model
 {

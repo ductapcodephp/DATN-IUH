@@ -7,16 +7,40 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 /**
  * @property int $id
  * @property int $user_id
  * @property int $quiz_id
- * @property int $score
+ * @property int $score User score
  * @property int $total_questions
  * @property int $correct_answers
- * @property string|null $completed_at
- * @property User $user
- * @property Quiz $quiz
+ * @property string|null $user_answers Lưu lịch sử các đáp án user đã chọn để review lại
+ * @property \Illuminate\Support\Carbon|null $completed_at
+ * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Quiz $quiz
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult byQuiz($quizId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult byUser($userId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult completed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult passed($passThreshold = 70)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereCompletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereCorrectAnswers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereQuizId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereScore($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereTotalQuestions($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereUserAnswers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereUserId($value)
+ * @mixin \Eloquent
  */
 class QuizResult extends Model
 {

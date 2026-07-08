@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/CourseProgress.php ===
 
 namespace App\Models;
 
@@ -7,18 +6,39 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 /**
  * @property int $id
  * @property int $user_id
  * @property int $course_id
  * @property int $lesson_id
- * @property int $watched_seconds
- * @property int $duration_seconds
- * @property bool $is_completed
- * @property string|null $last_watched_at
- * @property User $user
- * @property Course $course
- * @property Lesson $lesson
+ * @property int $watched_seconds Seconds watched in this lesson
+ * @property int $duration_seconds Total lesson duration
+ * @property bool $is_completed Lesson fully watched
+ * @property \Illuminate\Support\Carbon|null $last_watched_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Course|null $course
+ * @property-read \App\Models\Lesson|null $lesson
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress byCourse($courseId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress byUser($userId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress completed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress notCompleted()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereCourseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereDurationSeconds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereIsCompleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereLastWatchedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereLessonId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereWatchedSeconds($value)
+ * @mixin \Eloquent
  */
 class CourseProgress extends Model
 {

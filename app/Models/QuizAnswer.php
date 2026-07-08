@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/QuizAnswer.php ===
 
 namespace App\Models;
 
@@ -12,8 +11,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $quiz_question_id
  * @property string $answer
  * @property bool $is_correct
+ * @property string|null $deleted_at
  * @property int $sort_order
- * @property QuizQuestion $question
+ * @property-read \App\Models\QuizQuestion $question
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer byQuestion($questionId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer correct()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer incorrect()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer ordered()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer whereAnswer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer whereIsCorrect($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer whereQuizQuestionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer whereSortOrder($value)
+ * @mixin \Eloquent
  */
 class QuizAnswer extends Model
 {
