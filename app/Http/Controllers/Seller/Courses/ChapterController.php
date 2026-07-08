@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller\Courses;
 
-use App\DTO\Course\Chapter\ChapterData;
-use App\DTO\Course\Chapter\ReorderChapterData;
+use App\DTO\Seller\Course\Chapter\ChapterData;
+use App\DTO\Seller\Course\Chapter\ReorderChapterData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Course\Chapters\ReorderChapterRequest;
 use App\Http\Requests\Seller\Course\Chapters\StoreChapterRequest;

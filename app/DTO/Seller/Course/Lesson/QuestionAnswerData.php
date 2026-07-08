@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DTO\Course\Lesson;
+namespace App\DTO\Seller\Course\Lesson;
 
 readonly class QuestionAnswerData
 {

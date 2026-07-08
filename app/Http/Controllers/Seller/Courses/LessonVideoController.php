@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller\Courses;
 
-use App\DTO\Course\Lesson\VideoChunkData;
+use App\DTO\Seller\Course\Lesson\VideoChunkData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Course\Video\CheckVideoChunksRequest;
 use App\Http\Requests\Seller\Course\Video\UploadVideoChunkRequest;

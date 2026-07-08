@@ -8,7 +8,7 @@ use App\Models\Course;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class CourseRepository
+class CourseRepository implements CourseRepositoryInterface
 {
     public function getPaginatedCourses(array $filters, int $sellerId, int $perPage = 10): LengthAwarePaginator
     {

@@ -29,7 +29,7 @@ return new class extends Migration {
             $table->json('outcomes')->nullable()->comment('Learning outcomes array');
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Indexes
             $table->index('seller_id');
             $table->index('status');

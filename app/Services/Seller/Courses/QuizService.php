@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Seller\Courses;
 
-use App\DTO\Course\Lesson\ReorderQuestionData;
-use App\DTO\Course\Lesson\StoreQuestionData;
+
+use App\DTO\Seller\Course\Lesson\ReorderQuestionData;
+use App\DTO\Seller\Course\Lesson\StoreQuestionData;
 use App\Models\Lesson;
 use App\Models\Quiz;
 use App\Models\QuizQuestion;

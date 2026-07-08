@@ -11,7 +11,6 @@ use App\Repositories\Seller\Courses\LessonRepository;
 class CurriculumService
 {
     protected $chapterRepository;
-    protected $lessonRepository;
 
     public function __construct(ChapterRepository $chapterRepository)
     {
@@ -23,5 +22,5 @@ class CurriculumService
         return $this->chapterRepository->loadCourseCurriculum($course);
     }
 
-   
+
 }

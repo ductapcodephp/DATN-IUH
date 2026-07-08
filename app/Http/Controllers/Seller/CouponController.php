@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller;
 
-use App\DTO\Course\Coupon\CouponData;
+use App\DTO\Seller\Course\Coupon\CouponData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Coupons\StoreCouponRequest;
 use App\Http\Requests\Seller\Coupons\UpdateCouponRequest;
 use App\Models\Coupon;
-use App\Services\Seller\Coupons\CouponService;
+use App\Services\Seller\Coupons\CouponServiceInterface;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,7 +17,7 @@ use Inertia\Response;
 class CouponController extends Controller
 {
     public function __construct(
-        protected CouponService $couponService
+        protected CouponServiceInterface $couponService
     ) {}
 
     public function index(): Response

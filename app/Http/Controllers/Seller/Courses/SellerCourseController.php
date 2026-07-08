@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller\Courses;
 
-use App\DTO\Course\CourseData;
+use App\DTO\Seller\Course\CourseData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Courses\StoreCourseRequest;
 use App\Http\Requests\Seller\Courses\UpdateCourseRequest;
 use App\Models\Course;
-use App\Services\Seller\Courses\CourseService;
+use App\Services\Seller\Courses\CourseServiceInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,7 +18,7 @@ use Inertia\Response;
 class SellerCourseController extends Controller
 {
     public function __construct(
-        protected CourseService $courseService
+        protected CourseServiceInterface $courseService
     ) {}
 
     public function index(Request $request): Response

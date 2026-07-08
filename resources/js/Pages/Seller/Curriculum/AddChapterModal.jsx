@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 
-const AddChapterModal = React.memo(({ show, onClose, courseId }) => {
+const AddChapterModal = ({ show, onClose, courseId }) => {
     if (!show) return null;
 
     const { data, setData, post, processing, errors, reset } = useForm({ title: '' });
@@ -44,6 +44,6 @@ const AddChapterModal = React.memo(({ show, onClose, courseId }) => {
             </div>
         </div>
     );
-});
+};
 
-export default AddChapterModal;
+export default React.memo(AddChapterModal);

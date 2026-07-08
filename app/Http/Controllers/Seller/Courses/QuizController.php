@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller\Courses;
 
-use App\DTO\Course\Lesson\ReorderQuestionData;
-use App\DTO\Course\Lesson\StoreQuestionData;
+use App\DTO\Seller\Course\Lesson\ReorderQuestionData;
+use App\DTO\Seller\Course\Lesson\StoreQuestionData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Course\Quizzes\ReorderQuizQuestionsRequest;
 use App\Http\Requests\Seller\Course\Quizzes\StoreQuizQuestionRequest;

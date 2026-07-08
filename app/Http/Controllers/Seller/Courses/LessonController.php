@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller\Courses;
 
-use App\DTO\Course\Lesson\ReorderLessonData;
-use App\DTO\Course\Lesson\StoreLessonData;
-use App\DTO\Course\Lesson\UpdateLessonData;
+
+use App\DTO\Seller\Course\Lesson\ReorderLessonData;
+use App\DTO\Seller\Course\Lesson\StoreLessonData;
+use App\DTO\Seller\Course\Lesson\UpdateLessonData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Seller\Course\Lessons\ReorderLessonRequest;
-use App\Http\Requests\Seller\Course\Lessons\StoreLessonRequest;
-use App\Http\Requests\Seller\Course\Lessons\UpdateLessonRequest;
+use App\Http\Requests\Seller\Course\Lesson\ReorderLessonRequest;
+use App\Http\Requests\Seller\Course\Lesson\StoreLessonRequest;
+use App\Http\Requests\Seller\Course\Lesson\UpdateLessonRequest;
 use App\Models\Chapter;
 use App\Models\Course;
 use App\Models\Lesson;

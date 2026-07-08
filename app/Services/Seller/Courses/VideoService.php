@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services\Seller\Courses;
 
-use App\DTOs\Lesson\VideoChunkData;
+use App\DTO\Seller\Course\Lesson\VideoChunkData;
 use App\Jobs\ProcessVideoUpload;
 use App\Models\Lesson;
 use App\Repositories\Seller\Courses\LessonVideoRepository;
 use getID3;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -39,14 +40,13 @@ class VideoService
         $uploadedChunks = [];
 
         if (File::exists($tempDir)) {
-            foreach (File::files($tempDir) as $file) {
-                $name = $file->getFilename();
+            // TỐI ƯU 1: Dùng scandir thay vì File::files để giảm tải I/O ổ cứng
+            $files = array_diff(scandir($tempDir), ['.', '..', '.meta']);
 
-                if ($name === '.meta' || !ctype_digit($name)) {
-                    continue;
+            foreach ($files as $name) {
+                if (ctype_digit($name)) {
+                    $uploadedChunks[] = (int) $name;
                 }
-
-                $uploadedChunks[] = (int) $name;
             }
         }
 
@@ -66,50 +66,53 @@ class VideoService
                 File::makeDirectory($tempDir, 0777, true, true);
             }
 
-            // FIX #1: Kiểm tra lệch total_chunks để xóa rác lượt cũ
+            // Kiểm tra lệch total_chunks để xóa rác lượt cũ
             if (File::exists($metaPath)) {
-                $savedTotal = (int) trim(File::get($metaPath));
+                $savedTotal = (int) trim(file_get_contents($metaPath));
                 if ($savedTotal !== $dto->totalChunks) {
                     Log::warning("⚠️ Phát hiện chunk dir cũ lệch total_chunks (cũ: {$savedTotal}, mới: {$dto->totalChunks}) cho fileUid {$dto->fileUid}. Xóa và làm lại.");
                     File::deleteDirectory($tempDir);
                     File::makeDirectory($tempDir, 0777, true, true);
                 }
             }
-            File::put($metaPath, (string) $dto->totalChunks);
+            file_put_contents($metaPath, (string) $dto->totalChunks);
 
-            // Lưu mảnh hiện tại
-            $chunk->move($tempDir, $dto->chunkIndex);
+            // FIX LỖI KIỂU DỮ LIỆU: Ép kiểu chunkIndex sang chuỗi (string) để hàm move() không báo lỗi
+            $chunk->move($tempDir, (string) $dto->chunkIndex);
 
-            // FIX #2: Đếm chunk theo index thực tế (loại trừ .meta)
-            $existingIndexes = [];
-            foreach (File::files($tempDir) as $file) {
-                $name = $file->getFilename();
-                if ($name !== '.meta' && ctype_digit($name)) {
-                    $existingIndexes[(int) $name] = true;
+            // TỐI ƯU 2: Đếm chunk thực tế siêu tốc bằng scandir
+            $files = array_diff(scandir($tempDir), ['.', '..', '.meta']);
+            $uploadedChunks = 0;
+
+            foreach ($files as $name) {
+                if (ctype_digit($name)) {
+                    $uploadedChunks++;
                 }
             }
-            $uploadedChunks = count($existingIndexes);
 
             // NẾU ĐÃ NHẬN ĐỦ CÁC MẢNH CHUNK
             if ($uploadedChunks === $dto->totalChunks) {
-                // FIX #3: Chống dispatch trùng job
-                $existingVideo = $this->videoRepository->getByLesson($lesson);
-                if ($existingVideo && $existingVideo->status === 'processing') {
+
+                // TỐI ƯU 3: Dùng Cache Lock chặn tạo Job trùng lặp khi request dồn dập
+                $lock = Cache::lock("upload_video_{$dto->fileUid}", 10);
+
+                if ($lock->get()) {
+                    // Cập nhật trạng thái và đẩy vào Queue
+                    $this->videoRepository->updateOrCreateStatus($lesson, 'processing');
+                    ProcessVideoUpload::dispatch($lesson, $dto->fileUid, $dto->filename, $dto->totalChunks);
+
+                    Log::info("✅ Đã dispatch ProcessVideoUpload cho Lesson #{$lesson->id}, fileUid={$dto->fileUid}, totalChunks={$dto->totalChunks}");
+
                     return [
                         'status'  => 'processing',
-                        'message' => 'Video đã được đưa vào hàng đợi xử lý ngầm.',
+                        'message' => 'Tải lên thành công! Video đã được đưa vào hàng đợi xử lý ngầm.',
                     ];
                 }
 
-                // Cập nhật trạng thái và đẩy vào Queue
-                $this->videoRepository->updateOrCreateStatus($lesson, 'processing');
-                ProcessVideoUpload::dispatch($lesson, $dto->fileUid, $dto->filename, $dto->totalChunks);
-
-                Log::info("✅ Đã dispatch ProcessVideoUpload cho Lesson #{$lesson->id}, fileUid={$dto->fileUid}, totalChunks={$dto->totalChunks}");
-
+                // Trả về processing nếu request khác đã lấy lock và đang xử lý
                 return [
                     'status'  => 'processing',
-                    'message' => 'Tải lên thành công! Video đã được đưa vào hàng đợi xử lý ngầm.',
+                    'message' => 'Video đã được đưa vào hàng đợi xử lý ngầm.',
                 ];
             }
 
@@ -139,14 +142,14 @@ class VideoService
                 return;
             }
 
-            // Gộp file
+            // TỐI ƯU 4: Chống tràn RAM bằng luồng stream_copy_to_stream
             $fileHandle = fopen($finalPath, 'ab');
             for ($i = 0; $i < $totalChunks; $i++) {
                 $chunkPath = "{$tempDir}/{$i}";
                 if (File::exists($chunkPath)) {
-                    $chunkContent = file_get_contents($chunkPath);
-                    fwrite($fileHandle, $chunkContent);
-                    unset($chunkContent);
+                    $chunkHandle = fopen($chunkPath, 'rb');
+                    stream_copy_to_stream($chunkHandle, $fileHandle);
+                    fclose($chunkHandle);
                 }
             }
             fclose($fileHandle);

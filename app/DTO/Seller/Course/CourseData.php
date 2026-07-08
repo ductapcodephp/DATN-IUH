@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DTO\Course;
+namespace App\DTO\Seller\Course;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;

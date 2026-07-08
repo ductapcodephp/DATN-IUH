@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services\Seller\Coupons;
 
-use App\DTO\Course\Coupon\CouponData;
+use App\DTO\Seller\Course\Coupon\CouponData;
 use App\Models\Coupon;
-use App\Repositories\Seller\Coupons\CouponRepository;
+use App\Repositories\Seller\Coupons\CouponRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-class CouponService
+class CouponService implements CouponServiceInterface
 {
     public function __construct(
-        protected CouponRepository $couponRepository
+        protected CouponRepositoryInterface $couponRepository
     ) {}
 
     public function getSellerCoupons(int $sellerId): LengthAwarePaginator

@@ -279,6 +279,24 @@ class User extends Authenticatable
         return $this->hasMany(CouponUsage::class);
     }
 
+    public function vipSubscriptions(): HasMany
+    {
+        return $this->hasMany(VipSubscription::class);
+    }
+
+    public function onlinePayments(): HasMany
+    {
+        return $this->hasMany(OnlinePayment::class);
+    }
+
+    public function isVipActive(): bool
+    {
+        return $this->vipSubscriptions()
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->exists();
+    }
+
     // ===== SCOPES =====
 
     public function scopeActive($query)

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Seller\Courses;
 
-use App\DTO\Course\Lesson\ReorderLessonData;
-use App\DTO\Course\Lesson\StoreLessonData;
-use App\DTO\Course\Lesson\UpdateLessonData;
+use App\DTO\Seller\Course\Lesson\ReorderLessonData;
+use App\DTO\Seller\Course\Lesson\StoreLessonData;
+use App\DTO\Seller\Course\Lesson\UpdateLessonData;
 use App\Models\Chapter;
 use App\Models\Course;
 use App\Models\Lesson;

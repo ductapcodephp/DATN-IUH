@@ -4,68 +4,59 @@ declare(strict_types=1);
 
 namespace App\Services\Seller\Courses;
 
-use App\DTO\Course\Lesson\ReorderLessonData;
-use App\DTO\Course\Lesson\StoreLessonData;
-use App\DTO\Course\Lesson\UpdateLessonData;
-use App\Models\Chapter;
+use App\DTO\Seller\Course\CourseData;
 use App\Models\Course;
-use App\Models\Lesson;
-use App\Repositories\Seller\Courses\LessonRepository;
-use Illuminate\Support\Facades\DB;
+use App\Repositories\Seller\Courses\CourseRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 
-class LessonService
+class CourseService implements CourseServiceInterface
 {
     public function __construct(
-        protected LessonRepository $lessonRepository
+        protected CourseRepositoryInterface $courseRepository
     ) {}
 
-    public function getLessonDetails(int $lessonId): Lesson
+    public function getCoursesIndexData(array $filters, int $sellerId): array
     {
-        return $this->lessonRepository->findWithVideoAndQuiz($lessonId);
+        $perPage = isset($filters['per_page']) ? (int) $filters['per_page'] : 10;
+        $paginated = $this->courseRepository->getPaginatedCourses($filters, $sellerId, $perPage);
+        $totalCoursesCount = $this->courseRepository->countBySeller($sellerId);
+
+        return [
+            'paginated' => $paginated,
+            'total_courses_count' => $totalCoursesCount,
+        ];
     }
 
-    public function createLesson(Course $course, Chapter $chapter, StoreLessonData $dto): Lesson
+    public function getParentCourses(?int $excludeCourseId = null): Collection
     {
-        $maxSort = $this->lessonRepository->getMaxSortOrder((int) $chapter->id);
-
-        return $this->lessonRepository->create([
-            'chapter_id'   => $chapter->id,
-            'course_id'    => $course->id,
-            'title'        => $dto->title,
-            'type'         => $dto->type,
-            'sort_order'   => $maxSort + 1,
-            'is_published' => false,
-            'is_preview'   => false,
-        ]);
+        return $this->courseRepository->getCoursesExclude($excludeCourseId);
     }
 
-    public function updateLesson(Lesson $lesson, UpdateLessonData $dto): bool
+    public function createCourse(CourseData $dto, int $sellerId): Course
+    {
+        $data = $dto->toArray();
+        $data['seller_id'] = $sellerId;
+
+        if ($dto->thumbnail) {
+            $data['thumbnail'] = $dto->thumbnail->store('courses', 'public');
+        }
+
+        return $this->courseRepository->create($data);
+    }
+
+    public function updateCourse(Course $course, CourseData $dto): bool
     {
         $data = $dto->toArray();
 
-        if (empty($data)) {
-            return false;
+        if ($dto->thumbnail) {
+            $data['thumbnail'] = $dto->thumbnail->store('courses', 'public');
         }
 
-        return $this->lessonRepository->update($lesson, $data);
+        return $this->courseRepository->update($course, $data);
     }
 
-    public function deleteLesson(Lesson $lesson): bool
+    public function deleteCourse(Course $course): bool
     {
-        return $this->lessonRepository->delete($lesson);
-    }
-
-    /**
-     * Bọc Transaction bảo vệ logic cập nhật vị trí khi kéo thả bài học
-     */
-    public function reorderLessons(ReorderLessonData $dto): void
-    {
-        DB::transaction(function () use ($dto) {
-            $this->lessonRepository->updateChapterId($dto->lessonId, $dto->targetChapterId);
-
-            foreach ($dto->sortedIds as $index => $id) {
-                $this->lessonRepository->updateSortOrder($id, $index + 1);
-            }
-        });
+        return $this->courseRepository->delete($course);
     }
 }
