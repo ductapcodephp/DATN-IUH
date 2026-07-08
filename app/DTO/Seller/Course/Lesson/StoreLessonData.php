@@ -1,0 +1,23 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\DTO\Course\Lesson;
+
+use Illuminate\Http\Request;
+
+readonly class StoreLessonData
+{
+    public function __construct(
+        public string $title,
+        public string $type,
+    ) {}
+
+    public static function fromRequest(Request $request): self
+    {
+        return new self(
+            title: trim((string) $request->input('title')),
+            type: trim((string) $request->input('type')),
+        );
+    }
+}
