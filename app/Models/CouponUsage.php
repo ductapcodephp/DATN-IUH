@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/CouponUsage.php ===
 
 namespace App\Models;
 
@@ -16,6 +15,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Coupon $coupon
  * @property User $user
  * @property Order $order
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage byCoupon($couponId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage byOrder($orderId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage byUser($userId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage recent()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereCouponId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereDiscountApplied($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereUserId($value)
+ * @mixin \Eloquent
  */
 class CouponUsage extends Model
 {

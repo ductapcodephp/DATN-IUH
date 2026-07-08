@@ -1,37 +1,58 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Seller;
 
+use App\DTO\Seller\Student\BanStudentData;
+use App\DTO\Seller\Student\StudentFilterData;
 use App\Http\Controllers\Controller;
-use App\Services\Seller\Courses\StudentService;
-use Illuminate\Http\Request;
+use App\Http\Requests\Seller\Students\BanStudentRequest;
+use App\Http\Requests\Seller\Students\StudentIndexRequest;
+use App\Http\Resources\Seller\StudentResource;
+use App\Services\Seller\Students\StudentService;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class StudentController extends Controller
 {
-    protected $studentService;
+    public function __construct(
+        protected StudentService $studentService
+    ) {}
 
-    public function __construct(StudentService $studentService)
+    public function index(StudentIndexRequest $request): Response
     {
-        $this->studentService = $studentService;
-    }
-
-    public function index(Request $request)
-    {
-        $sellerId = auth()->id();
-        $data = $this->studentService->getStudentsIndexData($sellerId, $request->all());
+        $filterDto = StudentFilterData::fromRequest($request);
+        
+        $data = $this->studentService->getStudentsIndexData((int) auth()->id(), $filterDto);
 
         return Inertia::render('Seller/Students/Index', [
-            'students'    => $data['students'],
+            'students'    => StudentResource::collection($data['students']),
             'coursesList' => $data['coursesList'],
-            'filters'     => $request->only(['search', 'course_id', 'per_page']),
+            'filters'     => $filterDto->toArray(),
         ]);
     }
 
-    public function block(Request $request, $id)
+    /**
+     * Cấm học viên truy cập khóa học (Tham số truyền vào là ID của bảng course_enrollments)
+     */
+    public function ban(BanStudentRequest $request, int $enrollmentId): RedirectResponse
     {
-        $this->studentService->blockStudent(auth()->id(), $id, $request->input('reason'));
+        $dto = BanStudentData::fromRequest($request);
 
-        return redirect()->back()->with('success', 'Đã chặn học viên thành công! 🚫');
+        $this->studentService->banStudent((int) auth()->id(), $enrollmentId, $dto);
+
+        return back()->with('success', 'Đã cấm học viên khỏi khóa học thành công! 🚫');
+    }
+
+    /**
+     * Mở cấm cho học viên
+     */
+    public function unban(int $enrollmentId): RedirectResponse
+    {
+        $this->studentService->unbanStudent((int) auth()->id(), $enrollmentId);
+
+        return back()->with('success', 'Đã gỡ cấm cho học viên! ✅');
     }
 }

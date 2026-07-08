@@ -1,6 +1,5 @@
 <?php
 
-// === FILE: app/Models/Quiz.php ===
 
 namespace App\Models;
 
@@ -14,11 +13,38 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $lesson_id
  * @property string $title
- * @property int $trigger_seconds
- * @property bool $is_required
- * @property Lesson $lesson
- * @property Collection $questions
- * @property Collection $results
+ * @property string|null $description
+ * @property int $passing_score
+ * @property int $trigger_seconds Timestamp in video to trigger quiz
+ * @property bool $is_required Must complete to continue
+ * @property int $sort_order Sắp xếp quiz trong lesson
+ * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Lesson|null $lesson
+ * @property-read Collection<int, \App\Models\QuizQuestion> $questions
+ * @property-read int|null $questions_count
+ * @property-read Collection<int, \App\Models\QuizResult> $results
+ * @property-read int|null $results_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz byLesson($lessonId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz optional()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz ordered()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz required()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereIsRequired($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereLessonId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz wherePassingScore($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereSortOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereTriggerSeconds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class Quiz extends Model
 {

@@ -1,4 +1,3 @@
-// === FILE: resources/js/Pages/Seller/Curriculum/LessonVideoManager.jsx ===
 import React, { useState } from 'react';
 import UploadVideoModal from '../UploadVideoModal';
 

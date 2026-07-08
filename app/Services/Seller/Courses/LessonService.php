@@ -1,69 +1,71 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Seller\Courses;
 
+use App\DTO\Course\Lesson\ReorderLessonData;
+use App\DTO\Course\Lesson\StoreLessonData;
+use App\DTO\Course\Lesson\UpdateLessonData;
 use App\Models\Chapter;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Repositories\Seller\Courses\LessonRepository;
+use Illuminate\Support\Facades\DB;
 
 class LessonService
 {
-    protected $lessonRepository;
+    public function __construct(
+        protected LessonRepository $lessonRepository
+    ) {}
 
-    // Inject LessonRepository vào Service để tương tác DB gián tiếp
-    public function __construct(LessonRepository $lessonRepository)
+    public function getLessonDetails(int $lessonId): Lesson
     {
-        $this->lessonRepository = $lessonRepository;
+        return $this->lessonRepository->findWithVideoAndQuiz($lessonId);
     }
 
-    public function getLessonDetails(int $lessonId)
+    public function createLesson(Course $course, Chapter $chapter, StoreLessonData $dto): Lesson
     {
-        return $this->lessonRepository->findWithVideoAndQiz($lessonId);
-    }
+        $maxSort = $this->lessonRepository->getMaxSortOrder((int) $chapter->id);
 
-    public function createLesson(Course $course, Chapter $chapter, array $data)
-    {
-        // Kiểm tra tính hợp lệ logic giữa chapter và course
-        if ($chapter->course_id !== $course->id) {
-            abort(400, 'Chương này không thuộc khóa học này!');
-        }
-
-        // Gọi Repository lấy sort_order lớn nhất hiện tại
-        $maxSort = $this->lessonRepository->getMaxSortOrder($chapter->id);
-
-        // Chuẩn hóa dữ liệu nghiệp vụ trước khi ghi xuống DB
-        $payload = [
+        return $this->lessonRepository->create([
             'chapter_id'   => $chapter->id,
             'course_id'    => $course->id,
-            'title'        => $data['title'],
-            'type'         => $data['type'],
+            'title'        => $dto->title,
+            'type'         => $dto->type,
             'sort_order'   => $maxSort + 1,
-            'is_published' => false, // Mặc định tạo mới là Bản nháp
+            'is_published' => false,
             'is_preview'   => false,
-        ];
-
-        return $this->lessonRepository->create($payload);
+        ]);
     }
 
-    public function updateLesson(Lesson $lesson, array $data)
+    public function updateLesson(Lesson $lesson, UpdateLessonData $dto): bool
     {
+        $data = $dto->toArray();
+
+        if (empty($data)) {
+            return false;
+        }
+
         return $this->lessonRepository->update($lesson, $data);
     }
 
-    public function deleteLesson(Lesson $lesson)
+    public function deleteLesson(Lesson $lesson): bool
     {
         return $this->lessonRepository->delete($lesson);
     }
 
-    public function reorderLessons(int $lessonId, int $targetChapterId, array $sortedIds)
+    /**
+     * Bọc Transaction bảo vệ logic cập nhật vị trí khi kéo thả bài học
+     */
+    public function reorderLessons(ReorderLessonData $dto): void
     {
-        // Cập nhật chương đích cho bài học được kéo thả (Trường hợp đổi chương)
-        $this->lessonRepository->updateChapterId($lessonId, $targetChapterId);
+        DB::transaction(function () use ($dto) {
+            $this->lessonRepository->updateChapterId($dto->lessonId, $dto->targetChapterId);
 
-        // Cập nhật lại số thứ tự index mới cho toàn bộ danh sách ID được gửi lên
-        foreach ($sortedIds as $index => $id) {
-            $this->lessonRepository->updateSortOrder($id, $index + 1);
-        }
+            foreach ($dto->sortedIds as $index => $id) {
+                $this->lessonRepository->updateSortOrder($id, $index + 1);
+            }
+        });
     }
 }

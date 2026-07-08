@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Seller\Courses;
 
+use App\DTOs\Lesson\VideoChunkData;
 use App\Jobs\ProcessVideoUpload;
 use App\Models\Lesson;
+use App\Repositories\Seller\Courses\LessonVideoRepository;
 use getID3;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
@@ -11,125 +15,131 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-// 🔥 Thêm thư viện Log
-
 class VideoService
 {
-    public function handleChunkUpload(Lesson $lesson, UploadedFile $chunk, array $data)
+    public function __construct(
+        protected LessonVideoRepository $videoRepository
+    ) {}
+
+    /**
+     * Kiểm tra danh sách các chunk đã tải lên để phục vụ tính năng Resume Upload
+     */
+    public function getUploadedChunks(?string $fileUid): array
+    {
+        if (!$fileUid) {
+            return [];
+        }
+
+        $chunksRoot = storage_path('app/chunks');
+        if (!File::exists($chunksRoot)) {
+            File::makeDirectory($chunksRoot, 0777, true, true);
+        }
+
+        $tempDir = "{$chunksRoot}/{$fileUid}";
+        $uploadedChunks = [];
+
+        if (File::exists($tempDir)) {
+            foreach (File::files($tempDir) as $file) {
+                $name = $file->getFilename();
+
+                if ($name === '.meta' || !ctype_digit($name)) {
+                    continue;
+                }
+
+                $uploadedChunks[] = (int) $name;
+            }
+        }
+
+        return $uploadedChunks;
+    }
+
+    /**
+     * Xử lý lưu trữ mảnh chunk vào Storage tạm
+     */
+    public function handleChunkUpload(Lesson $lesson, UploadedFile $chunk, VideoChunkData $dto): array
     {
         try {
-            $chunkIndex = (int) $data['chunk_index'];
-            $totalChunks = (int) $data['total_chunks'];
-            $fileUid = $data['file_uid'];
-            $originalName = $data['filename'];
-
-            $tempDir = storage_path("app/chunks/{$fileUid}");
+            $tempDir = storage_path("app/chunks/{$dto->fileUid}");
             $metaPath = "{$tempDir}/.meta";
 
-            if (! File::exists($tempDir)) {
+            if (!File::exists($tempDir)) {
                 File::makeDirectory($tempDir, 0777, true, true);
             }
 
-            // 🔧 FIX #1: Nếu thư mục tạm này đã từng được tạo cho một lượt upload
-            // có total_chunks KHÁC với lần này (VD: test lại với fileUid trùng do
-            // file cùng size/tên nhưng lần trước bị dở dang/lệch), thì dữ liệu cũ
-            // trong đó là "rác" và sẽ làm count() ở dưới không bao giờ khớp
-            // -> job không bao giờ được dispatch dù FE báo "thành công".
-            // Giải pháp: ghi nhận total_chunks vào file .meta, nếu lệch thì xóa
-            // sạch thư mục và bắt đầu lại từ đầu cho lượt upload hiện tại.
+            // FIX #1: Kiểm tra lệch total_chunks để xóa rác lượt cũ
             if (File::exists($metaPath)) {
                 $savedTotal = (int) trim(File::get($metaPath));
-                if ($savedTotal !== $totalChunks) {
-                    Log::warning("⚠️ Phát hiện chunk dir cũ lệch total_chunks (cũ: {$savedTotal}, mới: {$totalChunks}) cho fileUid {$fileUid}. Xóa và làm lại.");
+                if ($savedTotal !== $dto->totalChunks) {
+                    Log::warning("⚠️ Phát hiện chunk dir cũ lệch total_chunks (cũ: {$savedTotal}, mới: {$dto->totalChunks}) cho fileUid {$dto->fileUid}. Xóa và làm lại.");
                     File::deleteDirectory($tempDir);
                     File::makeDirectory($tempDir, 0777, true, true);
                 }
             }
-            File::put($metaPath, (string) $totalChunks);
+            File::put($metaPath, (string) $dto->totalChunks);
 
             // Lưu mảnh hiện tại
-            $chunk->move($tempDir, $chunkIndex);
+            $chunk->move($tempDir, $dto->chunkIndex);
 
-            // 🔧 FIX #2: Đếm chunk theo INDEX THỰC TẾ (0..totalChunks-1), loại trừ
-            // file .meta, thay vì đếm "tất cả file trong thư mục" như cũ.
-            // Cách đếm cũ (count(File::files($tempDir))) sẽ tính luôn file .meta
-            // hoặc bất kỳ file rác nào lọt vào thư mục, khiến con số không bao
-            // giờ đúng bằng totalChunks thật.
+            // FIX #2: Đếm chunk theo index thực tế (loại trừ .meta)
             $existingIndexes = [];
             foreach (File::files($tempDir) as $file) {
                 $name = $file->getFilename();
-                if ($name === '.meta') {
-                    continue;
-                }
-                if (ctype_digit($name)) {
+                if ($name !== '.meta' && ctype_digit($name)) {
                     $existingIndexes[(int) $name] = true;
                 }
             }
             $uploadedChunks = count($existingIndexes);
 
-            // 🔥 NẾU ĐÃ NHẬN ĐỦ CÁC MẢNH CHUNK
-            if ($uploadedChunks === $totalChunks) {
-
-                // 🔧 FIX #3: Chống dispatch trùng job. Nếu 2 request gần như đồng
-                // thời (network retry / double click) cùng thấy đủ chunk, tránh
-                // bắn 2 job xử lý cùng 1 video.
-                $existingVideo = $lesson->video()->first();
+            // NẾU ĐÃ NHẬN ĐỦ CÁC MẢNH CHUNK
+            if ($uploadedChunks === $dto->totalChunks) {
+                // FIX #3: Chống dispatch trùng job
+                $existingVideo = $this->videoRepository->getByLesson($lesson);
                 if ($existingVideo && $existingVideo->status === 'processing') {
                     return [
-                        'status' => 'processing',
+                        'status'  => 'processing',
                         'message' => 'Video đã được đưa vào hàng đợi xử lý ngầm.',
                     ];
                 }
 
-                // 1. Cập nhật trạng thái video
-                $lesson->video()->updateOrCreate(
-                    ['lesson_id' => $lesson->id],
-                    ['status' => 'processing']
-                );
+                // Cập nhật trạng thái và đẩy vào Queue
+                $this->videoRepository->updateOrCreateStatus($lesson, 'processing');
+                ProcessVideoUpload::dispatch($lesson, $dto->fileUid, $dto->filename, $dto->totalChunks);
 
-                // 2. Đẩy vào hàng đợi
-                ProcessVideoUpload::dispatch($lesson, $fileUid, $originalName, $totalChunks);
-
-                Log::info("✅ Đã dispatch ProcessVideoUpload cho Lesson #{$lesson->id}, fileUid={$fileUid}, totalChunks={$totalChunks}");
+                Log::info("✅ Đã dispatch ProcessVideoUpload cho Lesson #{$lesson->id}, fileUid={$dto->fileUid}, totalChunks={$dto->totalChunks}");
 
                 return [
-                    'status' => 'processing',
+                    'status'  => 'processing',
                     'message' => 'Tải lên thành công! Video đã được đưa vào hàng đợi xử lý ngầm.',
                 ];
             }
 
             return [
-                'status' => 'chunk_saved',
+                'status'          => 'chunk_saved',
                 'uploaded_chunks' => $uploadedChunks,
-                'total_chunks' => $totalChunks,
-                'message' => "Mảnh số {$chunkIndex} đã lưu xong ({$uploadedChunks}/{$totalChunks}).",
+                'total_chunks'    => $dto->totalChunks,
+                'message'         => "Mảnh số {$dto->chunkIndex} đã lưu xong ({$uploadedChunks}/{$dto->totalChunks}).",
             ];
-
         } catch (\Exception $e) {
-            // 🔥 NẾU CÓ BẤT KỲ LỖI GÌ XẢY RA, GHI THẲNG VÀO LOG KÈM DÒNG LỖI!
-            Log::error('❌ LỖI UPLOAD CHUNK TẠI VIDEO SERVICE: '.$e->getMessage().' | File: '.$e->getFile().' | Dòng: '.$e->getLine());
-
-            // Ném lỗi ngược ra Controller để Frontend biết đường mà báo đỏ
-            abort(500, 'Lỗi Server: '.$e->getMessage());
+            Log::error('❌ LỖI UPLOAD CHUNK TẠI VIDEO SERVICE: ' . $e->getMessage() . ' | File: ' . $e->getFile() . ' | Dòng: ' . $e->getLine());
+            abort(500, 'Lỗi Server: ' . $e->getMessage());
         }
     }
 
     /**
-     * Hàm này sẽ được thực thi NẰM TRONG HÀNG ĐỢI QUEUE (Chạy ngầm background)
+     * Chạy trong Queue: Gộp file và đẩy lên R2
      */
-    public function mergeAndUploadVideoFromQueue(Lesson $lesson, string $fileUid, string $originalName, int $totalChunks)
+    public function mergeAndUploadVideoFromQueue(Lesson $lesson, string $fileUid, string $originalName, int $totalChunks): void
     {
+        $tempDir = storage_path("app/chunks/{$fileUid}");
+        $finalPath = storage_path("app/chunks/{$fileUid}_{$originalName}");
+
         try {
-            $tempDir = storage_path("app/chunks/{$fileUid}");
-            $finalPath = storage_path("app/chunks/{$fileUid}_{$originalName}");
-
-            if (! File::exists($tempDir)) {
-                $lesson->video()->update(['status' => 'error']);
-
+            if (!File::exists($tempDir)) {
+                $this->videoRepository->updateOrCreateStatus($lesson, 'error');
                 return;
             }
 
-            // Tiến hành gộp file từ các mảnh nhỏ
+            // Gộp file
             $fileHandle = fopen($finalPath, 'ab');
             for ($i = 0; $i < $totalChunks; $i++) {
                 $chunkPath = "{$tempDir}/{$i}";
@@ -141,7 +151,6 @@ class VideoService
             }
             fclose($fileHandle);
 
-            // Xóa thư mục chứa mảnh tạm (gồm cả .meta)
             File::deleteDirectory($tempDir);
 
             // Giả lập UploadedFile
@@ -153,14 +162,11 @@ class VideoService
                 true
             );
 
-            // Đẩy lên Cloudflare R2
             $this->uploadVideoForLesson($lesson, $finalUploadedFile);
-
         } catch (\Exception $e) {
-            // 🔥 LOG LỖI KHI GỘP HOẶC UP R2 BỊ SẬP TRONG QUEUE
-            Log::error('❌ LỖI GỘP/UPLOAD R2 TRONG QUEUE: '.$e->getMessage().' | Dòng: '.$e->getLine());
-            $lesson->video()->update(['status' => 'error']);
-            throw $e; // Ném ra để bảng failed_jobs ghi nhận
+            Log::error('❌ LỖI GỘP/UPLOAD R2 TRONG QUEUE: ' . $e->getMessage() . ' | Dòng: ' . $e->getLine());
+            $this->videoRepository->updateOrCreateStatus($lesson, 'error');
+            throw $e;
         } finally {
             if (File::exists($finalPath)) {
                 File::delete($finalPath);
@@ -169,34 +175,29 @@ class VideoService
     }
 
     /**
-     * Logic gốc đẩy file lên Cloudflare R2
+     * Đẩy file lên Cloudflare R2 và lấy metadata (thời lượng, kích thước)
      */
-    public function uploadVideoForLesson(Lesson $lesson, UploadedFile $file)
+    public function uploadVideoForLesson(Lesson $lesson, UploadedFile $file): mixed
     {
-        if ($lesson->video && $lesson->video->r2_key) {
-            Storage::disk('r2')->delete($lesson->video->r2_key);
+        $existingVideo = $this->videoRepository->getByLesson($lesson);
+        if ($existingVideo && $existingVideo->r2_key) {
+            Storage::disk('r2')->delete($existingVideo->r2_key);
         }
 
         $extension = $file->getClientOriginalExtension();
-        $filename = 'lessons/lesson-'.$lesson->id.'-'.Str::random(10).'.'.$extension;
+        $filename = 'lessons/lesson-' . $lesson->id . '-' . Str::random(10) . '.' . $extension;
 
         Storage::disk('r2')->putFileAs('', $file, $filename);
 
         $getID3 = new getID3;
         $fileInfo = $getID3->analyze($file->getPathname());
-        $duration = isset($fileInfo['playtime_seconds']) ? round($fileInfo['playtime_seconds']) : 0;
+        $duration = isset($fileInfo['playtime_seconds']) ? (int) round($fileInfo['playtime_seconds']) : 0;
 
-        $video = $lesson->video()->updateOrCreate(
-            ['lesson_id' => $lesson->id],
-            [
-                'r2_key' => $filename,
-                'duration_seconds' => $duration,
-                'size_bytes' => $file->getSize(),
-                'mime_type' => $file->getMimeType(),
-                'status' => 'ready',
-            ]
-        );
-
-        return $video;
+        return $this->videoRepository->updateOrCreateStatus($lesson, 'ready', [
+            'r2_key'           => $filename,
+            'duration_seconds' => $duration,
+            'size_bytes'       => $file->getSize(),
+            'mime_type'        => $file->getMimeType(),
+        ]);
     }
 }

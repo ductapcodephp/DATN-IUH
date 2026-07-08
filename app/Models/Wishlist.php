@@ -1,5 +1,4 @@
 <?php
-// === FILE: app/Models/Wishlist.php ===
 
 namespace App\Models;
 
@@ -7,12 +6,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 /**
  * @property int $id
  * @property int $user_id
  * @property int $course_id
- * @property User $user
- * @property Course $course
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Course|null $course
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist byCourse($courseId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist byUser($userId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist recent()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist whereCourseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wishlist whereUserId($value)
+ * @mixin \Eloquent
  */
 class Wishlist extends Model
 {

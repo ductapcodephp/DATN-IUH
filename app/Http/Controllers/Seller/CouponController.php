@@ -1,87 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Seller;
 
+use App\DTO\Course\Coupon\CouponData;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Seller\Coupons\StoreCouponRequest;
+use App\Http\Requests\Seller\Coupons\UpdateCouponRequest;
 use App\Models\Coupon;
-use Illuminate\Http\Request;
+use App\Services\Seller\Coupons\CouponService;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class CouponController extends Controller
 {
-    public function index()
+    public function __construct(
+        protected CouponService $couponService
+    ) {}
+
+    public function index(): Response
     {
-        // Lấy danh sách coupon của seller hiện tại, phân trang 10 items/trang
-        $coupons = Coupon::where('seller_id', auth()->id())
-            ->latest()
-            ->paginate(10);
+        $coupons = $this->couponService->getSellerCoupons((int) auth()->id());
 
         return Inertia::render('Seller/Coupons/Index', [
-            'coupons' => $coupons
+            'coupons' => $coupons,
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreCouponRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'code' => 'required|string|unique:coupons,code',
-            'type' => 'required|in:percent,fixed',
-            'value' => 'required|numeric|min:0',
-            'max_uses' => 'nullable|integer|min:1',
-            'starts_at' => 'nullable|date',
-            'expires_at' => 'nullable|date|after_or_equal:starts_at',
-            'is_active' => 'boolean'
-        ]);
-
-        $validated['seller_id'] = auth()->id();
-
-        Coupon::create($validated);
+        $dto = CouponData::fromRequest($request);
+        $this->couponService->createCoupon((int) auth()->id(), $dto);
 
         return back()->with('success', 'Đã tạo mã giảm giá thành công!');
     }
 
-    public function update(Request $request, Coupon $coupon)
+    public function update(UpdateCouponRequest $request, Coupon $coupon): RedirectResponse
     {
-        // Đảm bảo chỉ seller sở hữu mới được sửa
-        if ($coupon->seller_id !== auth()->id()) {
-            abort(403);
-        }
-
-        $validated = $request->validate([
-            'code' => 'required|string|unique:coupons,code,' . $coupon->id,
-            'type' => 'required|in:percent,fixed',
-            'value' => 'required|numeric|min:0',
-            'max_uses' => 'nullable|integer|min:1',
-            'starts_at' => 'nullable|date',
-            'expires_at' => 'nullable|date|after_or_equal:starts_at',
-            'is_active' => 'boolean'
-        ]);
-
-        $coupon->update($validated);
+        $dto = CouponData::fromRequest($request);
+        $this->couponService->updateCoupon($coupon, (int) auth()->id(), $dto);
 
         return back()->with('success', 'Đã cập nhật mã giảm giá!');
     }
 
-    public function destroy(Coupon $coupon)
+    public function destroy(Coupon $coupon): RedirectResponse
     {
-        if ($coupon->seller_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeAccess($coupon);
 
-        $coupon->delete();
+        $this->couponService->deleteCoupon($coupon);
 
         return back()->with('success', 'Đã xóa mã giảm giá!');
     }
-    public function toggleStatus(Coupon $coupon)
+
+    public function toggleStatus(Coupon $coupon): RedirectResponse
     {
-        if ($coupon->seller_id !== auth()->id()) {
-            abort(403);
+        $this->authorizeAccess($coupon);
+
+        $this->couponService->toggleStatus($coupon);
+
+        return back();
+    }
+
+    /**
+     * Helper kiểm tra phân quyền cho các route không dùng Form Request riêng (destroy, toggleStatus)
+     */
+    protected function authorizeAccess(Coupon $coupon): void
+    {
+        if ((int) $coupon->seller_id !== (int) auth()->id()) {
+            abort(403, 'Bạn không có quyền thao tác trên mã giảm giá này!');
         }
-
-        $coupon->update([
-            'is_active' => !$coupon->is_active
-        ]);
-
-        return back(); // Inertia sẽ tự reload data mà không cần load lại trang
     }
 }

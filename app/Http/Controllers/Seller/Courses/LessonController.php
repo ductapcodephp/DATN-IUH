@@ -1,44 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Seller\Courses;
 
+use App\DTO\Course\Lesson\ReorderLessonData;
+use App\DTO\Course\Lesson\StoreLessonData;
+use App\DTO\Course\Lesson\UpdateLessonData;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Seller\Course\Lessons\ReorderLessonRequest;
+use App\Http\Requests\Seller\Course\Lessons\StoreLessonRequest;
+use App\Http\Requests\Seller\Course\Lessons\UpdateLessonRequest;
 use App\Models\Chapter;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Services\Seller\Courses\LessonService;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class LessonController extends Controller
 {
-    protected $lessonService;
+    public function __construct(
+        protected LessonService $lessonService
+    ) {}
 
-    // Inject LessonService trực tiếp qua Constructor
-    public function __construct(LessonService $lessonService)
+    public function show(Course $course, Lesson $lesson): Response
     {
-        $this->lessonService = $lessonService;
-    }
+        $this->authorizeAccess($course, $lesson);
 
-    /**
-     * Hàm kiểm tra quyền sở hữu nội bộ (Hợp nhất bảo mật)
-     */
-    private function authorizeSeller(Course $course, Lesson $lesson = null)
-    {
-        if ($course->seller_id !== auth()->id()) {
-            abort(403, 'Mày không có quyền truy cập khóa học này!');
-        }
-        if ($lesson && $lesson->course_id !== $course->id) {
-            abort(404, 'Bài học không tồn tại trong khóa học này!');
-        }
-    }
-
-    public function show(Course $course, Lesson $lesson)
-    {
-        $this->authorizeSeller($course, $lesson);
-
-        // Ủy thác Service lấy data bài học kèm video được Eager-load tối ưu
-        $lessonData = $this->lessonService->getLessonDetails($lesson->id);
+        $lessonData = $this->lessonService->getLessonDetails((int) $lesson->id);
 
         return Inertia::render('Seller/Curriculum/Lesson/LessonDetail', [
             'course' => $course,
@@ -46,62 +37,49 @@ class LessonController extends Controller
         ]);
     }
 
-    public function store(Request $request, Course $course, Chapter $chapter)
+    public function store(StoreLessonRequest $request, Course $course, Chapter $chapter): RedirectResponse
     {
-        $this->authorizeSeller($course);
-
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'type'  => 'required|string|in:video,document,quiz_only',
-        ]);
-
-        $this->lessonService->createLesson($course, $chapter, $validated);
+        $dto = StoreLessonData::fromRequest($request);
+        $this->lessonService->createLesson($course, $chapter, $dto);
 
         return back()->with('success', 'Đã thêm bài học mới thành công!');
     }
 
-    public function update(Request $request, Course $course, Lesson $lesson)
+    public function update(UpdateLessonRequest $request, Course $course, Lesson $lesson): RedirectResponse
     {
-        $this->authorizeSeller($course, $lesson);
-
-        $validated = $request->validate([
-            'title'        => 'sometimes|required|string|max:255',
-            'description'  => 'nullable|string',
-            'is_preview'   => 'sometimes|required|boolean',
-            'is_published' => 'sometimes|required|boolean',
-        ]);
-
-        $this->lessonService->updateLesson($lesson, $validated);
+        $dto = UpdateLessonData::fromRequest($request);
+        $this->lessonService->updateLesson($lesson, $dto);
 
         return back()->with('success', 'Đã cập nhật bài học thành công!');
     }
 
-    public function destroy(Course $course, Lesson $lesson)
+    public function destroy(Course $course, Lesson $lesson): RedirectResponse
     {
-        $this->authorizeSeller($course, $lesson);
+        $this->authorizeAccess($course, $lesson);
 
         $this->lessonService->deleteLesson($lesson);
 
         return back()->with('success', 'Đã xóa bài học thành công!');
     }
 
-    public function reorder(Request $request, Course $course)
+    public function reorder(ReorderLessonRequest $request, Course $course): RedirectResponse
     {
-        $this->authorizeSeller($course);
-
-        $validated = $request->validate([
-            'lesson_id'         => 'required|integer',
-            'target_chapter_id' => 'required|integer',
-            'sorted_ids'        => 'required|array',
-            'sorted_ids.*'      => 'required|integer',
-        ]);
-
-        $this->lessonService->reorderLessons(
-            $validated['lesson_id'],
-            $validated['target_chapter_id'],
-            $validated['sorted_ids']
-        );
+        $dto = ReorderLessonData::fromRequest($request);
+        $this->lessonService->reorderLessons($dto);
 
         return back()->with('success', 'Đã cập nhật vị trí bài học bằng kéo thả!');
+    }
+
+    /**
+     * Helper kiểm tra bảo mật cho các phương thức GET/DELETE không qua Form Request (show, destroy)
+     */
+    protected function authorizeAccess(Course $course, Lesson $lesson): void
+    {
+        $isSellerCourse = (int) $course->seller_id === (int) auth()->id();
+        $isLessonInCourse = (int) $lesson->course_id === (int) $course->id;
+
+        if (!$isSellerCourse || !$isLessonInCourse) {
+            abort(403, 'Bạn không có quyền thao tác trên bài học này!');
+        }
     }
 }

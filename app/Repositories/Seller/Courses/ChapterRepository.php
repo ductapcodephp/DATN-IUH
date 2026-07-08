@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repositories\Seller\Courses;
 
 use App\Models\Chapter;
@@ -7,43 +9,41 @@ use App\Models\Course;
 
 class ChapterRepository
 {
-    public function loadCourseCurriculum(Course $course)
+    public function loadCourseCurriculum(Course $course): Course
     {
         return $course->load(['chapters' => function ($query) {
             $query->orderBy('sort_order', 'asc')
                 ->with(['lessons' => function ($q) {
-                    $q->orderBy('sort_order', 'asc')
-                        ->with('video'); // 🔥 Thêm dòng này: eager-load video của từng bài học
+                    $q->orderBy('sort_order', 'asc')->with('video');
                 }]);
         }]);
     }
 
-    public function getMaxSortOrder($courseId)
+    public function getMaxSortOrder(int $courseId): int
     {
-        return Chapter::where('course_id', $courseId)->max('sort_order') ?? 0;
+        return (int) Chapter::query()->where('course_id', $courseId)->max('sort_order');
     }
 
-    public function create(array $data)
+    public function create(array $data): Chapter
     {
-        return Chapter::create($data);
+        return Chapter::query()->create($data);
     }
 
-    public function delete(Chapter $chapter)
+    public function update(Chapter $chapter, array $data): bool
+    {
+        return $chapter->update($data);
+    }
+
+    public function delete(Chapter $chapter): bool
     {
         return $chapter->delete();
     }
 
-    public function updateSortOrder($id, $courseId, $sortOrder)
+    public function updateSortOrder(int $id, int $courseId, int $sortOrder): int
     {
-        return Chapter::where('id', $id)
+        return Chapter::query()
+            ->where('id', $id)
             ->where('course_id', $courseId)
             ->update(['sort_order' => $sortOrder]);
-    }
-
-    public function findByCourseAndId($courseId, $chapterId)
-    {
-        return Chapter::where('id', $chapterId)
-            ->where('course_id', $courseId)
-            ->firstOrFail();
     }
 }

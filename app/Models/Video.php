@@ -8,16 +8,38 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
+
 /**
  * @property int $id
  * @property int $lesson_id
- * @property string|null $r2_key
- * @property string|null $url
+ * @property string|null $r2_key Cloudflare R2 file path
+ * @property string|null $url Full video URL
  * @property int $duration_seconds
  * @property int|null $size_bytes
  * @property string|null $mime_type
- * @property string $status processing|ready|error
- * @property Lesson $lesson
+ * @property string $status
+ * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Lesson|null $lesson
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video error()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video processing()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video ready()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereDurationSeconds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereLessonId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereMimeType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereR2Key($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereSizeBytes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereUrl($value)
+ * @mixin \Eloquent
  */
 class Video extends Model
 {

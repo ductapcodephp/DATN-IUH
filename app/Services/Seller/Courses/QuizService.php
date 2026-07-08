@@ -1,109 +1,98 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Seller\Courses;
 
+use App\DTO\Course\Lesson\ReorderQuestionData;
+use App\DTO\Course\Lesson\StoreQuestionData;
 use App\Models\Lesson;
 use App\Models\Quiz;
+use App\Models\QuizQuestion;
 use App\Repositories\Seller\Courses\QuizRepository;
 use Illuminate\Support\Facades\DB;
 
 class QuizService
 {
-    protected $quizRepository;
+    public function __construct(
+        protected QuizRepository $quizRepository
+    ) {}
 
-    public function __construct(QuizRepository $quizRepository)
+    public function storeQuestionForLesson(Lesson $lesson, StoreQuestionData $dto): void
     {
-        $this->quizRepository = $quizRepository;
-    }
+        DB::transaction(function () use ($lesson, $dto) {
+            $quiz = $this->quizRepository->getFirstByLesson($lesson);
 
-    public function createQuizWithQuestions(Lesson $lesson, array $data)
-    {
-        return DB::transaction(function () use ($lesson, $data) {
-            $quiz = $this->quizRepository->createQuiz([
-                'lesson_id'       => $lesson->id,
-                'title'           => $data['title'],
-                // Bỏ description và passing_score vì DB không có
-                'trigger_seconds' => $data['trigger_seconds'] ?? 0,
-                'is_required'     => $data['is_required'] ?? false,
-            ]);
-
-            $this->syncQuestions($quiz, $data['questions'] ?? []);
-            return $quiz;
-        });
-    }
-public function updateSingleQuestion(\App\Models\QuizQuestion $question, array $qData): void
-{
-    DB::transaction(function () use ($question, $qData) {
-        $question->update(['question' => $qData['question']]);
-
-        // Xóa hết đáp án cũ rồi tạo lại theo dữ liệu mới (đơn giản và an toàn nhất)
-        $question->answers()->delete();
-
-        foreach ($qData['answers'] as $aIndex => $aData) {
-            $question->answers()->create([
-                'answer'     => $aData['answer'],
-                'is_correct' => $aData['is_correct'],
-                'sort_order' => $aIndex + 1,
-            ]);
-        }
-    });
-}
-    public function updateQuizWithQuestions(Quiz $quiz, array $data)
-    {
-        return DB::transaction(function () use ($quiz, $data) {
-            $this->quizRepository->updateQuiz($quiz, [
-                'title'           => $data['title'],
-                'trigger_seconds' => $data['trigger_seconds'] ?? $quiz->trigger_seconds,
-                'is_required'     => $data['is_required'] ?? $quiz->is_required,
-            ]);
-
-            // Xóa sạch câu hỏi cũ để lưu lại bộ mới
-            $quiz->questions()->delete();
-            $this->syncQuestions($quiz, $data['questions'] ?? []);
-
-            return $quiz;
-        });
-    }
-
-    public function deleteQuiz(Quiz $quiz)
-    {
-        return $this->quizRepository->deleteQuiz($quiz);
-    }
-
-    public function addSingleQuestionToQuiz(Quiz $quiz, array $qData): void
-    {
-        $maxSort = $quiz->questions()->max('sort_order') ?? 0;
-
-        $question = $quiz->questions()->create([
-            'question'    => $qData['question'],
-            // Bỏ type, points, explanation vì DB không có
-            'sort_order'  => $maxSort + 1,
-        ]);
-
-        foreach ($qData['answers'] as $aIndex => $aData) {
-            $question->answers()->create([
-                'answer'     => $aData['answer'],
-                'is_correct' => $aData['is_correct'],
-                'sort_order' => $aIndex + 1,
-            ]);
-        }
-    }
-
-    private function syncQuestions(Quiz $quiz, array $questionsData): void
-    {
-        foreach ($questionsData as $qIndex => $qData) {
-            $question = $quiz->questions()->create([
-                'question'    => $qData['question'],
-                'sort_order'  => $qIndex + 1,
-            ]);
-
-            foreach ($qData['answers'] as $aIndex => $aData) {
-                $question->answers()->create([
-                    'answer'     => $aData['answer'],
-                    'is_correct' => $aData['is_correct'],
-                    'sort_order' => $aIndex + 1,
+            // Nếu bài học chưa có Quiz nào, tự động khởi tạo 1 Quiz mới
+            if (!$quiz) {
+                $quiz = $this->quizRepository->createQuiz([
+                    'lesson_id'       => $lesson->id,
+                    'title'           => 'Trắc nghiệm kiến thức: ' . $lesson->title,
+                    'trigger_seconds' => 0,
+                    'is_required'     => false,
                 ]);
             }
+
+            $this->addSingleQuestionToQuiz($quiz, $dto);
+        });
+    }
+
+    public function addSingleQuestionToQuiz(Quiz $quiz, StoreQuestionData $dto): QuizQuestion
+    {
+        $maxSort = $this->quizRepository->getMaxQuestionSortOrder($quiz);
+
+        $question = $this->quizRepository->createQuestion($quiz, [
+            'question'   => $dto->questionText,
+            'type'       => $dto->type,
+            'sort_order' => $maxSort + 1,
+        ]);
+
+        foreach ($dto->answers as $index => $answerDto) {
+            $question->answers()->create([
+                'answer'     => $answerDto->text,
+                'is_correct' => $answerDto->isCorrect,
+                'sort_order' => $index + 1,
+            ]);
         }
+
+        return $question;
+    }
+
+    public function updateSingleQuestion(QuizQuestion $question, StoreQuestionData $dto): void
+    {
+        DB::transaction(function () use ($question, $dto) {
+            $question->update([
+                'question' => $dto->questionText,
+                'type'     => $dto->type,
+            ]);
+
+            // Xóa hết đáp án cũ và tạo lại
+            $question->answers()->delete();
+
+            foreach ($dto->answers as $index => $answerDto) {
+                $question->answers()->create([
+                    'answer'     => $answerDto->text,
+                    'is_correct' => $answerDto->isCorrect,
+                    'sort_order' => $index + 1,
+                ]);
+            }
+        });
+    }
+
+    public function deleteQuestion(QuizQuestion $question): void
+    {
+        DB::transaction(function () use ($question) {
+            $question->answers()->delete();
+            $question->delete();
+        });
+    }
+
+    public function reorderQuestions(ReorderQuestionData $dto): void
+    {
+        DB::transaction(function () use ($dto) {
+            foreach ($dto->questionIds as $index => $questionId) {
+                $this->quizRepository->updateQuestionSortOrder($questionId, $index + 1);
+            }
+        });
     }
 }

@@ -5,6 +5,35 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $token
+ * @property string $device_id
+ * @property string|null $ip_address
+ * @property string|null $user_agent
+ * @property bool $is_revoked
+ * @property \Illuminate\Support\Carbon|null $last_used_at
+ * @property \Illuminate\Support\Carbon|null $expires_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereDeviceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereIpAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereIsRevoked($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereLastUsedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereUserAgent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefreshToken whereUserId($value)
+ * @mixin \Eloquent
+ */
 class RefreshToken extends Model
 {
     protected $fillable = [

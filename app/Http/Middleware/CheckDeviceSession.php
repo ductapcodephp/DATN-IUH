@@ -20,13 +20,14 @@ class CheckDeviceSession
 
         $plainToken = Cookie::get('refresh_token');
         if (!$plainToken) {
-            return $this->forceLogout($request);
+            // Lần đầu đăng nhập hoặc browser chưa gửi lại cookie refresh_token thì không nên đá session ngay.
+            // Hệ thống vẫn giữ session Auth chuẩn của Laravel và sẽ tạo/cập nhật token ở request sau.
+            return $next($request);
         }
 
         $deviceId = md5($request->userAgent() ?? 'Unknown');
         $tokenHash = hash('sha256', $plainToken);
-        
-        // 🔥 Đổi Key thành DUY NHẤT cho mỗi User (Không bám theo deviceId nữa)
+
         $redisKey = "user_session:" . Auth::id();
 
         // 1. Thử lấy data từ Redis trước
@@ -43,7 +44,12 @@ class CheckDeviceSession
                 ->where('token', $tokenHash)
                 ->first();
 
-            if (!$tokenRecord || $tokenRecord->is_revoked || $tokenRecord->expires_at->isPast()) {
+            if (!$tokenRecord) {
+                // Nếu chưa có record token khớp cho request này, bỏ qua kiểm tra để tránh false positive ở lần đăng nhập đầu tiên.
+                return $next($request);
+            }
+
+            if ($tokenRecord->is_revoked || $tokenRecord->expires_at->isPast()) {
                 return $this->forceLogout($request);
             }
 
@@ -60,8 +66,8 @@ class CheckDeviceSession
             $isCacheMiss = true;
         }
 
-        // 🔥 3. KIỂM TRA ĐỘC QUYỀN THIẾT BỊ: 
-        // Nếu thiết bị đang click KHÔNG TRÙNG với thiết bị lưu trong Redis hoặc Token bị đổi -> ĐÁ NGAY!
+        // 🔥 3. KIỂM TRA ĐỘC QUYỀN THIẾT BỊ:
+        // Nếu cookie tồn tại nhưng token/thiết bị không khớp thì đá session ngay.
         if ($session['device_id'] !== $deviceId || $session['token'] !== $tokenHash) {
             // Không xóa Redis ở đây vì đây là request của máy cũ (lậu), xóa đi sẽ làm máy mới bị ảnh hưởng.
             return $this->forceLogout($request);
