@@ -134,6 +134,9 @@ class User extends Authenticatable
         'referral_code',
         'referred_by',
         'is_active',
+        'bank_name',
+        'bank_account_no',
+        'bank_account_name',
     ];
 
     protected $hidden = [

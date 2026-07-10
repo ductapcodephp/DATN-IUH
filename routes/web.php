@@ -25,6 +25,8 @@ Route::middleware('guest')->group(function () {
 // ==========================================
 // ROUTES YÊU CẦU ĐĂNG NHẬP (AUTH)
 // ==========================================
+Route::get('/seller/settings-test', fn () => Inertia::render('Seller/Settings'))->name('seller.settings.test');
+
 Route::middleware('auth')->group(function () {
 
     // --- Các route cơ bản ---
@@ -76,6 +78,11 @@ Route::middleware('auth')->group(function () {
             Route::put('quiz/questions/{questionId}', [QuizController::class, 'updateQuestion'])->name('quiz.update-question');
             Route::delete('quiz/questions/{questionId}', [QuizController::class, 'destroyQuestion'])->name('quiz.delete-question');
         });
+        // 5. QUẢN LÝ PROFILE SELLER
+        Route::get('profile', [\App\Http\Controllers\Seller\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile/info', [\App\Http\Controllers\Seller\ProfileController::class, 'updateInfo'])->name('profile.updateInfo');
+        Route::put('profile/password', [\App\Http\Controllers\Seller\ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
+        Route::put('profile/payment', [\App\Http\Controllers\Seller\ProfileController::class, 'updatePayment'])->name('profile.updatePayment');
 
         Route::get('/dashboard', fn () => Inertia::render('Seller/Dashboard'))->name('dashboard');
         Route::get('revenues', function () {
