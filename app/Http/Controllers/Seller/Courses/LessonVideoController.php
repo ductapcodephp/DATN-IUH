@@ -6,8 +6,8 @@ namespace App\Http\Controllers\Seller\Courses;
 
 use App\DTO\Seller\Course\Lesson\VideoChunkData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Seller\Course\Video\CheckVideoChunksRequest;
-use App\Http\Requests\Seller\Course\Video\UploadVideoChunkRequest;
+use App\Http\Requests\Seller\Courses\Video\CheckVideoChunksRequest;
+use App\Http\Requests\Seller\Courses\Video\UploadVideoChunkRequest;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Services\Seller\Courses\VideoService;

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Seller\Course\Chapters;
+namespace App\Http\Requests\Seller\Courses\Chapters;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreChapterRequest extends FormRequest
+class ReorderChapterRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -18,7 +18,8 @@ class StoreChapterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
+            'ids'   => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'exists:chapters,id'],
         ];
     }
 }

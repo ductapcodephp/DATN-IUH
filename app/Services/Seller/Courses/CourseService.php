@@ -9,7 +9,7 @@ use App\Models\Course;
 use App\Repositories\Seller\Courses\CourseRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
-class CourseService implements CourseServiceInterface
+class CourseService
 {
     public function __construct(
         protected CourseRepositoryInterface $courseRepository

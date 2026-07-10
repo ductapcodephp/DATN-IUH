@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Seller\Course\Video;
+namespace App\Http\Requests\Seller\Courses\Lesson;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UploadVideoChunkRequest extends FormRequest
+class UpdateLessonRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -22,11 +22,10 @@ class UploadVideoChunkRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'video_chunk'  => ['required', 'file'],
-            'chunk_index'  => ['required', 'integer', 'min:0'],
-            'total_chunks' => ['required', 'integer', 'min:1'],
-            'file_uid'     => ['required', 'string', 'max:255'],
-            'filename'     => ['required', 'string', 'max:255'],
+            'title'        => ['sometimes', 'required', 'string', 'max:255'],
+            'description'  => ['nullable', 'string'],
+            'is_preview'   => ['sometimes', 'required', 'boolean'],
+            'is_published' => ['sometimes', 'required', 'boolean'],
         ];
     }
 }
