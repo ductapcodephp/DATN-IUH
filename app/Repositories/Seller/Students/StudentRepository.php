@@ -10,7 +10,7 @@ use App\Models\CourseEnrollment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class StudentRepository
+class StudentRepository implements StudentRepositoryInterface
 {
     /**
      * Lấy danh sách học viên đăng ký các khóa học của Seller (có phân trang & lọc)

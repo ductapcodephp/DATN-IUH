@@ -7,12 +7,12 @@ namespace App\Services\Seller\Students;
 use App\DTO\Seller\Student\BanStudentData;
 use App\DTO\Seller\Student\StudentFilterData;
 use App\Models\CourseEnrollment;
-use App\Repositories\Seller\Students\StudentRepository;
+use App\Repositories\Seller\Students\StudentRepositoryInterface;
 
 class StudentService
 {
     public function __construct(
-        protected StudentRepository $studentRepository,
+        protected StudentRepositoryInterface $studentRepository,
     ) {}
 
     public function getStudentsIndexData(int $sellerId, StudentFilterData $filters): array
