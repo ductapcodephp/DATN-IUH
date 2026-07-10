@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Seller\Coupons;
 
-use App\DTO\Seller\Course\Coupon\CouponData;
+use App\DTO\Seller\Coupon\CouponData;
 use App\Models\Coupon;
 use App\Repositories\Seller\Coupons\CouponRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
