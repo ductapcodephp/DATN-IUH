@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Seller\Course\Chapters;
+namespace App\Http\Requests\Seller\Courses\Video;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateChapterRequest extends FormRequest
+class CheckVideoChunksRequest extends FormRequest
 {
     public function authorize(): bool
     {
         $course = $this->route('course');
-        $chapter = $this->route('chapter');
+        $lesson = $this->route('lesson');
 
         $isSellerCourse = auth()->check() && (int) $course->seller_id === (int) auth()->id();
-        $isChapterInCourse = (int) $chapter->course_id === (int) $course->id;
+        $isLessonInCourse = (int) $lesson->course_id === (int) $course->id;
 
-        return $isSellerCourse && $isChapterInCourse;
+        return $isSellerCourse && $isLessonInCourse;
     }
 
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
+            'file_uid' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Seller\Course\Quizzes;
+namespace App\Http\Requests\Seller\Courses\Quizzes;
 
 use App\Models\QuizQuestion;
 use Illuminate\Foundation\Http\FormRequest;
