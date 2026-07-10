@@ -19,19 +19,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Seller\Courses\CourseRepositoryInterface::class,
             \App\Repositories\Seller\Courses\CourseRepository::class
         );
-        $this->app->bind(
-            \App\Services\Seller\Courses\CourseServiceInterface::class,
-            \App\Services\Seller\Courses\CourseService::class
-        );
 
         // Coupons bindings
         $this->app->bind(
             \App\Repositories\Seller\Coupons\CouponRepositoryInterface::class,
             \App\Repositories\Seller\Coupons\CouponRepository::class
-        );
-        $this->app->bind(
-            \App\Services\Seller\Coupons\CouponServiceInterface::class,
-            \App\Services\Seller\Coupons\CouponService::class
         );
 
         // Students bindings
@@ -39,9 +31,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Seller\Students\StudentRepositoryInterface::class,
             \App\Repositories\Seller\Students\StudentRepository::class
         );
+
+        // User bindings
         $this->app->bind(
-            \App\Services\Seller\Students\StudentServiceInterface::class,
-            \App\Services\Seller\Students\StudentService::class
+            \App\Repositories\User\UserRepositoryInterface::class,
+            \App\Repositories\User\UserRepository::class
         );
     }
 

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liên Hệ Với Chúng Tôi - EduFlow</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  
+  <!-- Dùng chung file CSS gốc của bạn để giữ layout đồng bộ -->
+  <meta name="description" content="Liên hệ với EduFlow để được tư vấn lộ trình học tập, giải đáp dịch vụ hoặc hợp tác doanh nghiệp." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ==============================================
+       HEADER GỐC (GIỮ NGUYÊN TỪ TRANG HOME CỦA BẠN)
+       ============================================== -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container align-items-center">
+      <a class="navbar-brand" href="home.html">Edu<span>Flow</span></a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Mở menu điều hướng">
+        <i class="fa-solid fa-bars fs-4"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav main-nav mb-3 mb-lg-0">
+          <li class="nav-item"><a class="nav-link main-nav-link" href="home.html">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="courses.html">Khóa học</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="about.html">Giới thiệu</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="faqs.html">FAQ</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link active" href="contact.html">Liên hệ</a></li>
+        </ul>
+
+        <div class="dropdown ms-lg-3 mt-3 mt-lg-0">
+          <div class="nav-categories" data-bs-toggle="dropdown">
+            <i class="fa-solid fa-layer-group me-1"></i> Danh mục
+          </div>
+          <ul class="dropdown-menu shadow-sm border-0 mt-2">
+            <li><a class="dropdown-item" href="courses.html">Frontend Development</a></li>
+            <li><a class="dropdown-item" href="courses.html">Backend & API</a></li>
+            <li><a class="dropdown-item" href="courses.html">Data Science</a></li>
+          </ul>
+        </div>
+
+        <div class="search-wrap mt-3 mt-lg-0 mx-lg-3">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm khoá học..." autocomplete="off">
+          <div class="search-dropdown" id="searchDropdown">
+            <div id="searchLoading" class="text-center p-3 d-none text-muted"><i class="fa-solid fa-spinner fa-spin"></i> Đang tìm...</div>
+            <div id="searchResults"></div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 align-items-center mt-3 mt-lg-0 ms-lg-auto">
+          <a href="checkout.html" class="text-dark" aria-label="Giỏ hàng"><i class="fa-solid fa-cart-shopping"></i></a>
+          <a href="#" class="btn btn-outline-dark btn-sm fw-semibold border-0">Đăng nhập</a>
+          <a href="#" class="btn btn-dark btn-sm fw-semibold">Đăng ký</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==============================================
+       NỘI DUNG CHÍNH TRANG LIÊN HỆ (CMS BLOCK)
+       ============================================== -->
+  
+  <section class="hero-section text-center py-5 mb-5">
+    <div class="container py-2">
+      <h1 class="hero-title">Liên hệ với EduFlow</h1>
+      <p class="hero-desc col-lg-6 mx-auto mb-0">Kết nối với chúng tôi nếu bạn cần tư vấn lộ trình học tập, giải đáp dịch vụ hoặc hợp tác doanh nghiệp.</p>
+    </div>
+  </section>
+
+  <div class="container mb-5">
+    <div class="row g-5">
+      
+      <!-- Cột trái: Thông tin liên hệ trực quan -->
+      <div class="col-lg-5">
+        <h2 class="section-title fs-3 mb-3">Thông tin kết nối</h2>
+        <p class="text-muted mb-4">Đội ngũ hỗ trợ của EduFlow luôn sẵn sàng phản hồi bạn trong vòng 24 giờ làm việc. Hãy lựa chọn phương thức tiện lợi nhất cho bạn.</p>
+        
+        <div class="d-flex flex-column gap-4">
+          <!-- Địa chỉ -->
+          <div class="d-flex align-items-start gap-3">
+            <div class="contact-info-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div>
+              <h5 class="fw-bold mb-1 font-sm text-dark text-uppercase tracking-wider" style="font-size: 0.8rem;">Văn phòng chính</h5>
+              <p class="text-muted mb-0">Quận 1, TP. Hồ Chí Minh, Việt Nam</p>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="d-flex align-items-start gap-3">
+            <div class="contact-info-icon"><i class="fa-solid fa-envelope"></i></div>
+            <div>
+              <h5 class="fw-bold mb-1 font-sm text-dark text-uppercase tracking-wider" style="font-size: 0.8rem;">Email hỗ trợ</h5>
+              <p class="text-muted mb-0">support@eduflow.vn</p>
+            </div>
+          </div>
+
+          <!-- Hotline -->
+          <div class="d-flex align-items-start gap-3">
+            <div class="contact-info-icon"><i class="fa-solid fa-phone"></i></div>
+            <div>
+              <h5 class="fw-bold mb-1 font-sm text-dark text-uppercase tracking-wider" style="font-size: 0.8rem;">Hotline tư vấn</h5>
+              <p class="text-muted mb-0">1900 1234 (8:00 - 22:00)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bản đồ nhúng Google Map dạng giữ tỉ lệ bằng Bootstrap -->
+        <div class="mt-4 pt-2">
+          <div class="ratio ratio-16x9 rounded overflow-hidden border">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.423169372332!2d106.7017555!3d10.7773539!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f40a3b098f1%3A0x9e73722247b973a8!2zUXXhuq1uIDEsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaA!5e0!3m2!1svi!2s!4v1718873000000!5m2!1svi!2s" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cột phải: Form gửi lời nhắn -->
+      <div class="col-lg-7">
+        <div class="contact-form-wrap shadow-sm">
+          <h3 class="fw-bold mb-2 fs-4 text-dark">Gửi lời nhắn cho chúng tôi</h3>
+          <p class="text-muted font-sm mb-4">Điền đầy đủ thông tin vào biểu mẫu dưới đây, EduFlow sẽ liên hệ lại ngay.</p>
+          
+          <form action="#" method="POST">
+            <div class="row g-3">
+              <!-- Họ và tên -->
+              <div class="col-md-6">
+                <label for="contactName" class="form-label font-sm fw-semibold text-dark">Họ và tên *</label>
+                <input type="text" id="contactName" name="full_name" class="form-control-custom" placeholder="Ví dụ: Nguyễn Văn A" required>
+              </div>
+              
+              <!-- Địa chỉ Email -->
+              <div class="col-md-6">
+                <label for="contactEmail" class="form-label font-sm fw-semibold text-dark">Địa chỉ Email *</label>
+                <input type="email" id="contactEmail" name="email" class="form-control-custom" placeholder="name@example.com" required>
+              </div>
+
+              <!-- Số điện thoại -->
+              <div class="col-md-12">
+                <label for="contactPhone" class="form-label font-sm fw-semibold text-dark">Số điện thoại *</label>
+                <input type="tel" id="contactPhone" name="phone" class="form-control-custom" placeholder="Ví dụ: 0912345678" required>
+              </div>
+
+              <!-- Tiêu đề lời nhắn -->
+              <div class="col-md-12">
+                <label for="contactSubject" class="form-label font-sm fw-semibold text-dark">Chủ đề cần hỗ trợ</label>
+                <input type="text" id="contactSubject" name="subject" class="form-control-custom" placeholder="Tư vấn khóa học / Báo lỗi / Hợp tác...">
+              </div>
+
+              <!-- Nội dung chi tiết -->
+              <div class="col-md-12">
+                <label for="contactMessage" class="form-label font-sm fw-semibold text-dark">Nội dung tin nhắn *</label>
+                <textarea id="contactMessage" name="message" class="form-control-custom" rows="5" placeholder="Nhập nội dung bạn cần chúng tôi hỗ trợ tại đây..." required></textarea>
+              </div>
+
+              <!-- Nút Gửi (Tái sử dụng màu tối btn-dark nguyên bản của bạn) -->
+              <div class="col-md-12 pt-2">
+                <button type="submit" class="btn btn-dark w-100 py-2.5 fw-semibold" style="border-radius: 6px;">Gửi thông tin liên hệ</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       FOOTER GỐC (GIỮ NGUYÊN TỪ TRANG HOME CỦA BẠN)
+       ============================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 pe-lg-5">
+          <a href="home.html" class="footer-brand">Edu<span>Flow</span></a>
+          <p>Nền tảng học tập trực tuyến hàng đầu, cung cấp các khoá học chất lượng cao giúp bạn thăng tiến trong sự nghiệp IT.</p>
+        </div>
+        <div class="col-lg-2 col-6">
+          <h5>Khám phá</h5>
+          <ul>
+            <li><a href="home.html">Trang chủ</a></li>
+            <li><a href="courses.html">Khóa học</a></li>
+            <li><a href="blog.html">Blog</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-6">
+          <h5>Hỗ trợ</h5>
+          <ul>
+            <li><a href="about.html">Giới thiệu</a></li>
+            <li><a href="faqs.html">Câu hỏi thường gặp</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3">
+          <h5>Liên hệ</h5>
+          <ul>
+            <li><i class="fa-solid fa-location-dot me-2"></i> Quận 1, TP. Hồ Chí Minh</li>
+            <li><i class="fa-solid fa-envelope me-2"></i> support@eduflow.vn</li>
+            <li><i class="fa-solid fa-phone me-2"></i> 1900 1234</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 EduFlow. Nền tảng học lập trình thực chiến.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>

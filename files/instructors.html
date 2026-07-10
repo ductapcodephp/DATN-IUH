@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Danh sách Giảng viên - EduFlow</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* CSS RIÊNG CHO TRANG GIẢNG VIÊN */
+    .hero-instructors {
+      background: linear-gradient(135deg, #F8F9FA 0%, #E0F2FE 100%);
+      padding: 60px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .filter-btn {
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--text-main);
+      color: #fff;
+      border-color: var(--text-main);
+    }
+
+    .instructor-card-pro {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .instructor-card-pro:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+      border-color: var(--accent);
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 16px;
+    }
+    .avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .badge-top-rated {
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #FFD700;
+      color: #854D0E;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .instructor-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .instructor-title {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      border-top: 1px solid var(--bg-surface);
+      border-bottom: 1px solid var(--bg-surface);
+      padding: 12px 0;
+      margin-bottom: 16px;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-val {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 1rem;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+    .skill-tag {
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg border-bottom bg-white sticky-top py-3">
+    <div class="container align-items-center">
+      <a class="navbar-brand fw-bold fs-4" href="home.html">Edu<span class="text-info">Flow</span></a>
+      <div class="ms-auto d-flex gap-3 align-items-center">
+        <a href="#" class="text-dark"><i class="fa-solid fa-cart-shopping"></i></a>
+        <a href="#" class="btn btn-outline-dark btn-sm fw-semibold border-0">Đăng nhập</a>
+        <a href="#" class="btn btn-dark btn-sm fw-semibold">Đăng ký</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero-instructors text-center">
+    <div class="container">
+      <h1 class="fw-bold mb-3">Gặp gỡ đội ngũ Chuyên gia</h1>
+      <p class="text-muted mb-4 fs-5 mx-auto" style="max-width: 600px;">
+        Học hỏi trực tiếp từ những người đi trước. Hơn 1,200+ giảng viên giàu kinh nghiệm đang chờ đón bạn tại EduFlow.
+      </p>
+      
+      <div class="mx-auto position-relative" style="max-width: 500px;">
+        <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+        <input type="text" class="form-control form-control-lg ps-5 shadow-sm border-0" placeholder="Tìm kiếm tên giảng viên, kỹ năng..." style="border-radius: 30px;">
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 bg-white">
+    <div class="container">
+      <div class="d-flex flex-wrap justify-content-center gap-2 mb-5">
+        <button class="filter-btn active">Tất cả</button>
+        <button class="filter-btn">Lập trình Web</button>
+        <button class="filter-btn">Mobile App</button>
+        <button class="filter-btn">Data Science</button>
+        <button class="filter-btn">Thiết kế UI/UX</button>
+      </div>
+
+      <div class="row g-4">
+        
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="instructor-card-pro text-center">
+            <div class="avatar-wrapper">
+              <img src="https://i.pravatar.cc/150?img=68" alt="Avatar">
+              <span class="badge-top-rated"><i class="fa-solid fa-star me-1"></i> Top 1%</span>
+            </div>
+            <h4 class="instructor-name">Nguyễn Văn A</h4>
+            <div class="instructor-title">Senior Fullstack Developer</div>
+            
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="stat-val text-warning"><i class="fa-solid fa-star"></i> 4.9</div>
+                <div class="stat-label">Đánh giá</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">12.5k</div>
+                <div class="stat-label">Học viên</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">8</div>
+                <div class="stat-label">Khóa học</div>
+              </div>
+            </div>
+
+            <div class="skill-tags">
+              <span class="skill-tag">ReactJS</span>
+              <span class="skill-tag">NodeJS</span>
+              <span class="skill-tag">System Design</span>
+            </div>
+
+            <a href="#" class="btn btn-outline-info w-100 fw-semibold mt-auto">Xem hồ sơ</a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="instructor-card-pro text-center">
+            <div class="avatar-wrapper">
+              <img src="https://i.pravatar.cc/150?img=12" alt="Avatar">
+            </div>
+            <h4 class="instructor-name">Trần Trọng Trí</h4>
+            <div class="instructor-title">Cloud Solutions Architect</div>
+            
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="stat-val text-warning"><i class="fa-solid fa-star"></i> 4.8</div>
+                <div class="stat-label">Đánh giá</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">8.2k</div>
+                <div class="stat-label">Học viên</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">5</div>
+                <div class="stat-label">Khóa học</div>
+              </div>
+            </div>
+
+            <div class="skill-tags">
+              <span class="skill-tag">AWS</span>
+              <span class="skill-tag">Docker</span>
+              <span class="skill-tag">Kubernetes</span>
+            </div>
+
+            <a href="#" class="btn btn-outline-info w-100 fw-semibold mt-auto">Xem hồ sơ</a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="instructor-card-pro text-center">
+            <div class="avatar-wrapper">
+              <img src="https://i.pravatar.cc/150?img=33" alt="Avatar">
+              <span class="badge-top-rated"><i class="fa-solid fa-star me-1"></i> Xuất sắc</span>
+            </div>
+            <h4 class="instructor-name">Lê Minh Đăng</h4>
+            <div class="instructor-title">Lead Product Designer</div>
+            
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="stat-val text-warning"><i class="fa-solid fa-star"></i> 5.0</div>
+                <div class="stat-label">Đánh giá</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">15k</div>
+                <div class="stat-label">Học viên</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">4</div>
+                <div class="stat-label">Khóa học</div>
+              </div>
+            </div>
+
+            <div class="skill-tags">
+              <span class="skill-tag">Figma</span>
+              <span class="skill-tag">UI/UX</span>
+              <span class="skill-tag">Prototyping</span>
+            </div>
+
+            <a href="#" class="btn btn-outline-info w-100 fw-semibold mt-auto">Xem hồ sơ</a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="instructor-card-pro text-center">
+            <div class="avatar-wrapper">
+              <img src="https://i.pravatar.cc/150?img=47" alt="Avatar">
+            </div>
+            <h4 class="instructor-name">Hoàng Thủy Tiên</h4>
+            <div class="instructor-title">Senior Data Scientist</div>
+            
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="stat-val text-warning"><i class="fa-solid fa-star"></i> 4.7</div>
+                <div class="stat-label">Đánh giá</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">4.5k</div>
+                <div class="stat-label">Học viên</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">6</div>
+                <div class="stat-label">Khóa học</div>
+              </div>
+            </div>
+
+            <div class="skill-tags">
+              <span class="skill-tag">Python</span>
+              <span class="skill-tag">Machine Learning</span>
+              <span class="skill-tag">Pandas</span>
+            </div>
+
+            <a href="#" class="btn btn-outline-info w-100 fw-semibold mt-auto">Xem hồ sơ</a>
+          </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="instructor-card-pro text-center">
+            <div class="avatar-wrapper">
+              <img src="https://i.pravatar.cc/150?img=11" alt="Avatar">
+            </div>
+            <h4 class="instructor-name">Phạm Hoàng Tú</h4>
+            <div class="instructor-title">Mobile Developer (iOS)</div>
+            
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="stat-val text-warning"><i class="fa-solid fa-star"></i> 4.9</div>
+                <div class="stat-label">Đánh giá</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">6.1k</div>
+                <div class="stat-label">Học viên</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">3</div>
+                <div class="stat-label">Khóa học</div>
+              </div>
+            </div>
+
+            <div class="skill-tags">
+              <span class="skill-tag">Swift</span>
+              <span class="skill-tag">Objective-C</span>
+              <span class="skill-tag">iOS App</span>
+            </div>
+
+            <a href="#" class="btn btn-outline-info w-100 fw-semibold mt-auto">Xem hồ sơ</a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="instructor-card-pro text-center">
+            <div class="avatar-wrapper">
+              <img src="https://i.pravatar.cc/150?img=32" alt="Avatar">
+              <span class="badge-top-rated"><i class="fa-solid fa-fire me-1"></i> Nổi bật</span>
+            </div>
+            <h4 class="instructor-name">Vũ Thanh Hương</h4>
+            <div class="instructor-title">Digital Marketing Manager</div>
+            
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="stat-val text-warning"><i class="fa-solid fa-star"></i> 4.8</div>
+                <div class="stat-label">Đánh giá</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">11.2k</div>
+                <div class="stat-label">Học viên</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">7</div>
+                <div class="stat-label">Khóa học</div>
+              </div>
+            </div>
+
+            <div class="skill-tags">
+              <span class="skill-tag">SEO</span>
+              <span class="skill-tag">Facebook Ads</span>
+              <span class="skill-tag">Copywriting</span>
+            </div>
+
+            <a href="#" class="btn btn-outline-info w-100 fw-semibold mt-auto">Xem hồ sơ</a>
+          </div>
+        </div>
+
+      </div>
+
+      <nav class="mt-5 d-flex justify-content-center">
+        <ul class="pagination">
+          <li class="page-item disabled">
+            <a class="page-link text-dark" href="#" tabindex="-1">Trước</a>
+          </li>
+          <li class="page-item active"><a class="page-link bg-dark border-dark" href="#">1</a></li>
+          <li class="page-item"><a class="page-link text-dark" href="#">2</a></li>
+          <li class="page-item"><a class="page-link text-dark" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link text-dark" href="#">Sau</a>
+          </li>
+        </ul>
+      </nav>
+
+    </div>
+  </section>
+
+  <section class="py-5" style="background: #111827; color: #fff;">
+    <div class="container text-center py-4">
+      <h2 class="fw-bold mb-3">Bạn muốn gia nhập đội ngũ Giảng viên?</h2>
+      <p class="text-light opacity-75 mb-4 max-w-50 mx-auto" style="max-width: 600px;">
+        Chia sẻ kiến thức của bạn tới hàng triệu học viên và tạo ra nguồn thu nhập thụ động không giới hạn ngay hôm nay.
+      </p>
+      <a href="#" class="btn btn-warning fw-bold px-4 py-2">Đăng ký làm Giảng viên</a>
+    </div>
+  </section>
+
+  <footer class="py-5 border-top bg-white">
+    <div class="container text-center text-muted font-sm">
+      &copy; 2026 EduFlow. Nền tảng học tập đỉnh cao.
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -14,6 +14,7 @@ export default function SellerLayout({ children }) {
                 <link rel="stylesheet" href="/assets/seller/css/seller.css" />
                 <link rel="stylesheet" href="/assets/seller/css/curriculum.css" />
                 <link rel="stylesheet" href="/assets/seller/css/courses.css" />
+                <link rel="stylesheet" href="/assets/seller/css/profile.css" />
             </Head>
 
 

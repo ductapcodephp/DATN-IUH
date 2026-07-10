@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Về chúng tôi - EduFlow</title>
+  <meta name="description" content="Tìm hiểu về sứ mệnh, đội ngũ Mentor và câu chuyện hình thành của EduFlow - nền tảng học lập trình thực chiến." />
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg">
+    <div class="container align-items-center">
+      <a class="navbar-brand" href="home.html">Edu<span>Flow</span></a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Mở menu điều hướng">
+        <i class="fa-solid fa-bars fs-4"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav main-nav mb-3 mb-lg-0">
+          <li class="nav-item"><a class="nav-link main-nav-link" href="home.html">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="courses.html">Khóa học</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link active" href="about.html">Giới thiệu</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="faqs.html">FAQ</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="contact.html">Liên hệ</a></li>
+        </ul>
+
+        <div class="dropdown ms-lg-3 mt-3 mt-lg-0">
+          <div class="nav-categories" data-bs-toggle="dropdown">
+            <i class="fa-solid fa-layer-group me-1"></i> Danh mục
+          </div>
+          <ul class="dropdown-menu shadow-sm border-0 mt-2">
+            <li><a class="dropdown-item" href="courses.html">Frontend Development</a></li>
+            <li><a class="dropdown-item" href="courses.html">Backend & API</a></li>
+            <li><a class="dropdown-item" href="courses.html">Data Science</a></li>
+          </ul>
+        </div>
+
+        <div class="search-wrap mt-3 mt-lg-0 mx-lg-3">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm khoá học..." autocomplete="off">
+          <div class="search-dropdown" id="searchDropdown">
+            <div id="searchLoading" class="text-center p-3 d-none text-muted"><i class="fa-solid fa-spinner fa-spin"></i> Đang tìm...</div>
+            <div id="searchResults"></div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 align-items-center mt-3 mt-lg-0 ms-lg-auto">
+          <a href="checkout.html" class="text-dark" aria-label="Giỏ hàng"><i class="fa-solid fa-cart-shopping"></i></a>
+          <a href="#" class="btn btn-outline-dark btn-sm fw-semibold border-0">Đăng nhập</a>
+          <a href="#" class="btn btn-dark btn-sm fw-semibold">Đăng ký</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero-section text-center py-5">
+    <div class="container py-3">
+      <h1 class="hero-title">Câu chuyện & Sứ mệnh EduFlow</h1>
+      <p class="hero-desc col-lg-8 mx-auto">Chúng tôi đem lại giải pháp thu hẹp khoảng cách giữa Nhà trường và Doanh nghiệp thực chiến, giúp học viên làm chủ công nghệ mới nhất.</p>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <div class="hero-img-wrap">
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Đội ngũ EduFlow" class="img-fluid rounded-4">
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <h2 class="section-title mb-4">Chúng tôi bắt đầu như thế nào?</h2>
+          <p class="text-muted lh-lg mb-3">Xuất phát từ những lập trình viên và quản lý dự án lâu năm, EduFlow nhận thấy khoảng cách lớn giữa lý thuyết học đường và thực tế doanh nghiệp.</p>
+          <p class="text-muted lh-lg mb-4">EduFlow ra đời nhằm giải quyết triệt để bài toán đó. Chúng tôi không dạy lý thuyết suông, mà tập trung giúp bạn hoàn thiện tư duy qua thực tế 80% thời lượng.</p>
+          
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="roadmap-card h-100 p-3" style="cursor: default;">
+                <div>
+                  <h5 class="fw-bold text-accent mb-1"><i class="fa-solid fa-bullseye me-1"></i> Tầm nhìn</h5>
+                  <p class="text-muted mb-0 font-sm">Trở thành nền tảng học lập trình thực chiến hàng đầu.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="roadmap-card h-100 p-3" style="cursor: default;">
+                <div>
+                  <h5 class="fw-bold text-fire mb-1"><i class="fa-solid fa-heart me-1"></i> Giá trị cốt lõi</h5>
+                  <p class="text-muted mb-0 font-sm">Đồng hành, thực chiến và chuẩn đầu ra doanh nghiệp.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 text-center text-white" style="background: linear-gradient(135deg, #1F2937, #111827);">
+    <div class="container py-4">
+      <div class="row g-4">
+        <div class="col-6 col-md-3">
+          <h2 class="display-5 fw-bold mb-2" style="color: var(--accent);">50k+</h2>
+          <p class="mb-0 fs-6 fw-semibold text-white-50">Học viên tin tưởng</p>
+        </div>
+        <div class="col-6 col-md-3">
+          <h2 class="display-5 fw-bold mb-2" style="color: var(--accent);">120+</h2>
+          <p class="mb-0 fs-6 fw-semibold text-white-50">Khóa học thực chiến</p>
+        </div>
+        <div class="col-6 col-md-3">
+          <h2 class="display-5 fw-bold mb-2" style="color: var(--accent);">500+</h2>
+          <p class="mb-0 fs-6 fw-semibold text-white-50">Dự án hoàn thiện</p>
+        </div>
+        <div class="col-6 col-md-3">
+          <h2 class="display-5 fw-bold mb-2" style="color: var(--accent);">95%</h2>
+          <p class="mb-0 fs-6 fw-semibold text-white-50">Có việc làm sau học</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container py-5">
+      <div class="text-center mb-5">
+        <h2 class="section-title mb-2">Khác biệt tại EduFlow</h2>
+        <p class="text-muted">Phương pháp học tập được thiết kế riêng để tối ưu hóa thời gian và hiệu quả</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 bg-white h-100 shadow-sm">
+            <div class="mb-4 text-accent">
+              <i class="fa-solid fa-code fs-1"></i>
+            </div>
+            <h5 class="fw-bold mb-3">Học qua dự án thực tế</h5>
+            <p class="text-muted mb-0">Mỗi khóa học là một sản phẩm hoàn chỉnh. Kết thúc khóa học, bạn sẽ có ngay một dự án tuyệt vời để thêm vào Portfolio xin việc.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 bg-white h-100 shadow-sm">
+            <div class="mb-4 text-fire">
+              <i class="fa-solid fa-users-gear fs-1"></i>
+            </div>
+            <h5 class="fw-bold mb-3">Review code 1-1</h5>
+            <p class="text-muted mb-0">Không để bạn kẹt lỗi quá lâu. Đội ngũ Mentor luôn sẵn sàng review code trực tiếp và chỉ ra những "Best Practices" cho bạn.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 bg-white h-100 shadow-sm">
+            <div class="mb-4 text-success">
+              <i class="fa-solid fa-briefcase fs-1"></i>
+            </div>
+            <h5 class="fw-bold mb-3">Bảo trợ việc làm</h5>
+            <p class="text-muted mb-0">EduFlow liên kết với hơn 50 doanh nghiệp IT, hỗ trợ bạn sửa CV, phỏng vấn thử (Mock Interview) và giới thiệu việc làm.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 bg-surface">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="section-title mb-2">Đội ngũ Mentor chất lượng</h2>
+        <p class="text-muted">Những Senior Developer dẫn dắt bạn qua từng dòng code</p>
+      </div>
+      
+      <div class="row g-4">
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="review-card text-center bg-white h-100 p-4 rounded-3 border">
+            <img src="https://i.pravatar.cc/150?img=68" alt="Mentor" class="rounded-circle border p-1 mb-3" style="width:90px; height:90px; object-fit:cover;">
+            <h5 class="fw-bold mb-1">Trần Trọng Trí</h5>
+            <span class="text-accent font-sm d-block mb-3 fw-semibold">Founder & Instructor</span>
+            <p class="text-muted font-sm mb-0">Nguyên Tech Lead tại tập đoàn công nghệ lớn với hơn 8 năm kinh nghiệm thực chiến.</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="review-card text-center bg-white h-100 p-4 rounded-3 border">
+            <img src="https://i.pravatar.cc/150?img=33" alt="Mentor" class="rounded-circle border p-1 mb-3" style="width:90px; height:90px; object-fit:cover;">
+            <h5 class="fw-bold mb-1">Nguyễn Minh Minh</h5>
+            <span class="text-accent font-sm d-block mb-3 fw-semibold">Frontend Expert</span>
+            <p class="text-muted font-sm mb-0">Chuyên gia ReactJS và NextJS, đam mê tối ưu UI/UX mượt mà chuẩn doanh nghiệp.</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="review-card text-center bg-white h-100 p-4 rounded-3 border">
+            <img src="https://i.pravatar.cc/150?img=12" alt="Mentor" class="rounded-circle border p-1 mb-3" style="width:90px; height:90px; object-fit:cover;">
+            <h5 class="fw-bold mb-1">Phạm Minh Hoàng</h5>
+            <span class="text-accent font-sm d-block mb-3 fw-semibold">Backend Architect</span>
+            <p class="text-muted font-sm mb-0">Chuyên gia xây dựng hệ thống API quy mô lớn, Microservices và tối ưu Docker/AWS.</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="review-card text-center bg-white h-100 p-4 rounded-3 border">
+            <img src="https://i.pravatar.cc/150?img=47" alt="Mentor" class="rounded-circle border p-1 mb-3" style="width:90px; height:90px; object-fit:cover;">
+            <h5 class="fw-bold mb-1">Lê Thị Thủy</h5>
+            <span class="text-accent font-sm d-block mb-3 fw-semibold">Data Specialist</span>
+            <p class="text-muted font-sm mb-0">Thạc sĩ phân tích dữ liệu, định hướng tư duy giải quyết bài toán kinh doanh bằng số liệu.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 border-top">
+    <div class="container py-4 text-center">
+      <p class="text-muted fw-semibold mb-4 text-uppercase tracking-wide">Học viên của chúng tôi đang làm việc tại</p>
+      <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 gap-lg-5 opacity-50">
+        <h3 class="fw-bold mb-0 text-dark"><i class="fa-brands fa-google me-1"></i> Google</h3>
+        <h3 class="fw-bold mb-0 text-dark"><i class="fa-brands fa-microsoft me-1"></i> Microsoft</h3>
+        <h3 class="fw-bold mb-0 text-dark"><i class="fa-brands fa-aws me-1"></i> AWS</h3>
+        <h3 class="fw-bold mb-0 text-dark"><i class="fa-brands fa-figma me-1"></i> Figma</h3>
+        <h3 class="fw-bold mb-0 text-dark"><i class="fa-brands fa-stripe me-1"></i> Stripe</h3>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 text-center bg-white border-top">
+    <div class="container py-5">
+      <h2 class="fw-bold mb-3">Bạn đã sẵn sàng nâng cấp sự nghiệp?</h2>
+      <p class="text-muted mb-4 fs-6 col-lg-6 mx-auto">Hàng ngàn học viên đã thay đổi sự nghiệp và mức thu nhập cùng EduFlow. Hãy bắt đầu hành trình của bạn ngay hôm nay.</p>
+      <a href="courses.html" class="btn btn-dark btn-lg px-5 py-3 rounded-pill fw-semibold shadow-sm">Khám phá khoá học ngay</a>
+    </div>
+  </section>
+
+  <footer class="footer border-top mt-0">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 pe-lg-5">
+          <a href="home.html" class="footer-brand">Edu<span>Flow</span></a>
+          <p>Nền tảng học tập trực tuyến hàng đầu, cung cấp các khoá học chất lượng cao giúp bạn thăng tiến trong sự nghiệp IT.</p>
+        </div>
+        <div class="col-lg-2 col-6">
+          <h5>Khám phá</h5>
+          <ul>
+            <li><a href="home.html">Trang chủ</a></li>
+            <li><a href="courses.html">Khóa học</a></li>
+            <li><a href="blog.html">Blog</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-6">
+          <h5>Hỗ trợ</h5>
+          <ul>
+            <li><a href="about.html">Giới thiệu</a></li>
+            <li><a href="faqs.html">Câu hỏi thường gặp</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3">
+          <h5>Liên hệ</h5>
+          <ul>
+            <li><i class="fa-solid fa-location-dot me-2"></i> Quận 1, TP. Hồ Chí Minh</li>
+            <li><i class="fa-solid fa-envelope me-2"></i> support@eduflow.vn</li>
+            <li><i class="fa-solid fa-phone me-2"></i> 1900 1234</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 EduFlow. Nền tảng học lập trình thực chiến.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>

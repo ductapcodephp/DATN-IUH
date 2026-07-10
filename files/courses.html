@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Danh sách khóa học - EduFlow</title>
+  <meta name="description" content="Khám phá toàn bộ khóa học Frontend, Backend, Data Science tại EduFlow. Lọc theo danh mục, giá và đánh giá." />
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg">
+    <div class="container align-items-center">
+      <a class="navbar-brand" href="home.html">Edu<span>Flow</span></a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Mở menu điều hướng">
+        <i class="fa-solid fa-bars fs-4"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav main-nav mb-3 mb-lg-0">
+          <li class="nav-item"><a class="nav-link main-nav-link" href="home.html">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link active" href="courses.html">Khóa học</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="about.html">Giới thiệu</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="faqs.html">FAQ</a></li>
+          <li class="nav-item"><a class="nav-link main-nav-link" href="contact.html">Liên hệ</a></li>
+        </ul>
+
+        <div class="dropdown ms-lg-3 mt-3 mt-lg-0">
+          <div class="nav-categories" data-bs-toggle="dropdown">
+            <i class="fa-solid fa-layer-group me-1"></i> Danh mục
+          </div>
+          <ul class="dropdown-menu shadow-sm border-0 mt-2">
+            <li><a class="dropdown-item" href="courses.html">Frontend Development</a></li>
+            <li><a class="dropdown-item" href="courses.html">Backend & API</a></li>
+            <li><a class="dropdown-item" href="courses.html">Data Science</a></li>
+          </ul>
+        </div>
+
+        <div class="search-wrap mt-3 mt-lg-0 mx-lg-3">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm khoá học..." autocomplete="off">
+          <div class="search-dropdown" id="searchDropdown">
+            <div id="searchLoading" class="text-center p-3 d-none text-muted"><i class="fa-solid fa-spinner fa-spin"></i> Đang tìm...</div>
+            <div id="searchResults"></div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 align-items-center mt-3 mt-lg-0 ms-lg-auto">
+          <a href="checkout.html" class="text-dark" aria-label="Giỏ hàng"><i class="fa-solid fa-cart-shopping"></i></a>
+          <a href="#" class="btn btn-outline-dark btn-sm fw-semibold border-0">Đăng nhập</a>
+          <a href="#" class="btn btn-dark btn-sm fw-semibold">Đăng ký</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header py-4 bg-surface border-bottom">
+    <div class="container">
+      <h1 class="fs-3 fw-bold mb-2">Tất cả khóa học</h1>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 font-sm">
+          <li class="breadcrumb-item"><a href="home.html" class="text-muted">Trang chủ</a></li>
+          <li class="breadcrumb-item active text-main fw-semibold" aria-current="page">Khóa học</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-5">
+    <div class="container">
+      
+      <form action="/courses" method="GET" class="row g-4">
+        
+        <div class="col-lg-3">
+          <div class="filter-sidebar">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold mb-0"><i class="fa-solid fa-filter me-2 text-muted"></i> Bộ lọc</h5>
+              <button type="submit" class="btn btn-sm btn-outline-dark fw-semibold">Áp dụng</button>
+            </div>
+
+            <div class="filter-group">
+              <h6 class="filter-title">Danh mục</h6>
+              <div class="filter-options">
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="category[]" value="frontend">
+                  <span class="checkmark"></span>
+                  <span class="label-text">Frontend Development</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="category[]" value="backend">
+                  <span class="checkmark"></span>
+                  <span class="label-text">Backend & API</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="category[]" value="data">
+                  <span class="checkmark"></span>
+                  <span class="label-text">Data Science</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <h6 class="filter-title">Giá khóa học</h6>
+              <div class="filter-options">
+                <label class="custom-radio">
+                  <input type="radio" name="price" value="all" checked>
+                  <span class="radiomark"></span>
+                  <span class="label-text">Tất cả mức giá</span>
+                </label>
+                <label class="custom-radio">
+                  <input type="radio" name="price" value="free">
+                  <span class="radiomark"></span>
+                  <span class="label-text">Miễn phí</span>
+                </label>
+                <label class="custom-radio">
+                  <input type="radio" name="price" value="paid">
+                  <span class="radiomark"></span>
+                  <span class="label-text">Trả phí</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="filter-group border-0 pb-0 mb-0">
+              <h6 class="filter-title">Đánh giá</h6>
+              <div class="filter-options">
+                <label class="custom-radio">
+                  <input type="radio" name="rating" value="4.5">
+                  <span class="radiomark"></span>
+                  <span class="label-text text-yellow">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i> (Từ 4.5)
+                  </span>
+                </label>
+                <label class="custom-radio">
+                  <input type="radio" name="rating" value="4.0">
+                  <span class="radiomark"></span>
+                  <span class="label-text text-yellow">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i> (Từ 4.0)
+                  </span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-lg-9">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <div class="text-muted font-sm">Tìm thấy <b class="text-dark">12</b> khóa học</div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="font-sm fw-semibold text-nowrap">Sắp xếp:</span>
+              <select name="sort" class="form-select form-select-sm sort-dropdown" style="width: 180px; box-shadow: none;" onchange="this.form.submit()">
+                <option value="newest">Mới nhất</option>
+                <option value="popular">Phổ biến nhất</option>
+                <option value="price_asc">Giá: Thấp đến cao</option>
+                <option value="price_desc">Giá: Cao đến thấp</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            
+            <div class="col-12 col-md-6 col-xl-4">
+              <a href="course-detail.html" class="course-card">
+                <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&q=80" alt="ReactJS" class="course-thumb" loading="lazy">
+                <div class="course-body">
+                  <span class="course-cat">Frontend</span>
+                  <h3 class="course-title">ReactJS Thực Chiến: Từ Cơ Bản Đến Xây Dựng Dự Án</h3>
+                  <div class="course-meta">
+                    <span class="course-rating"><i class="fa-solid fa-star"></i> 4.9</span>
+                    <span><i class="fa-solid fa-users"></i> 1,204</span>
+                  </div>
+                </div>
+                <div class="course-footer">
+                  <span class="price-new">899.000đ</span>
+                  <span class="price-old">1.500.000đ</span>
+                </div>
+              </a>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-4">
+              <a href="course-detail.html" class="course-card">
+                <img src="https://images.unsplash.com/photo-1627398246736-28f74706509f?w=600&q=80" alt="NodeJS" class="course-thumb" loading="lazy">
+                <div class="course-body">
+                  <span class="course-cat">Backend</span>
+                  <h3 class="course-title">Master NodeJS & Express: API chuẩn RESTful</h3>
+                  <div class="course-meta">
+                    <span class="course-rating"><i class="fa-solid fa-star"></i> 4.8</span>
+                    <span><i class="fa-solid fa-users"></i> 856</span>
+                  </div>
+                </div>
+                <div class="course-footer">
+                  <span class="price-new">950.000đ</span>
+                  <span class="price-old">1.800.000đ</span>
+                </div>
+              </a>
+            </div>
+
+            <div class="col-12 col-md-6 col-xl-4">
+              <a href="course-detail.html" class="course-card">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="Python" class="course-thumb" loading="lazy">
+                <div class="course-body">
+                  <span class="course-cat">Data Science</span>
+                  <h3 class="course-title">Phân tích Dữ liệu với Python cho Người Mới</h3>
+                  <div class="course-meta">
+                    <span class="course-rating"><i class="fa-solid fa-star"></i> 5.0</span>
+                    <span><i class="fa-solid fa-users"></i> 3,420</span>
+                  </div>
+                </div>
+                <div class="course-footer">
+                  <span class="price-new">Miễn phí</span>
+                </div>
+              </a>
+            </div>
+            </div>
+
+          <div class="d-flex justify-content-center mt-5">
+            <nav aria-label="Page navigation">
+              <ul class="pagination pagination-sm">
+                <li class="page-item disabled"><a class="page-link" href="#"><i class="fa-solid fa-chevron-left"></i></a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#"><i class="fa-solid fa-chevron-right"></i></a></li>
+              </ul>
+            </nav>
+          </div>
+
+        </div>
+      </form>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 pe-lg-5">
+          <a href="home.html" class="footer-brand">Edu<span>Flow</span></a>
+          <p>Nền tảng học tập trực tuyến hàng đầu, cung cấp các khoá học chất lượng cao giúp bạn thăng tiến trong sự nghiệp IT.</p>
+        </div>
+        <div class="col-lg-2 col-6">
+          <h5>Khám phá</h5>
+          <ul>
+            <li><a href="home.html">Trang chủ</a></li>
+            <li><a href="courses.html">Khóa học</a></li>
+            <li><a href="blog.html">Blog</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-6">
+          <h5>Hỗ trợ</h5>
+          <ul>
+            <li><a href="about.html">Giới thiệu</a></li>
+            <li><a href="faqs.html">Câu hỏi thường gặp</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3">
+          <h5>Liên hệ</h5>
+          <ul>
+            <li><i class="fa-solid fa-location-dot me-2"></i> Quận 1, TP. Hồ Chí Minh</li>
+            <li><i class="fa-solid fa-envelope me-2"></i> support@eduflow.vn</li>
+            <li><i class="fa-solid fa-phone me-2"></i> 1900 1234</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 EduFlow. Nền tảng học lập trình thực chiến.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>

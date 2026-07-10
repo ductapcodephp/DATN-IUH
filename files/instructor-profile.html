@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hồ sơ Giảng viên: Nguyễn Văn A - EduFlow</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* CSS RIÊNG CHO TRANG HỒ SƠ CHI TIẾT GIẢNG VIÊN */
+    .profile-header-section {
+      background: linear-gradient(to bottom, #0f172a 0%, #1e293b 100%);
+      color: #fff;
+      padding: 60px 0 40px;
+    }
+    
+    .profile-avatar-big {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+    }
+
+    .profile-stat-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+    }
+    .profile-stat-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    .profile-stat-lbl {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+    }
+
+    /* Tabs styling */
+    .profile-nav-tabs .nav-link {
+      color: var(--text-muted);
+      font-weight: 600;
+      border: none;
+      padding: 16px 24px;
+      border-bottom: 3px solid transparent;
+    }
+    .profile-nav-tabs .nav-link.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: transparent;
+    }
+
+    /* Course Card xịn */
+    .course-card-pro {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .course-card-pro:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.06);
+    }
+    .course-thumb-wrap {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: #e2e8f0;
+    }
+    .course-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .course-badge-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #10b981;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .course-card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .course-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.4;
+      margin-bottom: 8px;
+      height: 2.8em;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .course-price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 15px;
+      border-top: 1px solid var(--bg-surface);
+    }
+    .price-current {
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: #ea580c;
+    }
+    .price-old {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-decoration: line-through;
+    }
+
+    /* Review item */
+    .review-item-box {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .review-item-box:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-expand-lg border-bottom bg-white sticky-top py-3">
+    <div class="container align-items-center">
+      <a class="navbar-brand fw-bold fs-4" href="home.html">Edu<span class="text-info">Flow</span></a>
+      <div class="ms-auto d-flex gap-3 align-items-center">
+        <a href="instructors.html" class="btn btn-link text-decoration-none text-muted fw-medium font-sm"><i class="fa-solid fa-chevron-left me-1"></i> Trở lại danh sách</a>
+        <a href="#" class="btn btn-dark btn-sm fw-semibold">Bảng điều khiển</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="profile-header-section">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        
+        <div class="col-lg-7 d-flex flex-column flex-md-row gap-4 text-center text-md-start align-items-center">
+          <img src="https://i.pravatar.cc/150?img=68" class="profile-avatar-big shadow" alt="Nguyễn Văn A">
+          <div>
+            <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start align-items-center mb-2">
+              <h2 class="fw-bold mb-0">Nguyễn Văn A</h2>
+              <span class="badge bg-info text-white font-sm"><i class="fa-solid fa-circle-check me-1"></i> Đối tác chuyên gia</span>
+            </div>
+            <p class="text-info fw-medium mb-2 fs-5">Senior Fullstack Developer & Cloud Engineer</p>
+            <p class="text-white-50 font-sm mb-3 lh-base" style="max-width: 500px;">
+              Hơn 10 năm kinh nghiệm thực chiến tại các tập đoàn công nghệ lớn. Đam mê chia sẻ kiến thức, cốt lõi dạy học là thực hành, nói không với lý thuyết suông.
+            </p>
+            <div class="d-flex justify-content-center justify-content-md-start gap-2">
+              <button class="btn btn-info text-white fw-semibold btn-sm px-4"><i class="fa-solid fa-user-plus me-1"></i> Theo dõi</button>
+              <button class="btn btn-outline-light btn-sm px-3"><i class="fa-regular fa-envelope me-1"></i> Liên hệ</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="profile-stat-box">
+                <div class="profile-stat-num">12,543</div>
+                <div class="profile-stat-lbl">Tổng Học Viên</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="profile-stat-box">
+                <div class="profile-stat-num">4.9 <i class="fa-solid fa-star fs-6 text-warning"></i></div>
+                <div class="profile-stat-lbl">Đánh Giá (3.2k)</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="profile-stat-box">
+                <div class="profile-stat-num">8</div>
+                <div class="profile-stat-lbl">Khóa Học Đang Bán</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="profile-stat-box">
+                <div class="profile-stat-num">4.5M+</div>
+                <div class="profile-stat-lbl">Lượt xem video</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <main class="py-4">
+    <div class="container">
+      <div class="row g-4">
+        
+        <div class="col-lg-10 mx-auto">
+          
+          <ul class="nav nav-tabs profile-nav-tabs border-bottom bg-white rounded-3 px-3 shadow-sm mb-4" id="profileTabs" role="tablist">
+            <li class="nav-item">
+              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-courses" type="button"><i class="fa-solid fa-book-open me-2"></i>Khóa học của tôi (8)</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bio" type="button"><i class="fa-solid fa-graduation-cap me-2"></i>Kinh nghiệm & Tiểu sử</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-reviews" type="button"><i class="fa-regular fa-star me-2"></i>Đánh giá từ học viên</button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="profileTabsContent">
+            
+            <div class="tab-pane fade show active" id="tab-courses">
+              <div class="row g-4">
+                
+                <div class="col-md-4 col-sm-6">
+                  <div class="course-card-pro">
+                    <div class="course-thumb-wrap">
+                      <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500" alt="ReactJS">
+                      <span class="course-badge-tag">Bán chạy</span>
+                    </div>
+                    <div class="course-card-body">
+                      <span class="text-info font-sm fw-bold text-uppercase mb-1">Frontend</span>
+                      <h5 class="course-card-title"><a href="learn.html" class="text-dark text-decoration-none">ReactJS Thực Chiến: Từ Cơ Bản Đến Xây Dựng Dự Án Lớn</a></h5>
+                      <div class="font-sm text-muted mb-3">
+                        <i class="fa-solid fa-star text-warning me-1"></i><strong>4.9</strong> (1.2k học viên)
+                      </div>
+                      <div class="course-price-row">
+                        <div>
+                          <span class="price-current">399.000đ</span>
+                          <span class="price-old ms-1">799.000đ</span>
+                        </div>
+                        <span class="text-muted font-sm"><i class="fa-regular fa-clock me-1"></i> 34 giờ</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 col-sm-6">
+                  <div class="course-card-pro">
+                    <div class="course-thumb-wrap">
+                      <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500" alt="NodeJS">
+                    </div>
+                    <div class="course-card-body">
+                      <span class="text-info font-sm fw-bold text-uppercase mb-1">Backend</span>
+                      <h5 class="course-card-title"><a href="#" class="text-dark text-decoration-none">Xây Dựng RESTful API Toàn Tập Với NodeJS & Express</a></h5>
+                      <div class="font-sm text-muted mb-3">
+                        <i class="fa-solid fa-star text-warning me-1"></i><strong>4.8</strong> (850 học viên)
+                      </div>
+                      <div class="course-price-row">
+                        <div>
+                          <span class="price-current">299.000đ</span>
+                          <span class="price-old ms-1">599.000đ</span>
+                        </div>
+                        <span class="text-muted font-sm"><i class="fa-regular fa-clock me-1"></i> 22 giờ</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 col-sm-6">
+                  <div class="course-card-pro">
+                    <div class="course-thumb-wrap">
+                      <img src="https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=500" alt="Next.js">
+                      <span class="course-badge-tag bg-primary">Mới</span>
+                    </div>
+                    <div class="course-card-body">
+                      <span class="text-info font-sm fw-bold text-uppercase mb-1">Fullstack</span>
+                      <h5 class="course-card-title"><a href="#" class="text-dark text-decoration-none">Làm chủ Next.js 14 App Router & Triển khai AWS Cloud</a></h5>
+                      <div class="font-sm text-muted mb-3">
+                        <i class="fa-solid fa-star text-warning me-1"></i><strong>5.0</strong> (120 học viên)
+                      </div>
+                      <div class="course-price-row">
+                        <div>
+                          <span class="price-current">499.000đ</span>
+                          <span class="price-old ms-1">999.000đ</span>
+                        </div>
+                        <span class="text-muted font-sm"><i class="fa-regular fa-clock me-1"></i> 40 giờ</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="tab-pane fade bg-white p-4 rounded-3 shadow-sm" id="tab-bio">
+              <h5 class="fw-bold mb-3">Về Giảng Viên Nguyễn Văn A</h5>
+              <p class="text-secondary lh-lg">Chào các bạn, tôi là một kỹ sư phần mềm với niềm đam mê bất tận dành cho lập trình web và kiến trúc hệ thống phân tán. Đã từng giữ vị trí Tech Lead tại TechCorp và cố vấn giải pháp đám mây Cloud solution cho nhiều startup.</p>
+              
+              <h5 class="fw-bold mt-4 mb-3">Hành trình sự nghiệp</h5>
+              <ul class="list-group list-group-flush col-md-8">
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 text-secondary">
+                  <span><strong>Senior Tech Lead</strong> tại TechCorp Global</span>
+                  <span class="badge bg-secondary rounded-pill">2022 - Hiện tại</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 text-secondary">
+                  <span><strong>Fullstack Web Developer</strong> tại VinaSoftware</span>
+                  <span class="badge bg-secondary rounded-pill">2018 - 2022</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="tab-pane fade bg-white p-4 rounded-3 shadow-sm" id="tab-reviews">
+              <h5 class="fw-bold mb-4">Phản hồi gần đây từ người mua khóa học</h5>
+              
+              <div class="review-item-box d-flex gap-3 align-items-start">
+                <img src="https://i.pravatar.cc/150?img=11" class="rounded-circle" style="width: 48px; height: 48px;" alt="User">
+                <div>
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <h6 class="mb-0 fw-bold">Lê Tuấn Kiệt</h6>
+                    <span class="text-warning font-sm"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span>
+                  </div>
+                  <small class="text-muted d-block mb-2">Khóa học: Khóa ReactJS Thực Chiến</small>
+                  <p class="text-secondary mb-0">Thầy dạy cuốn cực kỳ, bài tập thực hành sát thực tế đi làm luôn chứ không học lý thuyết sáo rỗng. Đáng đồng tiền bát gạo!</p>
+                </div>
+              </div>
+
+              <div class="review-item-box d-flex gap-3 align-items-start">
+                <img src="https://i.pravatar.cc/150?img=32" class="rounded-circle" style="width: 48px; height: 48px;" alt="User">
+                <div>
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <h6 class="mb-0 fw-bold">Hoàng Yến Nhi</h6>
+                    <span class="text-warning font-sm"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span>
+                  </div>
+                  <small class="text-muted d-block mb-2">Khóa học: Xây Dựng RESTful API Toàn Tập</small>
+                  <p class="text-secondary mb-0">Nhờ học khóa NodeJS của thầy mà em đã tự tin pass qua vòng phỏng vấn Intern Backend. Cảm ơn thầy nhiều ạ.</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-4 border-top bg-white mt-5">
+    <div class="container text-center text-muted font-sm">
+      &copy; 2026 EduFlow. Nền tảng học tập đỉnh cao.
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

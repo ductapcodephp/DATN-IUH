@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đang học: ReactJS Thực Chiến - EduFlow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
+
+  <style>
+    /* ── QUIZ OVERLAY — đè toàn bộ learn-main ── */
+    .quiz-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 200;
+      background: #f8fafc;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .quiz-overlay.active { display: flex; }
+
+    /* Top bar */
+    .quiz-topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      flex-shrink: 0;
+    }
+    .quiz-topbar-title { font-weight: 700; font-size: 0.95rem; color: #111827; }
+    .quiz-topbar-sub   { font-size: 0.78rem; color: #6b7280; margin-top: 1px; }
+
+    /* Step dots */
+    .quiz-steps { display: flex; gap: 6px; margin-left: auto; }
+    .quiz-step-dot {
+      width: 28px; height: 6px; border-radius: 3px;
+      background: #e5e7eb; transition: background 0.25s;
+    }
+    .quiz-step-dot.done    { background: #16a34a; }
+    .quiz-step-dot.active  { background: #0284c7; }
+    .quiz-step-dot.wrong   { background: #dc2626; }
+
+    /* Scrollable body */
+    .quiz-scroll { flex: 1; overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 32px 24px 48px; }
+
+    /* Card */
+    .quiz-card {
+      width: 100%; max-width: 640px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+
+    .quiz-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #0284c7;
+      background: #e0f2fe; border-radius: 20px;
+      padding: 4px 12px; margin-bottom: 16px;
+    }
+    .quiz-question-text {
+      font-size: 1.05rem; font-weight: 600; line-height: 1.6;
+      color: #111827; margin-bottom: 24px;
+    }
+    .quiz-question-text code {
+      background: #f1f5f9; border-radius: 4px;
+      padding: 1px 6px; font-size: 0.92em; color: #0369a1;
+    }
+
+    /* Options */
+    .quiz-opt {
+      display: flex; align-items: center; gap: 14px;
+      width: 100%; text-align: left;
+      background: #fff; border: 2px solid #e5e7eb;
+      border-radius: 10px; padding: 14px 18px;
+      margin-bottom: 10px; cursor: pointer;
+      font-size: 0.9rem; color: #1f2937;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    }
+    .quiz-opt:not(:disabled):hover {
+      border-color: #0284c7; background: #f0f9ff;
+      transform: translateX(2px);
+    }
+    .opt-key {
+      width: 30px; height: 30px; border-radius: 8px;
+      border: 2px solid #d1d5db;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 700; color: #6b7280;
+      flex-shrink: 0; transition: 0.15s;
+    }
+    .quiz-opt.selected-correct { border-color: #16a34a; background: #f0fdf4; }
+    .quiz-opt.selected-correct .opt-key { background: #16a34a; border-color: #16a34a; color: #fff; }
+    .quiz-opt.selected-wrong { border-color: #dc2626; background: #fff5f5; }
+    .quiz-opt.selected-wrong .opt-key { background: #dc2626; border-color: #dc2626; color: #fff; }
+    .quiz-opt.reveal-correct { border-color: #16a34a; background: #f0fdf4; }
+    .quiz-opt.reveal-correct .opt-key { background: #16a34a; border-color: #16a34a; color: #fff; }
+    .quiz-opt:disabled { cursor: default; transform: none !important; }
+
+    /* Feedback */
+    .quiz-feedback-box {
+      display: none; border-radius: 10px; padding: 14px 18px;
+      font-size: 0.875rem; font-weight: 500; margin-top: 16px;
+    }
+    .quiz-feedback-box.show { display: flex; align-items: flex-start; gap: 10px; }
+    .quiz-feedback-box.fb-correct { background: #f0fdf4; border: 1px solid #86efac; color: #15803d; }
+    .quiz-feedback-box.fb-wrong   { background: #fff5f5; border: 1px solid #fca5a5; color: #b91c1c; }
+    .quiz-feedback-box i { margin-top: 1px; flex-shrink: 0; }
+
+    /* Next btn */
+    .quiz-next-btn {
+      display: none; margin-top: 20px;
+      background: #111827; color: #fff; border: none;
+      border-radius: 8px; padding: 12px 24px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .quiz-next-btn.show { display: inline-flex; align-items: center; gap: 8px; }
+    .quiz-next-btn:hover { background: #0284c7; }
+
+    /* Result */
+    .quiz-result-card {
+      text-align: center; padding: 16px 0 0;
+      display: none;
+    }
+    .quiz-result-card.show { display: block; }
+    .result-ring {
+      width: 120px; height: 120px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; font-size: 2.8rem;
+    }
+    .result-ring.pass { background: #f0fdf4; border: 4px solid #16a34a; }
+    .result-ring.fail { background: #fffbeb; border: 4px solid #d97706; }
+    .result-score { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
+    .result-score.pass { color: #16a34a; }
+    .result-score.fail { color: #d97706; }
+    .result-msg { color: #6b7280; font-size: 0.9rem; margin-bottom: 24px; }
+    .result-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── SIDEBAR quiz lesson item ── */
+    .quiz-badge-pill {
+      font-size: 0.68rem; font-weight: 700;
+      background: #fef9c3; color: #854d0e;
+      border-radius: 20px; padding: 2px 8px;
+      display: inline-block; margin-left: 6px;
+    }
+
+    /* ── TABS always scroll independently ── */
+    .learn-tabs-area { overflow-y: auto; }
+    .tab-content      { padding-bottom: 40vh; }
+
+    /* ── COMMENT ── */
+    .comment-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: #0284c7; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.82rem; flex-shrink: 0;
+    }
+    .comment-item { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f1f5f9; }
+    .comment-item:last-child { border-bottom: none; }
+    .comment-name { font-weight: 600; font-size: 0.88rem; }
+    .comment-time { font-size: 0.76rem; color: #9ca3af; margin-left: 8px; }
+    .comment-text { font-size: 0.88rem; color: #374151; margin: 5px 0 6px; line-height: 1.55; }
+    .comment-action-btn {
+      background: none; border: none; color: #9ca3af;
+      font-size: 0.78rem; padding: 2px 8px 2px 0; cursor: pointer;
+      transition: color 0.15s;
+    }
+    .comment-action-btn:hover { color: #0284c7; }
+    .comment-compose {
+      border: 1.5px solid #e5e7eb; border-radius: 10px;
+      background: #fff; overflow: hidden;
+    }
+    .comment-compose textarea {
+      width: 100%; border: none; padding: 12px 14px;
+      font-size: 0.88rem; font-family: "Roboto", sans-serif;
+      outline: none; color: #1f2937;
+    }
+    .comment-compose-footer {
+      display: flex; justify-content: flex-end;
+      padding: 8px 12px; border-top: 1px solid #f1f5f9;
+    }
+  </style>
+</head>
+<body class="learn-page-body overflow-hidden">
+
+  <!-- NAV -->
+  <nav class="learn-nav d-flex align-items-center px-3 px-md-4 border-bottom bg-white shadow-sm">
+    <a href="home.html" class="learn-brand text-dark text-decoration-none fw-bold fs-4 me-4">
+      Edu<span class="text-accent">Flow</span>
+    </a>
+    <div class="vr mx-2 d-none d-md-block"></div>
+    <h1 class="learn-course-title fs-6 fw-semibold mb-0 ms-3 text-truncate d-none d-md-block">
+      ReactJS Thực Chiến: Từ Cơ Bản Đến Xây Dựng Dự Án
+    </h1>
+    <div class="ms-auto d-flex align-items-center gap-4">
+      <div class="d-flex align-items-center gap-2" style="width:150px">
+        <div class="progress flex-grow-1" style="height:8px">
+          <div class="progress-bar bg-success" style="width:35%"></div>
+        </div>
+        <span class="font-sm fw-bold text-muted">35%</span>
+      </div>
+      <a href="courses.html" class="btn btn-outline-dark btn-sm fw-semibold d-none d-md-inline-block">
+        <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Thoát
+      </a>
+    </div>
+  </nav>
+
+  <div class="learn-wrapper d-flex w-100">
+
+    <!-- MAIN -->
+    <main class="learn-main flex-grow-1 d-flex flex-column position-relative bg-surface">
+
+      <!-- VIDEO -->
+      <div class="video-container bg-black" id="videoContainer">
+        <video-js id="courseVideoPlayer" class="vjs-default-skin vjs-big-play-centered w-100 h-100" controls preload="auto"
+          data-setup='{"playbackRates":[0.5,0.75,1,1.25,1.5,2]}'>
+          <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL" />
+        </video-js>
+      </div>
+
+      <!-- QUIZ OVERLAY -->
+      <div class="quiz-overlay" id="quizOverlay">
+
+        <!-- Top bar -->
+        <div class="quiz-topbar">
+          <div>
+            <div class="quiz-topbar-title"><i class="fa-solid fa-file-signature me-2" style="color:#0284c7"></i>Kiểm tra: Vòng đời React Component</div>
+            <div class="quiz-topbar-sub">4 câu hỏi · Chọn đáp án đúng</div>
+          </div>
+          <div class="quiz-steps">
+            <div class="quiz-step-dot active" id="dot1"></div>
+            <div class="quiz-step-dot"        id="dot2"></div>
+            <div class="quiz-step-dot"        id="dot3"></div>
+            <div class="quiz-step-dot"        id="dot4"></div>
+          </div>
+          <button onclick="closeQuiz()" class="btn btn-sm btn-light border ms-3 fw-semibold">
+            <i class="fa-solid fa-xmark me-1"></i>Đóng
+          </button>
+        </div>
+
+        <!-- Scrollable area -->
+        <div class="quiz-scroll">
+          <div class="quiz-card">
+
+            <!-- Q1 -->
+            <div id="slide1">
+              <div class="quiz-badge"><i class="fa-solid fa-circle-question"></i> Câu 1 / 4</div>
+              <div class="quiz-question-text">
+                <code>useEffect(fn, [])</code> với dependency array rỗng tương đương với lifecycle method nào của Class Component?
+              </div>
+              <button class="quiz-opt" onclick="pick(this,1,true)"  data-q="1"><span class="opt-key">A</span>componentDidMount</button>
+              <button class="quiz-opt" onclick="pick(this,1,false)" data-q="1"><span class="opt-key">B</span>componentDidUpdate</button>
+              <button class="quiz-opt" onclick="pick(this,1,false)" data-q="1"><span class="opt-key">C</span>componentWillUnmount</button>
+              <button class="quiz-opt" onclick="pick(this,1,false)" data-q="1"><span class="opt-key">D</span>shouldComponentUpdate</button>
+              <div class="quiz-feedback-box fb-correct" id="fb1c"><i class="fa-solid fa-circle-check"></i><span>Chính xác! <code>[]</code> khiến effect chỉ chạy <strong>một lần sau khi mount</strong>, giống hệt componentDidMount.</span></div>
+              <div class="quiz-feedback-box fb-wrong"   id="fb1w"><i class="fa-solid fa-circle-xmark"></i><span>Chưa đúng. Đáp án là <strong>A — componentDidMount</strong>. Effect với <code>[]</code> chỉ chạy một lần khi component xuất hiện lần đầu.</span></div>
+              <button class="quiz-next-btn" id="nxt1" onclick="nextSlide(1,2)">Câu tiếp theo <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Q2 -->
+            <div id="slide2" class="d-none">
+              <div class="quiz-badge"><i class="fa-solid fa-circle-question"></i> Câu 2 / 4</div>
+              <div class="quiz-question-text">
+                Hàm <strong>cleanup</strong> (return function bên trong useEffect) được React gọi khi nào?
+              </div>
+              <button class="quiz-opt" onclick="pick(this,2,false)" data-q="2"><span class="opt-key">A</span>Trước khi component render lần đầu</button>
+              <button class="quiz-opt" onclick="pick(this,2,false)" data-q="2"><span class="opt-key">B</span>Sau mỗi lần render, kể cả lần đầu</button>
+              <button class="quiz-opt" onclick="pick(this,2,true)"  data-q="2"><span class="opt-key">C</span>Khi component unmount hoặc trước khi effect chạy lại</button>
+              <button class="quiz-opt" onclick="pick(this,2,false)" data-q="2"><span class="opt-key">D</span>Chỉ khi có lỗi runtime xảy ra</button>
+              <div class="quiz-feedback-box fb-correct" id="fb2c"><i class="fa-solid fa-circle-check"></i><span>Đúng! Cleanup chạy khi <strong>unmount</strong> và ngay <strong>trước khi effect re-run</strong> (để dọn effect cũ trước khi tạo effect mới).</span></div>
+              <div class="quiz-feedback-box fb-wrong"   id="fb2w"><i class="fa-solid fa-circle-xmark"></i><span>Chưa đúng. Đáp án là <strong>C</strong>. Cleanup chạy khi unmount hoặc trước mỗi lần effect tái thực thi.</span></div>
+              <button class="quiz-next-btn" id="nxt2" onclick="nextSlide(2,3)">Câu tiếp theo <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Q3 -->
+            <div id="slide3" class="d-none">
+              <div class="quiz-badge"><i class="fa-solid fa-circle-question"></i> Câu 3 / 4</div>
+              <div class="quiz-question-text">
+                Nếu gọi <code>useEffect(fn)</code> <em>không truyền</em> dependency array, effect sẽ chạy khi nào?
+              </div>
+              <button class="quiz-opt" onclick="pick(this,3,false)" data-q="3"><span class="opt-key">A</span>Chỉ một lần sau khi mount</button>
+              <button class="quiz-opt" onclick="pick(this,3,true)"  data-q="3"><span class="opt-key">B</span>Sau mỗi lần component render / re-render</button>
+              <button class="quiz-opt" onclick="pick(this,3,false)" data-q="3"><span class="opt-key">C</span>Không bao giờ chạy</button>
+              <button class="quiz-opt" onclick="pick(this,3,false)" data-q="3"><span class="opt-key">D</span>Chỉ khi props thay đổi</button>
+              <div class="quiz-feedback-box fb-correct" id="fb3c"><i class="fa-solid fa-circle-check"></i><span>Chính xác! Không có deps array → effect <strong>chạy sau mỗi render</strong>. Cẩn thận nếu trong effect có setState — dễ gây vòng lặp vô tận.</span></div>
+              <div class="quiz-feedback-box fb-wrong"   id="fb3w"><i class="fa-solid fa-circle-xmark"></i><span>Chưa đúng. Đáp án là <strong>B</strong>. Không có deps array → chạy lại sau mỗi render. Khác với <code>[]</code> chỉ chạy một lần.</span></div>
+              <button class="quiz-next-btn" id="nxt3" onclick="nextSlide(3,4)">Câu tiếp theo <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Q4 -->
+            <div id="slide4" class="d-none">
+              <div class="quiz-badge"><i class="fa-solid fa-circle-question"></i> Câu 4 / 4</div>
+              <div class="quiz-question-text">
+                Functional Component xử lý lifecycle như thế nào so với Class Component?
+              </div>
+              <button class="quiz-opt" onclick="pick(this,4,false)" data-q="4"><span class="opt-key">A</span>Functional Component không có lifecycle</button>
+              <button class="quiz-opt" onclick="pick(this,4,true)"  data-q="4"><span class="opt-key">B</span>Dùng Hooks (useEffect, useLayoutEffect…) thay vì lifecycle methods</button>
+              <button class="quiz-opt" onclick="pick(this,4,false)" data-q="4"><span class="opt-key">C</span>Class Component không có componentDidMount</button>
+              <button class="quiz-opt" onclick="pick(this,4,false)" data-q="4"><span class="opt-key">D</span>Hai loại hoàn toàn giống nhau</button>
+              <div class="quiz-feedback-box fb-correct" id="fb4c"><i class="fa-solid fa-circle-check"></i><span>Chính xác! Hooks là cách Functional Component quản lý side effects và lifecycle — gọn hơn và tái sử dụng được.</span></div>
+              <div class="quiz-feedback-box fb-wrong"   id="fb4w"><i class="fa-solid fa-circle-xmark"></i><span>Chưa đúng. Đáp án là <strong>B</strong>. Functional Component dùng Hooks, đặc biệt useEffect để thay thế lifecycle methods.</span></div>
+              <button class="quiz-next-btn" id="nxt4" onclick="showResult()">Xem kết quả <i class="fa-solid fa-flag-checkered"></i></button>
+            </div>
+
+            <!-- RESULT -->
+            <div class="quiz-result-card" id="quizResult">
+              <div class="result-ring" id="resultRing"></div>
+              <div class="result-score" id="resultScore"></div>
+              <div class="result-msg"   id="resultMsg"></div>
+              <div class="result-actions">
+                <button onclick="closeQuiz()" class="btn btn-dark fw-semibold px-4">
+                  <i class="fa-solid fa-arrow-left me-2"></i>Quay lại bài học
+                </button>
+                <button onclick="resetQuiz()" class="btn btn-outline-secondary fw-semibold px-4">
+                  <i class="fa-solid fa-rotate-right me-2"></i>Làm lại
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /quiz-overlay -->
+
+      <!-- TABS -->
+      <div class="learn-tabs-area flex-grow-1 bg-white border-top overflow-auto">
+        <ul class="nav nav-tabs px-4 pt-3" id="learnTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-semibold" data-bs-toggle="tab" data-bs-target="#overview">Tổng quan</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-semibold" data-bs-toggle="tab" data-bs-target="#notes">Ghi chú của tôi</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-semibold" data-bs-toggle="tab" data-bs-target="#attachments">Tài liệu đính kèm</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-semibold" data-bs-toggle="tab" data-bs-target="#comments">
+              Bình luận
+              <span class="ms-1 badge bg-secondary bg-opacity-10 text-dark fw-normal" style="font-size:.72rem">12</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content p-4">
+
+          <div class="tab-pane fade show active" id="overview">
+            <h4 class="fw-bold mb-2">1.3 Vòng đời của một React Component (Lifecycle)</h4>
+            <p class="text-muted mb-0">Ở bài học này, chúng ta sẽ tìm hiểu cách React render một component lên màn hình, và cách các Hook như <code>useEffect</code> thay thế các Lifecycle methods cũ của Class Component.</p>
+          </div>
+
+          <div class="tab-pane fade" id="notes">
+            <div class="border rounded-3 p-3 bg-surface mb-4">
+              <textarea class="form-control border-0 bg-transparent mb-2 shadow-none" rows="2" placeholder="Thêm ghi chú tại mốc thời gian này..."></textarea>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="badge bg-dark px-2 py-1">00:00</span>
+                <button class="btn btn-sm btn-dark fw-semibold">Lưu ghi chú</button>
+              </div>
+            </div>
+            <div class="d-flex gap-3 pb-3 border-bottom">
+              <div class="badge bg-secondary bg-opacity-10 text-dark align-self-start px-2 py-1 cursor-pointer" style="white-space:nowrap">02:15</div>
+              <div>
+                <p class="mb-1 font-sm text-dark">useEffect() với mảng rỗng [] sẽ tương đương với componentDidMount.</p>
+                <div class="d-flex gap-3 font-sm text-muted">
+                  <span class="cursor-pointer hover-text-accent"><i class="fa-solid fa-pen"></i> Sửa</span>
+                  <span class="cursor-pointer hover-text-danger"><i class="fa-solid fa-trash"></i> Xóa</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="attachments">
+            <p class="text-muted font-sm">Chưa có tài liệu đính kèm cho bài học này.</p>
+          </div>
+
+          <div class="tab-pane fade" id="comments">
+            <!-- Compose -->
+            <div class="d-flex gap-3 mb-4">
+              <div class="comment-avatar">T</div>
+              <div class="flex-grow-1">
+                <div class="comment-compose">
+                  <textarea id="newCommentText" rows="2" placeholder="Đặt câu hỏi hoặc chia sẻ suy nghĩ của bạn..."></textarea>
+                  <div class="comment-compose-footer">
+                    <button class="btn btn-dark btn-sm fw-semibold px-3" onclick="postComment()">
+                      <i class="fa-solid fa-paper-plane me-1"></i> Gửi
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- List -->
+            <div id="commentList">
+              <div class="comment-item">
+                <div class="comment-avatar" style="background:#7c3aed">N</div>
+                <div class="flex-grow-1">
+                  <span class="comment-name">Nguyễn Minh Khoa</span><span class="comment-time">2 giờ trước</span>
+                  <p class="comment-text">Instructor giải thích rất dễ hiểu! Nhưng mình vẫn thắc mắc về việc cleanup function được gọi khi nào nếu dependency thay đổi liên tục?</p>
+                  <button class="comment-action-btn"><i class="fa-regular fa-thumbs-up me-1"></i>4</button>
+                  <button class="comment-action-btn"><i class="fa-solid fa-reply me-1"></i>Trả lời</button>
+                </div>
+              </div>
+              <div class="comment-item">
+                <div class="comment-avatar" style="background:#059669">L</div>
+                <div class="flex-grow-1">
+                  <span class="comment-name">Lê Thu Hà</span><span class="comment-time">5 giờ trước</span>
+                  <p class="comment-text">Mình bị lỗi "Too many re-renders" sau bài tập. Có ai gặp vấn đề tương tự không?</p>
+                  <button class="comment-action-btn"><i class="fa-regular fa-thumbs-up me-1"></i>2</button>
+                  <button class="comment-action-btn"><i class="fa-solid fa-reply me-1"></i>Trả lời</button>
+                </div>
+              </div>
+              <div class="comment-item">
+                <div class="comment-avatar" style="background:#d97706">P</div>
+                <div class="flex-grow-1">
+                  <span class="comment-name">Phạm Đức Anh</span><span class="comment-time">1 ngày trước</span>
+                  <p class="comment-text">Cảm ơn instructor! Phần so sánh useEffect với componentDidMount rất hay, mình đã hiểu rõ hơn nhiều rồi 🙌</p>
+                  <button class="comment-action-btn"><i class="fa-regular fa-thumbs-up me-1"></i>8</button>
+                  <button class="comment-action-btn"><i class="fa-solid fa-reply me-1"></i>Trả lời</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /tabs -->
+
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="learn-sidebar bg-white border-start d-flex flex-column">
+      <div class="p-3 border-bottom bg-surface d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold mb-0">Nội dung bài học</h6>
+        <button class="btn btn-sm btn-light border d-md-none"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="learn-curriculum overflow-auto flex-grow-1">
+        <div class="accordion accordion-flush" id="learnAccordion">
+
+          <!-- Chương 1 -->
+          <div class="accordion-item border-bottom">
+            <h2 class="accordion-header">
+              <button class="accordion-button bg-surface fw-bold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#sec1">
+                <div class="d-flex flex-column">
+                  <span>Chương 1: Khởi đầu với ReactJS</span>
+                  <span class="font-sm text-muted fw-normal mt-1">2/4 bài học</span>
+                </div>
+              </button>
+            </h2>
+            <div id="sec1" class="accordion-collapse collapse show" data-bs-parent="#learnAccordion">
+              <div class="list-group list-group-flush">
+
+                <a href="#" class="learn-lesson-item list-group-item list-group-item-action d-flex align-items-start gap-3 p-3 completed" onclick="closeQuiz();return false;">
+                  <div class="lesson-icon text-success mt-1"><i class="fa-solid fa-circle-check fs-5"></i></div>
+                  <div class="lesson-info flex-grow-1">
+                    <div class="lesson-title font-sm fw-medium mb-1">1.1 Giới thiệu về ReactJS</div>
+                    <div class="lesson-meta font-sm text-muted"><i class="fa-solid fa-circle-play me-1"></i> 10:25</div>
+                  </div>
+                </a>
+
+                <a href="#" class="learn-lesson-item list-group-item list-group-item-action d-flex align-items-start gap-3 p-3 completed" onclick="closeQuiz();return false;">
+                  <div class="lesson-icon text-success mt-1"><i class="fa-solid fa-circle-check fs-5"></i></div>
+                  <div class="lesson-info flex-grow-1">
+                    <div class="lesson-title font-sm fw-medium mb-1">1.2 Cấu trúc thư mục dự án</div>
+                    <div class="lesson-meta font-sm text-muted"><i class="fa-solid fa-circle-play me-1"></i> 08:14</div>
+                  </div>
+                </a>
+
+                <a href="#" class="learn-lesson-item list-group-item list-group-item-action d-flex align-items-start gap-3 p-3 active-lesson" onclick="closeQuiz();return false;">
+                  <div class="lesson-icon text-accent mt-1"><i class="fa-regular fa-circle-play fs-5"></i></div>
+                  <div class="lesson-info flex-grow-1">
+                    <div class="lesson-title font-sm fw-bold text-accent mb-1">1.3 Vòng đời của Component</div>
+                    <div class="lesson-meta font-sm text-accent opacity-75"><i class="fa-solid fa-circle-play me-1"></i> Đang học</div>
+                  </div>
+                </a>
+
+                
+                <!-- 1.4 Quiz -->
+                <a href="#" id="quizLessonItem" class="learn-lesson-item list-group-item list-group-item-action d-flex align-items-start gap-3 p-3" onclick="openQuiz();return false;">
+                  <div class="lesson-icon mt-1" style="color:#d97706"><i class="fa-solid fa-file-signature fs-5"></i></div>
+                  <div class="lesson-info flex-grow-1">
+                    <div class="lesson-title font-sm fw-medium mb-1">
+                      1.4 Kiểm tra Lifecycle
+                      <span class="quiz-badge-pill">Quiz</span>
+                    </div>
+                    <div class="lesson-meta font-sm text-muted"><i class="fa-regular fa-clock me-1"></i> 4 câu hỏi</div>
+                  </div>
+                </a>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Chương 2 -->
+          <div class="accordion-item border-bottom">
+            <h2 class="accordion-header">
+              <button class="accordion-button bg-surface fw-bold py-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec2">
+                <div class="d-flex flex-column">
+                  <span>Chương 2: JSX và State</span>
+                  <span class="font-sm text-muted fw-normal mt-1">0/2 bài học</span>
+                </div>
+              </button>
+            </h2>
+            <div id="sec2" class="accordion-collapse collapse" data-bs-parent="#learnAccordion">
+              <div class="list-group list-group-flush">
+                <div class="learn-lesson-item list-group-item d-flex align-items-start gap-3 p-3 locked bg-surface-alt opacity-75 pe-none">
+                  <div class="lesson-icon text-muted mt-1"><i class="fa-solid fa-lock fs-5"></i></div>
+                  <div class="lesson-info flex-grow-1">
+                    <div class="lesson-title font-sm fw-medium text-muted mb-1">2.1 Cú pháp JSX nâng cao</div>
+                    <div class="lesson-meta font-sm text-muted"><i class="fa-solid fa-circle-play me-1"></i> 15:30</div>
+                  </div>
+                </div>
+                <div class="learn-lesson-item list-group-item d-flex align-items-start gap-3 p-3 locked bg-surface-alt opacity-75 pe-none">
+                  <div class="lesson-icon text-muted mt-1"><i class="fa-solid fa-lock fs-5"></i></div>
+                  <div class="lesson-info flex-grow-1">
+                    <div class="lesson-title font-sm fw-medium text-muted mb-1">2.2 Bài tập trắc nghiệm JSX</div>
+                    <div class="lesson-meta font-sm text-muted"><i class="fa-solid fa-file-signature me-1"></i> Quiz • 15 phút</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+ <div class="accordion-item border-bottom">
+            <h2 class="accordion-header">
+              <button class="accordion-button bg-surface fw-bold py-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec2">
+                <div class="d-flex flex-column">
+                  <span>Chương 2: JSX và State</span>
+                  <span class="font-sm text-muted fw-normal mt-1">0/2 bài học</span>
+                </div>
+              </button>
+            </h2>
+            <div id="sec2" class="accordion-collapse collapse" data-bs-parent="#learnAccordion">
+              <div class="list-group list-group-flush">
+                <div class="learn-lesson-item list-group-item d-flex align-items-start gap-3 p-3 locked bg-surface-alt opacity-75 pe-none">
+                  <div class="lesson-icon text-muted mt-1"><i class="fa-solid fa-lock fs-5"></i></div>
+                  <div class="lesson-info flex-grow-1">
+                    <div class="lesson-title font-sm fw-medium text-muted mb-1">2.1 Cú pháp JSX nâng cao</div>
+                    <div class="lesson-meta font-sm text-muted"><i class="fa-solid fa-circle-play me-1"></i> 15:30</div>
+                  </div>
+                </div>
+                <div class="learn-lesson-item list-group-item d-flex align-items-start gap-3 p-3 locked bg-surface-alt opacity-75 pe-none">
+                  <div class="lesson-icon text-muted mt-1"><i class="fa-solid fa-lock fs-5"></i></div>
+                  <div class="lesson-info flex-grow-1">
+                    <div class="lesson-title font-sm fw-medium text-muted mb-1">2.2 Bài tập trắc nghiệm JSX</div>
+                    <div class="lesson-meta font-sm text-muted"><i class="fa-solid fa-file-signature me-1"></i> Quiz • 15 phút</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- /wrapper -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+
+  <script>
+    // ── Quiz state ──────────────────────────────
+    let quizScore = 0;
+
+    function openQuiz() {
+      document.getElementById('quizOverlay').classList.add('active');
+      document.getElementById('quizLessonItem').classList.add('active-lesson');
+    }
+    function closeQuiz() {
+      document.getElementById('quizOverlay').classList.remove('active');
+      document.getElementById('quizLessonItem').classList.remove('active-lesson');
+    }
+
+    function pick(btn, qNum, isCorrect) {
+      // Disable all options in this slide
+      const slide = document.getElementById('slide' + qNum);
+      slide.querySelectorAll('.quiz-opt').forEach(b => b.disabled = true);
+
+      // Mark chosen
+      btn.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+
+      // If wrong → highlight the correct one
+      if (!isCorrect) {
+        slide.querySelectorAll('.quiz-opt').forEach(b => {
+          if (b.getAttribute('onclick').includes('true')) b.classList.add('reveal-correct');
+        });
+      } else {
+        quizScore++;
+      }
+
+      // Show feedback
+      document.getElementById('fb' + qNum + (isCorrect ? 'c' : 'w')).classList.add('show');
+
+      // Update dot
+      document.getElementById('dot' + qNum).classList.remove('active');
+      document.getElementById('dot' + qNum).classList.add(isCorrect ? 'done' : 'wrong');
+      if (qNum < 4) document.getElementById('dot' + (qNum + 1)).classList.add('active');
+
+      // Show next button
+      document.getElementById('nxt' + qNum).classList.add('show');
+    }
+
+    function nextSlide(from, to) {
+      document.getElementById('slide' + from).classList.add('d-none');
+      document.getElementById('slide' + to).classList.remove('d-none');
+      // scroll card to top
+      document.querySelector('.quiz-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+
+  </script>
+</body>
+</html>

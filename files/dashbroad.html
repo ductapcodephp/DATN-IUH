@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bảng điều khiển - EduFlow</title>
+  <meta name="description" content="Quản lý tiến độ học tập và chứng chỉ cá nhân tại EduFlow." />
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    :root {
+      --db-primary: #4f46e5;
+      --db-primary-light: #eef2ff;
+      --db-bg: #f8fafc;
+      --db-card-border: #e2e8f0;
+    }
+
+    body.db-dark-mode-fix {
+      background-color: var(--db-bg);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Thẻ định danh vùng Dashboard để tránh ảnh hưởng cấu trúc ngoài */
+    .db-wrapper {
+      min-height: 100vh;
+    }
+
+    /* Sidebar Dashboard chuyên dụng */
+    .db-sidebar {
+      background-color: #ffffff;
+      border-right: 1px solid var(--db-card-border);
+      min-height: calc(100vh - 72px);
+    }
+
+    .db-sidebar .nav-link {
+      color: #64748b;
+      font-weight: 500;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .db-sidebar .nav-link:hover {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .db-sidebar .nav-link.active {
+      background-color: var(--db-primary-light);
+      color: var(--db-primary);
+    }
+
+    /* Custom các thẻ Card hiển thị */
+    .db-card {
+      border: 1px solid var(--db-card-border);
+      border-radius: 12px;
+      background-color: #ffffff;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .db-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Custom thanh tiến độ */
+    .db-progress {
+      height: 8px;
+      border-radius: 4px;
+      background-color: #e2e8f0;
+    }
+
+    .db-progress-bar {
+      background-color: var(--db-primary);
+      border-radius: 4px;
+    }
+
+    /* Icon chứng chỉ vàng */
+    .db-cert-icon {
+      width: 54px;
+      height: 54px;
+      background-color: #fef3c7;
+      color: #d97706;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 1.5rem;
+    }
+
+    /* Thẻ Badge trạng thái học */
+    .db-badge-success {
+      background-color: #dcfce7;
+      color: #15803d;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    /* Responsive cho mobile navbar */
+    @media (max-width: 767.98px) {
+      .db-sidebar {
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--db-card-border);
+      }
+    }
+  </style>
+</head>
+<body class="db-dark-mode-fix">
+
+  <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top py-3">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold text-dark fs-4 m-0" href="home.html">Edu<span class="text-primary">Flow</span></a>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#dbNavbar" aria-controls="dbNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars-staggered"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="dbNavbar">
+        <div class="ms-auto d-flex align-items-center gap-3 mt-3 mt-lg-0">
+          <a href="courses.html" class="btn btn-link text-decoration-none text-muted p-0 me-2 d-none d-md-block">Khám phá khóa học</a>
+          
+          <div class="dropdown">
+            <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle text-dark fw-medium" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop" alt="Avatar" width="38" height="38" class="rounded-circle border">
+              <span class="d-none d-sm-inline font-sm">Nguyễn Văn A</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="userMenu">
+              <li><a class="dropdown-item py-2" href="#"><i class="fa-regular fa-user me-2 text-muted"></i>Hồ sơ của tôi</a></li>
+              <li><a class="dropdown-item py-2" href="#"><i class="fa-solid fa-gear me-2 text-muted"></i>Cài đặt tài khoản</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item py-2 text-danger" href="home.html"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Đăng xuất</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid db-wrapper">
+    <div class="row">
+      
+      <div class="col-md-3 col-lg-2 db-sidebar py-4 px-3">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+          <button class="nav-link active text-start" id="tab-learning-tab" data-bs-toggle="pill" data-bs-target="#tab-learning" type="button" role="tab"><i class="fa-solid fa-graduation-cap me-2"></i>Khóa học của tôi</button>
+          <button class="nav-link text-start" id="tab-certs-tab" data-bs-toggle="pill" data-bs-target="#tab-certs" type="button" role="tab"><i class="fa-solid fa-award me-2"></i>Chứng chỉ</button>
+          <button class="nav-link text-start" id="tab-profile-tab" data-bs-toggle="pill" data-bs-target="#tab-profile" type="button" role="tab"><i class="fa-regular fa-id-card me-2"></i>Thông tin cá nhân</button>
+        </div>
+      </div>
+
+      <div class="col-md-9 col-lg-10 p-4 p-md-5">
+        <div class="tab-content" id="v-pills-tabContent">
+          
+          <div class="tab-pane fade show active" id="tab-learning" role="tabpanel" aria-labelledby="tab-learning-tab">
+            
+            <div class="d-md-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h2 class="fw-bold text-dark mb-1">Chào quay trở lại, Văn A! 👋</h2>
+                <p class="text-muted mb-0">Hôm nay là một ngày tuyệt vời để tiếp tục tích lũy kiến thức mới.</p>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-5">
+              <div class="col-6 col-lg-3">
+                <div class="p-3 db-card">
+                  <div class="text-muted font-sm mb-1">Đang học</div>
+                  <div class="fs-3 fw-bold text-dark">2 <span class="fs-6 fw-normal text-muted">khóa</span></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="p-3 db-card">
+                  <div class="text-muted font-sm mb-1">Đã hoàn thành</div>
+                  <div class="fs-3 fw-bold text-dark">1 <span class="fs-6 fw-normal text-muted">khóa</span></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="p-3 db-card">
+                  <div class="text-muted font-sm mb-1">Chứng chỉ đạt được</div>
+                  <div class="fs-3 fw-bold text-warning">1 <i class="fa-solid fa-medal ms-1"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="p-3 db-card">
+                  <div class="text-muted font-sm mb-1">Thời gian học</div>
+                  <div class="fs-3 fw-bold text-dark">24.5 <span class="fs-6 fw-normal text-muted">giờ</span></div>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold text-dark mb-4">Tiến độ học tập</h4>
+            <div class="row g-4">
+              
+              <div class="col-xl-4 col-md-6">
+                <div class="card h-100 db-card overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400" class="card-img-top" alt="ReactJS" style="height: 180px; object-fit: cover;">
+                  <div class="card-body d-flex flex-column p-4">
+                    <span class="badge bg-light text-primary align-self-start mb-2 fw-semibold px-2 py-1" style="font-size: 0.75rem;">Frontend</span>
+                    <h5 class="card-title fw-bold text-dark mb-3">ReactJS Thực Chiến & Xây dựng Dự án lớn</h5>
+                    
+                    <div class="mt-auto">
+                      <div class="d-flex justify-content-between align-items-center font-sm mb-2 text-muted">
+                        <span>Tiến độ: <b>24/32 bài</b></span>
+                        <span class="fw-bold text-dark">75%</span>
+                      </div>
+                      <div class="progress db-progress mb-3">
+                        <div class="progress-bar db-progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <a href="#" class="btn btn-primary w-100 fw-medium rounded-3">Học tiếp <i class="fa-solid fa-play ms-1 font-sm"></i></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-xl-4 col-md-6">
+                <div class="card h-100 db-card overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400" class="card-img-top" alt="NodeJS" style="height: 180px; object-fit: cover;">
+                  <div class="card-body d-flex flex-column p-4">
+                    <span class="badge bg-light text-success align-self-start mb-2 fw-semibold px-2 py-1" style="font-size: 0.75rem;">Backend</span>
+                    <h5 class="card-title fw-bold text-dark mb-3">Xây dựng RESTful API với NodeJS & Express</h5>
+                    
+                    <div class="mt-auto">
+                      <div class="d-flex justify-content-between align-items-center font-sm mb-2 text-muted">
+                        <span>Tiến độ: <b>6/20 bài</b></span>
+                        <span class="fw-bold text-dark">30%</span>
+                      </div>
+                      <div class="progress db-progress mb-3">
+                        <div class="progress-bar db-progress-bar" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <a href="#" class="btn btn-primary w-100 fw-medium rounded-3">Học tiếp <i class="fa-solid fa-play ms-1 font-sm"></i></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-xl-4 col-md-6">
+                <div class="card h-100 db-card overflow-hidden opacity-75">
+                  <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=400" class="card-img-top" alt="HTML CSS" style="height: 180px; object-fit: cover;">
+                  <div class="card-body d-flex flex-column p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="badge bg-light text-secondary fw-semibold px-2 py-1" style="font-size: 0.75rem;">Web Cơ Bản</span>
+                      <span class="db-badge-success"><i class="fa-solid fa-check-double me-1"></i>Hoàn thành</span>
+                    </div>
+                    <h5 class="card-title fw-bold text-dark mb-3">HTML5, CSS3 và Bootstrap 5 Toàn Tập</h5>
+                    
+                    <div class="mt-auto">
+                      <div class="d-flex justify-content-between align-items-center font-sm mb-2 text-muted">
+                        <span>Tiến độ: <b>45/45 bài</b></span>
+                        <span class="fw-bold text-success">100%</span>
+                      </div>
+                      <div class="progress db-progress mb-3">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <a href="#" class="btn btn-outline-secondary w-100 fw-medium rounded-3"><i class="fa-solid fa-arrow-rotate-right me-1 font-sm"></i>Xem lại bài học</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="tab-certs" role="tabpanel" aria-labelledby="tab-certs-tab">
+            <h4 class="fw-bold text-dark mb-1">Chứng chỉ của tôi</h4>
+            <p class="text-muted mb-4">Nơi lưu trữ các cột mốc hoàn thành khóa học xuất sắc của bạn.</p>
+
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="p-4 db-card d-flex align-items-start gap-3">
+                  <div class="db-cert-icon flex-shrink-0">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h5 class="fw-bold text-dark mb-1">HTML5, CSS3 và Bootstrap 5 Toàn Tập</h5>
+                    <p class="font-sm text-muted mb-2">Cấp ngày: 15/05/2026 • Mã số: <code class="text-dark">EDULAW-9981</code></p>
+                    <div class="d-flex gap-2 mt-3">
+                      <a href="#" class="btn btn-sm btn-outline-dark fw-medium rounded-2 px-3"><i class="fa-solid fa-download me-1"></i>Tải file PDF</a>
+                      <a href="#" class="btn btn-sm btn-link text-decoration-none fw-medium text-primary p-0 ms-2 align-self-center">Xem trực tuyến</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              </div>
+          </div>
+
+          <div class="tab-pane fade" id="tab-profile" role="tabpanel" aria-labelledby="tab-profile-tab">
+            <h4 class="fw-bold text-dark mb-4">Cài đặt thông tin cá nhân</h4>
+            <div class="p-4 db-card max-width-md" style="max-width: 700px;">
+              <form>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                  <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop" alt="Avatar" width="70" height="70" class="rounded-circle border">
+                  <div>
+                    <button type="button" class="btn btn-sm btn-outline-primary fw-medium rounded-2">Thay ảnh đại diện</button>
+                    <p class="font-sm text-muted mb-0 mt-1">Định dạng JPG, PNG tối đa 2MB.</p>
+                  </div>
+                </div>
+                
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label font-sm fw-medium text-dark">Họ và tên</label>
+                    <input type="text" class="form-content form-control p-2.5 rounded-3" value="Nguyễn Văn A">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label font-sm fw-medium text-dark">Số điện thoại</label>
+                    <input type="text" class="form-content form-control p-2.5 rounded-3" value="0901234567">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label font-sm fw-medium text-dark">Địa chỉ Email (Không thể thay đổi)</label>
+                    <input type="email" class="form-content form-control p-2.5 rounded-3 bg-light text-muted" value="student.vna@gmail.com" readonly>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-4 px-4 fw-medium rounded-3">Lưu thay đổi</button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thanh toán - EduFlow</title>
+  <meta name="description" content="Thanh toán an toàn cho các khóa học tại EduFlow qua thẻ tín dụng hoặc VNPay." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-surface"> 
+
+  <nav class="navbar navbar-expand-lg">
+    <div class="container align-items-center">
+      <a class="navbar-brand" href="home.html">Edu<span>Flow</span></a>
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <span class="fw-semibold text-success font-sm"><i class="fa-solid fa-shield-halved me-1"></i> Thanh toán bảo mật</span>
+        <a href="courses.html" class="btn btn-outline-dark btn-sm fw-semibold d-none d-sm-inline-block">
+          <i class="fa-solid fa-arrow-left me-1"></i> Tiếp tục mua sắm
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header py-4 bg-white border-bottom">
+    <div class="container">
+      <h1 class="fs-3 fw-bold mb-0">Thanh toán an toàn</h1>
+    </div>
+  </div>
+
+  <section class="py-5">
+    <div class="container">
+      <form action="/checkout/process" method="POST" id="checkoutForm" class="row g-4">
+        <div class="col-lg-8">
+          
+          <div class="bg-white rounded-3 border p-4 mb-4">
+            <h5 class="fw-bold mb-4 border-bottom pb-3">Chi tiết giỏ hàng</h5>
+            
+            <div id="cartItemsList">
+              <div class="cart-item" id="item-1">
+                <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=200" alt="Course Thumbnail" class="cart-item-img">
+                <div class="cart-item-info">
+                  <h6 class="fw-bold mb-1">ReactJS Thực Chiến: Từ Cơ Bản Đến Xây Dựng Dự Án</h6>
+                  <p class="text-muted font-sm mb-0">Giảng viên: Trần Trọng Trí</p>
+                </div>
+                <div class="cart-item-price fw-bold text-fire text-end">
+                  899.000đ
+                </div>
+                <button type="button" class="btn-remove-item" onclick="removeCartItem(1, 899000)" title="Xóa khỏi giỏ">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+                <input type="hidden" name="course_ids[]" value="1">
+              </div>
+              <div class="cart-item" id="item-2">
+                <img src="https://images.unsplash.com/photo-1627398246736-28f74706509f?w=200" alt="Course Thumbnail" class="cart-item-img">
+                <div class="cart-item-info">
+                  <h6 class="fw-bold mb-1">Master NodeJS & Express: API chuẩn RESTful</h6>
+                  <p class="text-muted font-sm mb-0">Giảng viên: Nguyễn Văn A</p>
+                </div>
+                <div class="cart-item-price fw-bold text-fire text-end">
+                  950.000đ
+                </div>
+                <button type="button" class="btn-remove-item" onclick="removeCartItem(2, 950000)">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+                <input type="hidden" name="course_ids[]" value="2">
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-3 border p-4">
+            <h5 class="fw-bold mb-4 border-bottom pb-3">Phương thức thanh toán</h5>
+            
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="payment-method-box w-100">
+                  <input type="radio" name="payment_gateway" value="stripe" checked>
+                  <div class="payment-content">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <span class="fw-semibold">Thẻ Tín Dụng / Ghi Nợ</span>
+                      <i class="fa-brands fa-stripe fs-3 text-primary"></i>
+                    </div>
+                    <p class="font-sm text-muted mb-0">Thanh toán quốc tế bảo mật qua Stripe.</p>
+                  </div>
+                </label>
+              </div>
+
+              <div class="col-md-6">
+                <label class="payment-method-box w-100">
+                  <input type="radio" name="payment_gateway" value="vnpay">
+                  <div class="payment-content">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <span class="fw-semibold">VNPay / ATM Nội Địa</span>
+                      <span class="fw-bold text-primary" style="font-family: Arial; font-size:1.2rem;">VNPAY</span>
+                    </div>
+                    <p class="font-sm text-muted mb-0">Quét mã QR hoặc dùng thẻ ngân hàng nội địa.</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-lg-4">
+          <div class="summary-box bg-white rounded-3 border p-4 sticky-top" style="top: 90px;">
+            <h5 class="fw-bold mb-4">Tổng quan đơn hàng</h5>
+
+            <div class="d-flex justify-content-between mb-3 font-sm">
+              <span class="text-muted">Tạm tính (<span id="itemCount">2</span> khóa học):</span>
+              <span class="fw-semibold" id="subtotalDisplay">1.849.000đ</span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3 font-sm text-success d-none" id="discountRow">
+              <span>Mã giảm giá (<span id="couponCodeDisplay"></span>):</span>
+              <span class="fw-semibold" id="discountDisplay">-0đ</span>
+            </div>
+
+            <hr class="border-secondary opacity-25">
+
+            <div class="d-flex justify-content-between mb-4">
+              <span class="fw-bold fs-5">Tổng cộng:</span>
+              <span class="fw-bold fs-4 text-fire" id="totalDisplay">1.849.000đ</span>
+              <input type="hidden" name="final_total" id="finalTotalInput" value="1849000">
+            </div>
+
+            <div class="mb-4">
+              <label class="font-sm fw-semibold mb-2">Mã giảm giá (Coupon)</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="couponInput" name="coupon_code" placeholder="Nhập mã...">
+                <button class="btn btn-outline-dark fw-semibold" type="button" onclick="applyCoupon()" id="btnApplyCoupon">Áp dụng</button>
+              </div>
+              <small class="text-danger mt-1 d-none" id="couponError">Mã không hợp lệ hoặc đã hết hạn.</small>
+            </div>
+
+            <button type="submit" class="btn btn-fire w-100 py-3 fs-5" id="btnCheckout">
+              Thanh toán ngay <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
+            <p class="text-center text-muted mt-3" style="font-size: 0.75rem;">
+              Bằng việc hoàn tất mua, bạn đồng ý với <a href="#" class="text-dark">Điều khoản dịch vụ</a>. Hệ thống sẽ tạo Order và chuyển hướng đến cổng thanh toán an toàn.
+            </p>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 pe-lg-5">
+          <a href="home.html" class="footer-brand">Edu<span>Flow</span></a>
+          <p>Nền tảng học tập trực tuyến hàng đầu, cung cấp các khoá học chất lượng cao giúp bạn thăng tiến trong sự nghiệp IT.</p>
+        </div>
+        <div class="col-lg-2 col-6">
+          <h5>Khám phá</h5>
+          <ul>
+            <li><a href="home.html">Trang chủ</a></li>
+            <li><a href="courses.html">Khóa học</a></li>
+            <li><a href="blog.html">Blog</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-6">
+          <h5>Hỗ trợ</h5>
+          <ul>
+            <li><a href="about.html">Giới thiệu</a></li>
+            <li><a href="faqs.html">Câu hỏi thường gặp</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3">
+          <h5>Liên hệ</h5>
+          <ul>
+            <li><i class="fa-solid fa-location-dot me-2"></i> Quận 1, TP. Hồ Chí Minh</li>
+            <li><i class="fa-solid fa-envelope me-2"></i> support@eduflow.vn</li>
+            <li><i class="fa-solid fa-phone me-2"></i> 1900 1234</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 EduFlow. Nền tảng học lập trình thực chiến.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let subtotal = 1849000;
+    let discount = 0;
+
+    const formatVND = (num) => num.toLocaleString('vi-VN') + 'đ';
+
+    function updatePriceUI() {
+      const total = subtotal - discount;
+      document.getElementById('subtotalDisplay').innerText = formatVND(subtotal);
+      document.getElementById('totalDisplay').innerText = formatVND(total);
+      document.getElementById('finalTotalInput').value = total;
+    }
+
+    // Xóa Item khỏi giỏ
+    function removeCartItem(id, price) {
+      document.getElementById('item-' + id).remove();
+      subtotal -= price;
+      const countEl = document.getElementById('itemCount');
+      countEl.innerText = parseInt(countEl.innerText) - 1;
+      updatePriceUI();
+    }
+
+    // Áp mã giảm giá (Mockup cho Server-side validate)
+    function applyCoupon() {
+      const input = document.getElementById('couponInput');
+      const error = document.getElementById('couponError');
+      const row = document.getElementById('discountRow');
+      const codeDisplay = document.getElementById('couponCodeDisplay');
+      const discountDisplay = document.getElementById('discountDisplay');
+      const btn = document.getElementById('btnApplyCoupon');
+
+      const code = input.value.trim().toUpperCase();
+      
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+      btn.disabled = true;
+
+      // Giả lập gọi API kiểm tra Coupon của Laravel (validate usage_limit, expires_at)
+      setTimeout(() => {
+        btn.innerHTML = `Áp dụng`;
+        btn.disabled = false;
+
+        if (code === 'GIAM200K') {
+          error.classList.add('d-none');
+          discount = 200000;
+          
+          row.classList.remove('d-none');
+          codeDisplay.innerText = code;
+          discountDisplay.innerText = '-' + formatVND(discount);
+          
+          updatePriceUI();
+          input.readOnly = true; 
+        } else {
+          error.classList.remove('d-none');
+          discount = 0;
+          row.classList.add('d-none');
+          updatePriceUI();
+        }
+      }, 600);
+    }
+
+    // Loading State khi bấm Thanh Toán (Chờ Laravel gọi Stripe PaymentIntent)
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+      // e.preventDefault(); // Khi ráp code thật, BỎ dòng này đi để form submit lên Server
+      
+      const btn = document.getElementById('btnCheckout');
+      btn.disabled = true;
+      btn.classList.add('opacity-75');
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Đang kết nối cổng thanh toán...`;
+
+      // Giả lập sau 2s chuyển hướng sang success
+      e.preventDefault();
+      setTimeout(() => {
+        window.location.href = 'success.html'; 
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
