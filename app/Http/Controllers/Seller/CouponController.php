@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller;
 
-use App\DTO\Course\Coupon\CouponData;
+use App\DTO\Seller\Coupon\CouponData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Coupons\StoreCouponRequest;
 use App\Http\Requests\Seller\Coupons\UpdateCouponRequest;

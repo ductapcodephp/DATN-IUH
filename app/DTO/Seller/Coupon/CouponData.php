@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DTO\Seller\Course\Coupon;
+namespace App\DTO\Seller\Coupon;
 
 use Illuminate\Http\Request;
 
