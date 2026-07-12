@@ -37,6 +37,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\User\UserRepositoryInterface::class,
             \App\Repositories\User\UserRepository::class
         );
+
+        // Frontend Home bindings
+        $this->app->bind(
+            \App\Repositories\Frontend\Home\HomeRepositoryInterface::class,
+            \App\Repositories\Frontend\Home\HomeRepository::class
+        );
     }
 
     public function boot(): void
