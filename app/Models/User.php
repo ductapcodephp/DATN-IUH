@@ -162,17 +162,17 @@ class User extends Authenticatable
 
     public function scopeSellers($query)
     {
-        return $query->where('role', UserRole::SELLER);
+        return $query->where('current_role', UserRole::SELLER);
     }
 
     public function scopeRegularUsers($query)
     {
-        return $query->where('role', UserRole::USER);
+        return $query->where('current_role', UserRole::USER);
     }
 
     public function scopeRootAdmins($query)
     {
-        return $query->where('role', UserRole::ROOT);
+        return $query->where('current_role', UserRole::ROOT);
     }
     
 
@@ -186,7 +186,7 @@ class User extends Authenticatable
 
             if (
                 empty($model->referral_code)
-                && $model->role === UserRole::SELLER
+                && $model->current_role === UserRole::SELLER
             ) {
                 $model->referral_code = static::generateReferralCode();
             }
@@ -209,17 +209,17 @@ class User extends Authenticatable
 
     public function redirectRoute(): string
     {
-        return $this->role->redirectRoute();
+        return $this->current_role->redirectRoute();
     }
 
     public function isSeller(): bool
     {
-        return $this->role->isSeller();
+        return $this->current_role->isSeller();
     }
 
     public function isAdmin(): bool
     {
-        return $this->role->isAdmin();
+        return $this->current_role->isAdmin();
     }
 
     public function blocks()

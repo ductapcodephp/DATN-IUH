@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', fn () => 'Profile edit page placeholder')->name('profile.edit');
 
     // --- SELLER ROUTES ---
-    Route::prefix('seller')->name('seller.')->group(function () {
+    Route::prefix('seller')->name('seller.')->middleware('role:seller,admin,root')->group(function () {
 
         // 1. QUẢN LÝ MÃ GIẢM GIÁ (COUPONS) - Đã sửa lại đường dẫn store cho khớp chính xác
         Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index');

@@ -15,7 +15,28 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \App\Repositories\Seller\Courses\CourseRepositoryInterface::class,
+            \App\Repositories\Seller\Courses\CourseRepository::class
+        );
+
+        // Coupons bindings
+        $this->app->bind(
+            \App\Repositories\Seller\Coupons\CouponRepositoryInterface::class,
+            \App\Repositories\Seller\Coupons\CouponRepository::class
+        );
+
+        // Students bindings
+        $this->app->bind(
+            \App\Repositories\Seller\Students\StudentRepositoryInterface::class,
+            \App\Repositories\Seller\Students\StudentRepository::class
+        );
+
+        // User bindings
+        $this->app->bind(
+            \App\Repositories\User\UserRepositoryInterface::class,
+            \App\Repositories\User\UserRepository::class
+        );
     }
 
     public function boot(): void
