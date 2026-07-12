@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Frontend;
 use Inertia\Inertia;
 use App\Http\Controllers\Controller;
-use App\Services\Frontend\HomeService;
-class HomeController extends Controller
+use App\Services\Frontend\Home\HomeService;
+class IndexController extends Controller
 {
-    
     protected $homeService;
     public function __construct(HomeService $homeService)
     {

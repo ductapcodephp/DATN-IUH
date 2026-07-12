@@ -94,8 +94,13 @@ Route::middleware('auth')->group(function () {
 
     }); // Kết thúc Route Group của Seller
 
-}); // Kết thúc Route Group của Auth
+}); 
+// Kết thúc Route Group của Auth
 Route::prefix('tech-education')->name('frontend.')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/courses/{slug}', [\App\Http\Controllers\Frontend\CourseController::class, 'show'])->name('course.detail');
     
+    Route::get('/cart', [\App\Http\Controllers\Frontend\CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [\App\Http\Controllers\Frontend\CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/remove', [\App\Http\Controllers\Frontend\CartController::class, 'remove'])->name('cart.remove');
 });

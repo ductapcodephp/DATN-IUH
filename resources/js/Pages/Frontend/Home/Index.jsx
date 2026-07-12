@@ -9,7 +9,7 @@ import CategorySection from "./CategorySection";
 import BecomeSeller from "./BecomeSeller";
 
 
-export default function Home({vipCourses}) {
+export default function Home({vipCourses, topInstructors}) {
 
     console.log(vipCourses);
     return (
@@ -18,7 +18,7 @@ export default function Home({vipCourses}) {
 
             <FeaturedCourses courses={vipCourses} />
 
-            <InstructorSection />
+            <InstructorSection instructors={topInstructors} />
 
             <CategorySection />
 

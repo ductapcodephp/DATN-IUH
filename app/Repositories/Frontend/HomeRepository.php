@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Repositories\Frontend;
+
+use App\Models\Course;
+
+class HomeRepository
+{
+    public function getVipCourses()
+    {
+        return Course::query()
+            ->with(['seller:id,name,avatar'])
+            ->published()
+            ->vip()
+            ->inRandomOrder()
+            ->limit(4)
+            ->get();
+    }
+
+    public function getTopInstructors()
+    {
+        return \App\Models\User::query()
+            ->sellers()
+            ->withCount('sellerEnrollments as students_count')
+            ->withAvg('receivedReviews', 'rating')
+            ->whereHas('receivedReviews')
+            ->orderByDesc('received_reviews_avg_rating')
+            ->limit(4)
+            ->get(['users.id', 'users.name', 'users.avatar', 'users.current_role']);
+    }
+}

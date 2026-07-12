@@ -227,6 +227,11 @@ class User extends Authenticatable
         return $this->hasMany(Review::class);
     }
 
+    public function receivedReviews()
+    {
+        return $this->hasManyThrough(Review::class, Course::class, 'seller_id', 'course_id', 'id', 'id');
+    }
+
     public function courseProgress(): HasMany
     {
         return $this->hasMany(CourseProgress::class);
