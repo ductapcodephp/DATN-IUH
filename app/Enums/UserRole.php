@@ -15,7 +15,7 @@ enum UserRole: string
             self::ROOT => 'admin.dashboard',
             self::ADMIN => 'admin.dashboard', // Admin cũng vào trang quản trị
             self::SELLER => 'seller.dashboard',
-            self::USER => 'home',
+            self::USER => 'frontend.home',
         };
     }
 
