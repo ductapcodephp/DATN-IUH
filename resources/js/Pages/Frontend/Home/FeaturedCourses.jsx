@@ -68,7 +68,7 @@ export default function FeaturedCourses({ courses = [] }) {
 
                                         <div className="instructor-wrap mt-2 mb-3">
                                             <img
-                                                src={course.seller?.avatar || "https://i.pravatar.cc/150"}
+                                                src={course.seller?.avatar || "/assets/frontend/img/default-avatar.jpg"}
                                                 alt={course.seller?.name || "Instructor"}
                                             />
                                             <span className="text-muted font-sm text-truncate">

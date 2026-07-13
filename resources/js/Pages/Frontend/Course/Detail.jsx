@@ -48,7 +48,7 @@ export default function Detail({ course, relatedCourses }) {
                             </div>
 
                             <div className="d-flex align-items-center gap-3">
-                                <img src={course.seller?.avatar || "https://i.pravatar.cc/100"} alt="Instructor" className="rounded-circle" width="48" height="48" />
+                                <img src={course.seller?.avatar || "/assets/frontend/img/default-avatar-small.jpg"} alt="Instructor" className="rounded-circle" width="48" height="48" />
                                 <div>
                                     <div className="font-sm opacity-75">Giảng viên</div>
                                     <a href="#instructor" className="text-white fw-bold text-decoration-none">{course.seller?.name || "Giảng viên ẩn danh"}</a>
@@ -144,7 +144,7 @@ export default function Detail({ course, relatedCourses }) {
 
                                     <h4 className="fw-bold mb-4" id="instructor">Giảng viên của bạn</h4>
                                     <div className="d-flex flex-column flex-md-row gap-4 align-items-start border rounded-3 p-4 bg-white">
-                                        <img src={course.seller?.avatar || "https://i.pravatar.cc/150"} alt={course.seller?.name} className="rounded-circle" width="120" height="120" />
+                                        <img src={course.seller?.avatar || "/assets/frontend/img/default-avatar.jpg"} alt={course.seller?.name} className="rounded-circle" width="120" height="120" />
                                         <div>
                                             <h5 className="fw-bold text-main mb-1">{course.seller?.name}</h5>
                                             <p className="text-accent font-sm fw-semibold mb-3">{course.seller?.current_role}</p>
@@ -179,7 +179,7 @@ export default function Detail({ course, relatedCourses }) {
                         <div className="col-lg-4">
                             <div className="cd-floating-card bg-white rounded-3 shadow-lg border overflow-hidden sticky-top">
                                 <div className="cd-preview-box position-relative bg-dark" style={{ cursor: 'pointer' }} data-bs-toggle="modal" data-bs-target="#previewModal">
-                                    <img src={course.thumbnail || "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600"} alt="Cover" className="w-100 opacity-75" style={{ aspectRatio: '16/9', objectFit: 'cover' }} />
+                                    <img src={course.thumbnail || "/assets/frontend/img/blog-react-usememo.jpg"} alt="Cover" className="w-100 opacity-75" style={{ aspectRatio: '16/9', objectFit: 'cover' }} />
                                     <div className="play-icon-overlay position-absolute top-50 start-50 translate-middle">
                                         <i className="fa-solid fa-circle-play text-white fs-1 shadow-sm"></i>
                                     </div>
@@ -233,7 +233,7 @@ export default function Detail({ course, relatedCourses }) {
                                 <div className="col-12 col-md-6 col-lg-3" key={rcourse.id}>
                                     <div className="course-card position-relative bg-white h-100">
                                         <Link href={route('frontend.course.detail', { slug: rcourse.slug })} className="text-decoration-none text-dark d-flex flex-column h-100">
-                                            <img src={rcourse.thumbnail ? `/storage/${rcourse.thumbnail}` : 'https://placehold.co/600x400?text=No+Thumbnail'} alt={rcourse.title} className="course-thumb w-100" style={{ height: '180px', objectFit: 'cover' }} loading="lazy" />
+                                            <img src={rcourse.thumbnail ? `/storage/${rcourse.thumbnail}` : '/assets/frontend/img/no-thumbnail.png'} alt={rcourse.title} className="course-thumb w-100" style={{ height: '180px', objectFit: 'cover' }} loading="lazy" />
                                             <div className="course-body flex-grow-1 p-3">
                                                 <span className="course-cat text-accent fw-semibold font-sm">{rcourse.category?.name}</span>
                                                 <h4 className="course-title fs-6 fw-bold mt-2 mb-3 line-clamp-2">{rcourse.title}</h4>

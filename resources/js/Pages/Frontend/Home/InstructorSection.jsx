@@ -20,7 +20,7 @@ export default function InstructorSection({ instructors = [] }) {
                                 )}
 
                                 <img
-                                    src={instructor.avatar || `https://i.pravatar.cc/150?img=${instructor.id}`}
+                                    src={instructor.avatar || "/assets/frontend/img/default-avatar.jpg"}
                                     className={`rounded-circle mb-3 ${index === 0 ? 'mt-4' : ''}`}
                                     style={{ width: "80px", height: "80px", objectFit: "cover" }}
                                     alt={instructor.name}

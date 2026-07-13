@@ -94,7 +94,7 @@ export default function HeroSection() {
 
 
                             <img
-                                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                                src="/assets/frontend/img/about-team.jpg"
                                 alt="Học viên EduFlow"
                                 className="img-fluid"
                                 loading="lazy"

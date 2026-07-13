@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTO\Seller\Course\Chapter;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Seller\Courses\Chapters\ReorderChapterRequest;
 
 readonly class ReorderChapterData
 {
@@ -13,7 +13,7 @@ readonly class ReorderChapterData
         public array $ids,
     ) {}
 
-    public static function fromRequest(Request $request): self
+    public static function fromRequest(ReorderChapterRequest $request): self
     {
         return new self(
             ids: array_map('intval', (array) $request->input('ids', [])),

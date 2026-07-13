@@ -6,6 +6,10 @@ use App\Http\Controllers\Frontend\CourseController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\InstructorController;
 use App\Http\Controllers\Frontend\WishlistController;
+use App\Http\Controllers\Frontend\AboutController;
+use App\Http\Controllers\Frontend\BlogController;
+use App\Http\Controllers\Frontend\FaqController;
+use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Seller\CouponController;
 use App\Http\Controllers\Seller\Courses\ChapterController;
 use App\Http\Controllers\Seller\Courses\CurriculumController;
@@ -18,9 +22,7 @@ use App\Http\Controllers\Seller\StudentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// ==========================================
 // ROUTES CHO KHÁCH (CHƯA ĐĂNG NHẬP)
-// ==========================================
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -28,22 +30,20 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// ==========================================
 // ROUTES YÊU CẦU ĐĂNG NHẬP (AUTH)
-// ==========================================
 Route::get('/seller/settings-test', fn () => Inertia::render('Seller/Settings'))->name('seller.settings.test');
 
 Route::middleware('auth')->group(function () {
 
-    // --- Các route cơ bản ---
+    // Các route cơ bản
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
     Route::get('/profile', fn () => 'Profile edit page placeholder')->name('profile.edit');
 
-    // --- SELLER ROUTES ---
+    // SELLER ROUTES
     Route::prefix('seller')->name('seller.')->middleware('role:seller,admin,root')->group(function () {
 
-        // 1. QUẢN LÝ MÃ GIẢM GIÁ (COUPONS) - Đã sửa lại đường dẫn store cho khớp chính xác
+        // 1. QUẢN LÝ MÃ GIẢM GIÁ (COUPONS)
         Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index');
         Route::post('coupons/store', [CouponController::class, 'store'])->name('coupons.store');
         Route::put('coupons/{coupon}', [CouponController::class, 'update'])->name('coupons.update');
@@ -62,23 +62,23 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/', [CurriculumController::class, 'index'])->name('index');
 
-            // --- CHAPTERS (CHƯƠNG MỤC) ---
+            // CHAPTERS (CHƯƠNG MỤC)
             Route::post('chapters', [ChapterController::class, 'store'])->name('chapters.store');
             Route::post('chapters/reorder', [ChapterController::class, 'reorder'])->name('chapters.reorder');
             Route::put('chapters/{chapter}', [ChapterController::class, 'update'])->name('chapters.update');
             Route::delete('chapters/{chapter}', [ChapterController::class, 'destroy'])->name('chapters.destroy');
 
-            // --- LESSONS (BÀI HỌC) ---
+            // LESSONS (BÀI HỌC)
             Route::post('chapters/{chapter}/lessons', [LessonController::class, 'store'])->name('chapters.lessons.store');
             Route::post('lessons/reorder', [LessonController::class, 'reorder'])->name('lessons.reorder');
             Route::get('lessons/{lesson}', [LessonController::class, 'show'])->name('lessons.show');
             Route::put('lessons/{lesson}', [LessonController::class, 'update'])->name('lessons.update');
             Route::delete('lessons/{lesson}', [LessonController::class, 'destroy'])->name('lessons.destroy');
 
-            // --- VIDEO TRONG BÀI HỌC ---
+            // VIDEO TRONG BÀI HỌC
             Route::post('lessons/{lesson}/video/upload', [LessonVideoController::class, 'upload'])->name('lessons.upload');
             Route::get('lessons/{lesson}/video/check-chunk', [LessonVideoController::class, 'checkChunks'])->name('lessons.upload.check');
-            // --- QUIZ (CÂU HỎI TRẮC NGHIỆM) ---
+            // QUIZ (CÂU HỎI TRẮC NGHIỆM)
             Route::post('quiz/{lesson}/questions', [QuizController::class, 'storeQuestion'])->name('quiz.store-question');
             Route::post('quiz/{lesson}/reorder', [QuizController::class, 'reorderQuizzes'])->name('quiz.reorder');
             Route::put('quiz/questions/{questionId}', [QuizController::class, 'updateQuestion'])->name('quiz.update-question');
@@ -98,23 +98,25 @@ Route::middleware('auth')->group(function () {
             return Inertia::render('Seller/Reviews');
         })->name('reviews.index');
 
-    }); // Kết thúc Route Group của Seller
+    });
 
 });
-// Kết thúc Route Group của Auth
 Route::prefix('tech-education')->name('frontend.')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/courses', [CourseController::class, 'index'])->name('course.index');
     Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('course.detail');
     Route::get('/instructors', [InstructorController::class, 'index'])->name('instructor.index');
     Route::get('/instructors/{id}', [InstructorController::class, 'show'])->name('instructor.detail');
+    Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+    Route::get('/about', [AboutController::class, 'index'])->name('about.index');
+    Route::get('/faqs', [FaqController::class, 'index'])->name('faq.index');
+    Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 
     // Cart routes (Requires Authentication)
     Route::middleware('auth')->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
-        // Placeholder for checkout route
         Route::post('/checkout/process', function () {
             return back();
         })->name('checkout.process');

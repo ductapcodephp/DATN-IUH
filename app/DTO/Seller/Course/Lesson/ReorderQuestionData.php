@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTO\Seller\Course\Lesson;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Seller\Courses\Quizzes\ReorderQuizQuestionsRequest;
 
 readonly class ReorderQuestionData
 {
@@ -15,7 +15,7 @@ readonly class ReorderQuestionData
         public array $questionIds,
     ) {}
 
-    public static function fromRequest(Request $request): self
+    public static function fromRequest(ReorderQuizQuestionsRequest $request): self
     {
         return new self(
             questionIds: array_map('intval', (array) $request->input('question_ids', [])),

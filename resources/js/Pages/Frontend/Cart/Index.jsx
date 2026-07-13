@@ -17,7 +17,7 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
     };
 
     const getImageUrl = (url) => {
-        if (!url) return "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600";
+        if (!url) return "/assets/frontend/img/default-course-orange.png";
         if (url.startsWith('http')) return url;
         return `/storage/${url}`;
     };
@@ -117,6 +117,9 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                                                             alt={item.course?.title} 
                                                             className="w-100 h-100 object-fit-cover cart-item-img" 
                                                             loading="lazy" 
+                                                            onError={(e) => {
+                                                                e.target.src = "/assets/frontend/img/default-course.png";
+                                                            }}
                                                         />
                                                     </Link>
 
@@ -245,7 +248,7 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                                         <form onSubmit={handleApplyCoupon} className="d-flex gap-2">
                                             <input 
                                                 type="text" 
-                                                className="form-control rounded-3 bg-white" 
+                                                className="form-control rounded-3 bg-white orange-input-focus"
                                                 placeholder="Nhập mã (VD: GIAM200K)" 
                                                 value={coupon}
                                                 onChange={e => setCoupon(e.target.value.toUpperCase())}
@@ -308,7 +311,7 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                             <div className="row g-4">
                                 {popularCourses.map((course) => (
                                     <div key={course.id} className="col-12 col-md-6 col-lg-3">
-                                        <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden course-card">
+                                        <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden course-card cart-card-hover">
                                             <Link href={route('frontend.course.detail', course.slug)} className="text-decoration-none">
                                                 <img 
                                                     src={getImageUrl(course.thumbnail)} 
@@ -316,6 +319,9 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                                                     className="w-100 object-fit-cover" 
                                                     style={{ height: '160px' }} 
                                                     loading="lazy" 
+                                                    onError={(e) => {
+                                                        e.target.src = "/assets/frontend/img/default-course.png";
+                                                    }}
                                                 />
                                                 <div className="card-body p-3">
                                                     <div className="badge bg-primary bg-opacity-10 text-primary mb-2 rounded-pill px-2 py-1">

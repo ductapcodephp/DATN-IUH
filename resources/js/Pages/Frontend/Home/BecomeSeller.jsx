@@ -100,7 +100,7 @@ export default function BecomeSeller() {
 
                         <img
 
-                            src="https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=600&q=80"
+                            src="/assets/frontend/img/become-seller.jpg"
 
                             alt="Become Instructor"
 

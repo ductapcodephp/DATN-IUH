@@ -3,7 +3,15 @@ import { Link, usePage } from '@inertiajs/react';
 
 export default function Header() {
     const { auth } = usePage().props;
+    const { url } = usePage();
     const user = auth?.user;
+
+    const isActive = (path) => {
+        if (path === '/home') {
+            return url === '/tech-education/home';
+        }
+        return url.startsWith(`/tech-education${path}`);
+    };
 
     return (
         <nav className="navbar navbar-expand-lg">
@@ -31,7 +39,7 @@ export default function Header() {
                     <ul className="navbar-nav main-nav mb-3 mb-lg-0 gap-lg-3">
 
                         <li className="nav-item">
-                            <Link className="nav-link main-nav-link active" href={route('frontend.home')}>
+                            <Link className={`nav-link main-nav-link ${isActive('/home') ? 'active' : ''}`} href={route('frontend.home')}>
                                 Trang chủ
                             </Link>
                         </li>
@@ -98,25 +106,25 @@ export default function Header() {
 
 
                         <li className="nav-item">
-                            <Link className="nav-link main-nav-link" href="#">
+                            <Link className={`nav-link main-nav-link ${isActive('/blog') ? 'active' : ''}`} href={route('frontend.blog.index')}>
                                 Blog
                             </Link>
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link main-nav-link" href="#">
+                            <Link className={`nav-link main-nav-link ${isActive('/about') ? 'active' : ''}`} href={route('frontend.about.index')}>
                                 Giới thiệu
                             </Link>
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link main-nav-link" href="#">
+                            <Link className={`nav-link main-nav-link ${isActive('/faqs') ? 'active' : ''}`} href={route('frontend.faq.index')}>
                                 FAQ
                             </Link>
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link main-nav-link" href="#">
+                            <Link className={`nav-link main-nav-link ${isActive('/contact') ? 'active' : ''}`} href={route('frontend.contact.index')}>
                                 Liên hệ
                             </Link>
                         </li>
@@ -174,7 +182,7 @@ export default function Header() {
                             {user ? (
                                 <div className="nav-item dropdown">
                                     <a className="nav-link dropdown-toggle d-flex align-items-center gap-2 p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src={user.avatar || 'https://i.pravatar.cc/150'} alt="Avatar" className="rounded-circle object-fit-cover" width="36" height="36" />
+                                        <img src={user.avatar || '/assets/frontend/img/default-avatar.jpg'} alt="Avatar" className="rounded-circle object-fit-cover" width="36" height="36" />
                                         <span className="fw-semibold text-dark d-none d-md-inline-block">{user.name}</span>
                                     </a>
                                     <ul className="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2 p-2" aria-labelledby="userDropdown">

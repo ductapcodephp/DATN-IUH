@@ -201,7 +201,7 @@ export default function Index({ courses, categories, filters }) {
                                                     <i className={`fa-heart text-danger ${isWishlisted ? 'fa-solid' : 'fa-regular'}`}></i>
                                                 </button>
                                             <Link href={route('frontend.course.detail', { slug: course.slug })} className="text-decoration-none text-dark">
-                                                <img src={course.thumbnail ? `/storage/${course.thumbnail}` : 'https://placehold.co/600x400?text=No+Thumbnail'} alt={course.title} className="course-thumb" loading="lazy" />
+                                                <img src={course.thumbnail ? `/storage/${course.thumbnail}` : '/assets/frontend/img/no-thumbnail.png'} alt={course.title} className="course-thumb" loading="lazy" />
                                             <div className="course-body">
                                                 <span className="course-cat">{course.category?.name}</span>
                                                 <h3 className="course-title">{course.title}</h3>
