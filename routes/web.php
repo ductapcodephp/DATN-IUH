@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\CourseController;
+use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\InstructorController;
+use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\Seller\CouponController;
 use App\Http\Controllers\Seller\Courses\ChapterController;
 use App\Http\Controllers\Seller\Courses\CurriculumController;
@@ -8,10 +13,11 @@ use App\Http\Controllers\Seller\Courses\LessonController;
 use App\Http\Controllers\Seller\Courses\LessonVideoController;
 use App\Http\Controllers\Seller\Courses\QuizController;
 use App\Http\Controllers\Seller\Courses\SellerCourseController;
+use App\Http\Controllers\Seller\ProfileController;
 use App\Http\Controllers\Seller\StudentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\Frontend\HomeController;
+
 // ==========================================
 // ROUTES CHO KHÁCH (CHƯA ĐĂNG NHẬP)
 // ==========================================
@@ -79,10 +85,10 @@ Route::middleware('auth')->group(function () {
             Route::delete('quiz/questions/{questionId}', [QuizController::class, 'destroyQuestion'])->name('quiz.delete-question');
         });
         // 5. QUẢN LÝ PROFILE SELLER
-        Route::get('profile', [\App\Http\Controllers\Seller\ProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('profile/info', [\App\Http\Controllers\Seller\ProfileController::class, 'updateInfo'])->name('profile.updateInfo');
-        Route::put('profile/password', [\App\Http\Controllers\Seller\ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
-        Route::put('profile/payment', [\App\Http\Controllers\Seller\ProfileController::class, 'updatePayment'])->name('profile.updatePayment');
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile/info', [ProfileController::class, 'updateInfo'])->name('profile.updateInfo');
+        Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
+        Route::put('profile/payment', [ProfileController::class, 'updatePayment'])->name('profile.updatePayment');
 
         Route::get('/dashboard', fn () => Inertia::render('Seller/Dashboard'))->name('dashboard');
         Route::get('revenues', function () {
@@ -94,13 +100,27 @@ Route::middleware('auth')->group(function () {
 
     }); // Kết thúc Route Group của Seller
 
-}); 
+});
 // Kết thúc Route Group của Auth
 Route::prefix('tech-education')->name('frontend.')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
-    Route::get('/courses/{slug}', [\App\Http\Controllers\Frontend\CourseController::class, 'show'])->name('course.detail');
-    
-    Route::get('/cart', [\App\Http\Controllers\Frontend\CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [\App\Http\Controllers\Frontend\CartController::class, 'add'])->name('cart.add');
-    Route::post('/cart/remove', [\App\Http\Controllers\Frontend\CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/courses', [CourseController::class, 'index'])->name('course.index');
+    Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('course.detail');
+    Route::get('/instructors', [InstructorController::class, 'index'])->name('instructor.index');
+    Route::get('/instructors/{id}', [InstructorController::class, 'show'])->name('instructor.detail');
+
+    // Cart routes (Requires Authentication)
+    Route::middleware('auth')->group(function () {
+        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('cart.add');
+        Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
+        // Placeholder for checkout route
+        Route::post('/checkout/process', function () {
+            return back();
+        })->name('checkout.process');
+
+        // Wishlist route
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+        Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    });
 });

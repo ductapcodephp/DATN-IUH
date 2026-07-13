@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Repositories\Frontend;
+namespace App\Repositories\Frontend\Home;
 
 use App\Models\Course;
 
-class HomeRepository
+class HomeRepository implements HomeRepositoryInterface
 {
     public function getVipCourses()
     {

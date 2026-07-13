@@ -79,7 +79,7 @@ export default function BecomeSeller() {
 
 
                         <Link
-                            href="/seller/register"
+                            href={route('register')}
                             className="btn btn-warning btn-lg fw-bold text-dark px-5 py-3"
                         >
 

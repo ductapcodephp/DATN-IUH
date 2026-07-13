@@ -29,6 +29,9 @@ class HandleInertiaRequests extends Middleware
         return array_merge(parent::share($request), [
             'auth' => [
                 'user' => $request->user(), // Lấy user hiện tại đang đăng nhập
+                'wishlisted_course_ids' => $request->user() 
+                    ? \App\Models\Wishlist::where('user_id', $request->user()->id)->pluck('course_id')->toArray() 
+                    : [],
             ],
             // Truyền lỗi hoặc thông báo thành công ra React
             'flash' => [

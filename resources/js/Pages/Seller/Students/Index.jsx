@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import Pagination from "@/Components/Pagination.jsx";
-import Swal from 'sweetalert2';
+import SweetAlert from '@/Components/SweetAlert';
 
 export default function Students({ students, filters, coursesList }) {
     const { flash } = usePage().props;
@@ -13,20 +13,9 @@ export default function Students({ students, filters, coursesList }) {
     const [perPage, setPerPage] = useState(filters?.per_page || 10);
     const isFirstRender = useRef(true);
 
-    // Toast thông báo
-    useEffect(() => {
-        if (flash?.success || flash?.error) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: flash.success ? 'success' : 'error',
-                title: flash.success || flash.error,
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-            });
-        }
-    }, [flash]);
+    const [confirmBlock, setConfirmBlock] = useState({ show: false, id: null, name: '' });
+
+
 
     // Xử lý gửi bộ lọc lên server (Debounce)
     useEffect(() => {
@@ -48,31 +37,32 @@ export default function Students({ students, filters, coursesList }) {
 
     // Xử lý nút Block học viên
     const handleBlock = (studentId, studentName) => {
-        Swal.fire({
-            title: 'Chặn học viên này?',
-            html: `Mày sắp chặn <strong>${studentName}</strong>. <br/>Học viên này sẽ không thể bình luận hay mua thêm khóa của mày nữa!`,
-            icon: 'warning',
-            input: 'text',
-            inputPlaceholder: 'Nhập lý do chặn (không bắt buộc)...',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Khóa mõm luôn!',
-            cancelButtonText: 'Từ từ đã',
-            customClass: { popup: 'border-radius-10' }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Truyền lý do lên server
-                router.post(route('seller.students.block', studentId), {
-                    reason: result.value
-                });
-            }
-        });
+        setConfirmBlock({ show: true, id: studentId, name: studentName });
     };
 
     return (
         <>
             <Head title="Quản lý học viên" />
+
+            <SweetAlert
+                show={confirmBlock.show}
+                type="confirm"
+                icon="warning"
+                title="Chặn học viên này?"
+                html={`Mày sắp chặn <strong>${confirmBlock.name}</strong>. <br/>Học viên này sẽ không thể bình luận hay mua thêm khóa của mày nữa!`}
+                input="text"
+                inputPlaceholder="Nhập lý do chặn (không bắt buộc)..."
+                confirmButtonColor="#dc2626"
+                cancelButtonColor="#6b7280"
+                confirmButtonText="Khóa mõm luôn!"
+                cancelButtonText="Từ từ đã"
+                onConfirm={(reason) => {
+                    router.post(route('seller.students.block', confirmBlock.id), {
+                        reason: reason
+                    });
+                }}
+                onClose={() => setConfirmBlock({ show: false, id: null, name: '' })}
+            />
 
             <div className="page">
                 <div className="page-header">

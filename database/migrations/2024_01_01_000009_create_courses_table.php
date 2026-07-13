@@ -23,6 +23,7 @@ return new class extends Migration {
             $table->integer('total_lessons')->default(0);
             $table->integer('total_duration_seconds')->default(0);
             $table->decimal('total_revenue', 15, 2)->default(0.00);
+            $table->integer('students_count')->default(0);
             $table->boolean('is_vip')->default(false)->comment('Only VIP members can view');
             $table->timestamp('vip_expires_at')->nullable()->comment('VIP access expiration');
             $table->json('requirements')->nullable()->comment('Prerequisites array');

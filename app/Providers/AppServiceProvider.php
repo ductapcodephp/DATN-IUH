@@ -43,6 +43,18 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Frontend\Home\HomeRepositoryInterface::class,
             \App\Repositories\Frontend\Home\HomeRepository::class
         );
+        $this->app->bind(
+            \App\Repositories\Frontend\Courses\CourseRepositoryInterface::class,
+            \App\Repositories\Frontend\Courses\CourseRepository::class
+        );
+        $this->app->bind(
+            \App\Repositories\Frontend\Instructor\InstructorRepositoryInterface::class,
+            \App\Repositories\Frontend\Instructor\InstructorRepository::class
+        );
+        $this->app->bind(
+            \App\Repositories\Frontend\Wishlist\WishlistRepositoryInterface::class,
+            \App\Repositories\Frontend\Wishlist\WishlistRepository::class
+        );
     }
 
     public function boot(): void

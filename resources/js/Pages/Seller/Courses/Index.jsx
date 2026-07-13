@@ -2,37 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import Pagination from "@/Components/Pagination.jsx";
-import Swal from 'sweetalert2';
+import SweetAlert from '@/Components/SweetAlert';
 
 export default function Courses({ courses, filters, totalCoursesCount }) {
-    const { flash } = usePage().props;
-
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || 'all');
     const [perPage, setPerPage] = useState(filters.per_page || 10);
+    const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null, title: '' });
 
     const isFirstRender = useRef(true);
-
-    useEffect(() => {
-        if (flash?.success) {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
-
-            Toast.fire({
-                icon: 'success',
-                title: flash.success
-            });
-        }
-    }, [flash]);
 
     useEffect(() => {
         if (isFirstRender.current) {
@@ -57,29 +35,27 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
     }, [search, status, perPage]);
 
     const handleDelete = (id, title) => {
-        Swal.fire({
-            title: 'Bạn có chắc chắn không?',
-            text: `Khóa học "${title}" sẽ bị xóa tạm thời vào hệ thống lưu trữ!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#f97316', // Tone cam thương hiệu cho nút xác nhận
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Đồng ý, xóa ngay!',
-            cancelButtonText: 'Hủy thao tác',
-            background: '#ffffff',
-            customClass: {
-                popup: 'border-radius-10'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.delete(route('seller.courses.destroy', id));
-            }
-        });
+        setConfirmDelete({ show: true, id, title });
     };
 
     return (
         <>
             <Head title="Quản lý khóa học" />
+
+            <SweetAlert
+                show={confirmDelete.show}
+                type="confirm"
+                icon="warning"
+                title="Bạn có chắc chắn không?"
+                text={`Khóa học "${confirmDelete.title}" sẽ bị xóa tạm thời vào hệ thống lưu trữ!`}
+                confirmButtonText="Đồng ý, xóa ngay!"
+                cancelButtonText="Hủy thao tác"
+                confirmButtonColor="#f97316"
+                onConfirm={() => {
+                    router.delete(route('seller.courses.destroy', confirmDelete.id));
+                }}
+                onClose={() => setConfirmDelete({ show: false, id: null, title: '' })}
+            />
 
             <div className="page">
                 <div className="page-header">

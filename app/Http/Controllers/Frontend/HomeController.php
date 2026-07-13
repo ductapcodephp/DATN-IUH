@@ -14,6 +14,7 @@ class HomeController extends Controller
     }
     public function index()
     {
+        
         $vipCourses = $this->homeService->getVipCourses();
         $topInstructors = $this->homeService->getTopInstructors();
         return Inertia::render('Frontend/Home/Index', compact('vipCourses', 'topInstructors'));

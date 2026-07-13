@@ -7,24 +7,24 @@ export default function Footer() {
     <div className="container">
       <div className="row g-4">
         <div className="col-lg-4 pe-lg-5">
-          <a href="home.html" className="footer-brand">Edu<span>Flow</span></a>
+          <Link href={route('frontend.home')} className="footer-brand">Edu<span>Flow</span></Link>
           <p>Nền tảng học tập trực tuyến hàng đầu, cung cấp các khoá học chất lượng cao giúp bạn thăng tiến trong sự
             nghiệp IT.</p>
         </div>
         <div className="col-lg-2 col-6">
           <h5>Khám phá</h5>
           <ul>
-            <li><a href="home.html">Trang chủ</a></li>
-            <li><a href="courses.html">Khóa học</a></li>
-            <li><a href="blog.html">Blog</a></li>
+            <li><Link href={route('frontend.home')}>Trang chủ</Link></li>
+            <li><Link href={route('frontend.course.index')}>Khóa học</Link></li>
+            <li><Link href="#">Blog</Link></li>
           </ul>
         </div>
         <div className="col-lg-3 col-6">
           <h5>Hỗ trợ</h5>
           <ul>
-            <li><a href="about.html">Giới thiệu</a></li>
-            <li><a href="faqs.html">Câu hỏi thường gặp</a></li>
-            <li><a href="contact.html">Liên hệ</a></li>
+            <li><Link href="#">Giới thiệu</Link></li>
+            <li><Link href="#">Câu hỏi thường gặp</Link></li>
+            <li><Link href="#">Liên hệ</Link></li>
           </ul>
         </div>
         <div className="col-lg-3">

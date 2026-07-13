@@ -1,8 +1,10 @@
 import React from "react";
-import { Link } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 
 // Hứng biến courses (gán mặc định là mảng rỗng [] để không bị lỗi nếu không có data)
 export default function FeaturedCourses({ courses = [] }) {
+    const { auth } = usePage().props;
+    const wishlistedIds = auth?.wishlisted_course_ids || [];
     
     // Hàm tiện ích format tiền tệ
     const formatCurrency = (amount) => {
@@ -26,12 +28,26 @@ export default function FeaturedCourses({ courses = [] }) {
 
                 <div className="row g-4">
                     {courses.length > 0 ? (
-                        courses.map((course) => (
-                            <div className="col-12 col-md-6 col-lg-3" key={course.id}>
-                                <Link
-                                    href={`/courses/${course.slug}`} 
-                                    className="course-card course-vip"
-                                >
+                        courses.map((course) => {
+                            const isWishlisted = wishlistedIds.includes(course.id);
+                            
+                            return (
+                                <div className="col-12 col-md-6 col-lg-3" key={course.id}>
+                                    <div className="course-card course-vip position-relative">
+                                        <button 
+                                            className="btn btn-light rounded-circle position-absolute border shadow-sm wishlist-btn" 
+                                            style={{ top: '10px', left: '10px', width: '35px', height: '35px', padding: '0', zIndex: 10 }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                router.post(route('frontend.wishlist.toggle'), { course_id: course.id }, { preserveScroll: true });
+                                            }}
+                                        >
+                                            <i className={`fa-heart text-danger ${isWishlisted ? 'fa-solid' : 'fa-regular'}`}></i>
+                                        </button>
+                                    <Link
+                                        href={route('frontend.course.detail', { slug: course.slug })} 
+                                        className="text-decoration-none text-dark d-block h-100"
+                                    >
                                     <div className="badge-sponsored">Tài trợ</div>
 
                                     <img
@@ -79,9 +95,11 @@ export default function FeaturedCourses({ courses = [] }) {
                                             </span>
                                         )}
                                     </div>
-                                </Link>
+                                    </Link>
+                                </div>
                             </div>
-                        ))
+                            );
+                        })
                     ) : (
                         <div className="col-12 text-center text-muted">
                             <p>Hiện chưa có khóa học VIP nào.</p>

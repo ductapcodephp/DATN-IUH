@@ -101,7 +101,7 @@ class Course extends Model
         'title', 'slug', 'description', 'thumbnail', 'price',
         'original_price', 'level', 'status', 'is_free', 'is_vip',
         'requirements', 'outcomes', 'seller_id', 'category_id',
-        'total_revenue', // <-- Sửa lỗi cú pháp: Phải bọc trong dấu nháy đơn hoặc kép
+        'total_revenue', 'students_count',
     ];
 
     protected $casts = [

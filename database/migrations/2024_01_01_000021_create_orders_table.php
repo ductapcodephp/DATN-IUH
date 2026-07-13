@@ -11,7 +11,8 @@ return new class extends Migration {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->comment('Student who purchased');
-            $table->foreignId('course_id')->constrained('courses')->onDelete('restrict');
+            $table->foreignId('course_id')->nullable()->constrained('courses')->onDelete('restrict');
+            $table->foreignId('vip_package_id')->nullable()->constrained('vip_packages')->onDelete('restrict');
             $table->foreignId('coupon_id')->nullable()->constrained('coupons')->onDelete('set null');
             $table->decimal('amount_original', 10, 2)->comment('Original course price');
             $table->decimal('discount_amount', 10, 2)->default(0)->comment('Total discount from coupon');

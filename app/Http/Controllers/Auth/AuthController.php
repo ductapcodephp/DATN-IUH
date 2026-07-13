@@ -88,7 +88,7 @@ class AuthController extends Controller
             UserLoggedIn::dispatch($user, $context);
             Log::info('After dispatch UserLoggedIn');
 
-            return redirect()->intended($redirectUrl);
+            return redirect()->intended($redirectUrl)->with('success', 'Đăng nhập thành công!');
 
         } catch (Exception $e) {
             Log::error('Login Error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
@@ -112,7 +112,7 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         Cookie::queue(Cookie::forget('refresh_token'));
 
-        return redirect()->route('login');
+        return redirect()->route('login')->with('success', 'Đăng xuất thành công!');
     }
 
     /**

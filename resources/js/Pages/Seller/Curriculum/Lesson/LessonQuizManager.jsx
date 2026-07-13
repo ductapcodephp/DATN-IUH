@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import Swal from 'sweetalert2';
+import SweetAlert from '@/Components/SweetAlert';
 
 export default function LessonQuizManager({ course, lesson }) {
     const [showQuizForm, setShowQuizForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [editData, setEditData] = useState({ question_text: '', type: 'single_choice', answers: [] });
     const [editProcessing, setEditProcessing] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState({ show: false, questionId: null });
 
     const [quizzes, setQuizzes] = useState(lesson.quizzes || []);
 
@@ -39,24 +40,7 @@ export default function LessonQuizManager({ course, lesson }) {
     };
 
     const handleDeleteQuestion = (questionId) => {
-        Swal.fire({
-            title: 'Xóa câu hỏi?',
-            text: 'Bạn có chắc chắn muốn xóa câu hỏi này?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Xóa',
-            cancelButtonText: 'Hủy',
-            confirmButtonColor: '#ef4444'
-        }).then(result => {
-            if (result.isConfirmed) {
-                router.delete(route('seller.courses.curriculum.quiz.delete-question', {
-                    course: course.id,
-                    questionId: questionId
-                }), {
-                    preserveScroll: true
-                });
-            }
-        });
+        setConfirmDelete({ show: true, questionId });
     };
 
     const startEditQuestion = (q) => {
@@ -263,6 +247,26 @@ export default function LessonQuizManager({ course, lesson }) {
 
     return (
         <div className="card-box">
+            <SweetAlert
+                show={confirmDelete.show}
+                type="confirm"
+                icon="warning"
+                title="Xóa câu hỏi?"
+                text="Bạn có chắc chắn muốn xóa câu hỏi này?"
+                confirmButtonText="Xóa"
+                cancelButtonText="Hủy"
+                confirmButtonColor="#ef4444"
+                onConfirm={() => {
+                    router.delete(route('seller.courses.curriculum.quiz.delete-question', {
+                        course: course.id,
+                        questionId: confirmDelete.questionId
+                    }), {
+                        preserveScroll: true
+                    });
+                }}
+                onClose={() => setConfirmDelete({ show: false, questionId: null })}
+            />
+
             <div className="card-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: '20px' }}>
                 <h3>❓ Danh sách câu hỏi trắc nghiệm ({quizzes?.reduce((acc, q) => acc + (q.questions?.length || 0), 0) || 0})</h3>
                 {!showQuizForm && (

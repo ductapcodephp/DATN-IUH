@@ -3,45 +3,67 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Services\Frontend\CartService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Cart;
+use App\Models\CartItem;
+use App\Models\Course;
+use App\Services\Frontend\CourseService;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    protected $cartService;
+    protected $courseService;
 
-    public function __construct(CartService $cartService)
+    public function __construct(CourseService $courseService)
     {
-        $this->cartService = $cartService;
+        $this->courseService = $courseService;
     }
 
     public function index()
     {
-        $cart = $this->cartService->getCart();
+        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        
+        $cartItems = $cart->items()->with(['course.seller'])->get();
+        $totalAmount = $cartItems->sum('price');
+        
+        $popularCourses = $this->courseService->getPopularCourses(4);
+
         return Inertia::render('Frontend/Cart/Index', [
-            'cartItems' => array_values($cart)
+            'cart' => $cart,
+            'cartItems' => $cartItems,
+            'totalAmount' => $totalAmount,
+            'popularCourses' => $popularCourses
         ]);
     }
 
-    public function add(Request $request)
+    public function add(Request $request, Course $course)
     {
-        $request->validate(['course_id' => 'required|integer']);
-        
-        $added = $this->cartService->addToCart($request->course_id);
-        
-        if ($added) {
-            return back()->with('success', 'Đã thêm khóa học vào giỏ hàng');
+        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+
+        // Check if item already exists in cart
+        if ($cart->items()->where('course_id', $course->id)->exists()) {
+            return back()->with('error', 'Khóa học này đã có trong giỏ hàng.');
         }
-        return back()->with('error', 'Khóa học đã có trong giỏ hàng hoặc không tồn tại');
+
+        // Add to cart
+        $cart->items()->create([
+            'course_id' => $course->id,
+            'price' => $course->price
+        ]);
+
+        return back()->with('success', 'Đã thêm khóa học vào giỏ hàng.');
     }
 
-    public function remove(Request $request)
+    public function remove(CartItem $cartItem)
     {
-        $request->validate(['course_id' => 'required|integer']);
-        
-        $this->cartService->removeFromCart($request->course_id);
-        
-        return back()->with('success', 'Đã xóa khóa học khỏi giỏ hàng');
+        // Ensure user owns this cart item
+        if ($cartItem->cart->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $cartItem->delete();
+
+        return back()->with('success', 'Đã xóa khóa học khỏi giỏ hàng.');
     }
 }

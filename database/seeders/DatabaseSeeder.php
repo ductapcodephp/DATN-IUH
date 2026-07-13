@@ -45,13 +45,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 3. TẠO HỌC VIÊN NGẪU NHIÊN (Chỉ có role user mặc định)
-        for ($i = 0; $i < 15; $i++) {
+        for ($i = 0; $i < 30; $i++) {
             User::query()->create([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
                 'password' => Hash::make('123'),
-                'roles' => [ UserRole::SELLER->value,UserRole::USER->value],
-                'current_role' => UserRole::SELLER->value,
+                'roles' => [UserRole::USER->value],
+                'current_role' => UserRole::USER->value,
                 'is_active' => true,
             ]);
         }
@@ -100,6 +100,8 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        $this->command->info('🎉 Gộp file thành công! Đã nạp: 3 Danh mục, 1 Siêu Admin, 15 Học viên, 10 Giảng viên đa vai trò sở hữu 50 Khóa học!');
+        $this->call(ReviewSeeder::class);
+
+        $this->command->info('🎉 Gộp file thành công! Đã nạp: 3 Danh mục, 1 Siêu Admin, 30 Học viên, 10 Giảng viên đa vai trò sở hữu 50 Khóa học!');
     }
 }

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import Modal from '@/Components/Modal';
 import axios from 'axios';
 import { router } from '@inertiajs/react';
-import Swal from 'sweetalert2';
+import SweetAlert from '@/Components/SweetAlert';
 
 // 🔧 FIX (chống đụng thư mục chunk cũ): mỗi "lượt upload mới" của 1 file được
 // gắn 1 UUID riêng, lưu tạm ở sessionStorage. Nếu user refresh trang giữa lúc
@@ -26,6 +26,7 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
     const [videoFile, setVideoFile] = useState(null);
     const [progress, setProgress] = useState(0);
     const [processing, setProcessing] = useState(false);
+    const [successAlert, setSuccessAlert] = useState(false);
     const [error, setError] = useState('');
 
     const cancelTokenRef = useRef(null);
@@ -134,13 +135,7 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
 
                 onClose();
                 router.reload({ preserveScroll: true });
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Tải lên thành công!',
-                    text: 'Hệ thống đang xử lý video ngầm.',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+                setSuccessAlert(true);
             } else {
                 // Trường hợp này có nghĩa là: tất cả request đều 200 OK, nhưng vì
                 // lý do gì đó (count chunk lệch, mất chunk...) server vẫn chưa
@@ -181,6 +176,16 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
 
     return (
         <Modal show={show} onClose={handleClose} maxWidth="md">
+            <SweetAlert
+                show={successAlert}
+                type="alert"
+                icon="success"
+                title="Tải lên thành công!"
+                text="Hệ thống đang xử lý video ngầm."
+                showConfirmButton={false}
+                timer={2000}
+                onClose={() => setSuccessAlert(false)}
+            />
             <form onSubmit={uploadChunks} style={{ padding: '24px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', color: '#111827' }}>
                     Tải video bài học: <span style={{ color: 'var(--accent)' }}>{lesson?.title}</span>

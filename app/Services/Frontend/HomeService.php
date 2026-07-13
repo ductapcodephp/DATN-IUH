@@ -2,7 +2,7 @@
 
 namespace App\Services\Frontend;
 
-use App\Repositories\Frontend\HomeRepository;
+use App\Repositories\Frontend\Home\HomeRepositoryInterface;
 use App\Models\User;
 use App\Enums\UserRole;
 
@@ -10,7 +10,7 @@ class HomeService
 {
     protected $homeRepository;
 
-    public function __construct(HomeRepository $homeRepository)
+    public function __construct(HomeRepositoryInterface $homeRepository)
     {
         $this->homeRepository = $homeRepository;
     }

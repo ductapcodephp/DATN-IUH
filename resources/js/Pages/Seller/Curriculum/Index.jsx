@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
-import Swal from 'sweetalert2';
+import SweetAlert from '@/Components/SweetAlert';
 import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import ChapterItem from './ChapterItem';
@@ -14,6 +14,8 @@ export default function Curriculum({ course, chapters: initialChapters }) {
     const [showLessonModal, setShowLessonModal] = useState(false);
     const [activeChapterId, setActiveChapterId] = useState(null);
     const [expandedChapters, setExpandedChapters] = useState(chapters?.length > 0 ? [chapters[0].id] : []);
+    const [confirmDeleteChapter, setConfirmDeleteChapter] = useState({ show: false, chapterId: null });
+    const [confirmDeleteLesson, setConfirmDeleteLesson] = useState({ show: false, lessonId: null });
 
     const lessonForm = useForm({ title: '', type: 'video' });
 
@@ -34,36 +36,12 @@ export default function Curriculum({ course, chapters: initialChapters }) {
     }, []);
 
     const deleteChapter = useCallback((chapterId) => {
-        Swal.fire({
-            title: 'Xóa chương?',
-            text: 'Bạn có chắc chắn muốn xóa chương này và toàn bộ bài học bên trong?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Xóa',
-            cancelButtonText: 'Hủy',
-            confirmButtonColor: '#ef4444'
-        }).then(result => {
-            if (result.isConfirmed) {
-                router.delete(route('seller.courses.curriculum.chapters.destroy', [course.id, chapterId]), { preserveScroll: true });
-            }
-        });
-    }, [course.id]);
+        setConfirmDeleteChapter({ show: true, chapterId });
+    }, []);
 
     const deleteLesson = useCallback((lessonId) => {
-        Swal.fire({
-            title: 'Xóa bài học?',
-            text: 'Bạn có chắc chắn muốn xóa bài học này?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Xóa',
-            cancelButtonText: 'Hủy',
-            confirmButtonColor: '#ef4444'
-        }).then(result => {
-            if (result.isConfirmed) {
-                router.delete(route('seller.courses.curriculum.lessons.destroy', [course.id, lessonId]), { preserveScroll: true });
-            }
-        });
-    }, [course.id]);
+        setConfirmDeleteLesson({ show: true, lessonId });
+    }, []);
 
     const formatDuration = useCallback((seconds) => {
         if (!seconds) return '--';
@@ -141,6 +119,36 @@ export default function Curriculum({ course, chapters: initialChapters }) {
     return (
         <>
             <Head title={`Giáo trình: ${course.title}`} />
+
+            <SweetAlert
+                show={confirmDeleteChapter.show}
+                type="confirm"
+                icon="warning"
+                title="Xóa chương?"
+                text="Bạn có chắc chắn muốn xóa chương này và toàn bộ bài học bên trong?"
+                confirmButtonText="Xóa"
+                cancelButtonText="Hủy"
+                confirmButtonColor="#ef4444"
+                onConfirm={() => {
+                    router.delete(route('seller.courses.curriculum.chapters.destroy', [course.id, confirmDeleteChapter.chapterId]), { preserveScroll: true });
+                }}
+                onClose={() => setConfirmDeleteChapter({ show: false, chapterId: null })}
+            />
+
+            <SweetAlert
+                show={confirmDeleteLesson.show}
+                type="confirm"
+                icon="warning"
+                title="Xóa bài học?"
+                text="Bạn có chắc chắn muốn xóa bài học này?"
+                confirmButtonText="Xóa"
+                cancelButtonText="Hủy"
+                confirmButtonColor="#ef4444"
+                onConfirm={() => {
+                    router.delete(route('seller.courses.curriculum.lessons.destroy', [course.id, confirmDeleteLesson.lessonId]), { preserveScroll: true });
+                }}
+                onClose={() => setConfirmDeleteLesson({ show: false, lessonId: null })}
+            />
 
             <div className="page">
                 <div className="page-header">

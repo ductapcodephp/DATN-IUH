@@ -55,6 +55,14 @@ return new class extends Migration {
             $table->string('last_login_ip', 45)->nullable();
             $table->string('last_login_country', 100)->nullable();
 
+            // FINANCIAL / BANK INFO
+            $table->string('bank_name')->nullable();
+            $table->string('bank_account_no')->nullable();
+            $table->string('bank_account_name')->nullable();
+
+            // STATISTICS
+            $table->integer('total_students')->default(0);
+
             $table->timestamps();
             $table->softDeletes();
 
