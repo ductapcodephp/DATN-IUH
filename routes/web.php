@@ -76,8 +76,9 @@ Route::middleware('auth')->group(function () {
             Route::delete('lessons/{lesson}', [LessonController::class, 'destroy'])->name('lessons.destroy');
 
             // VIDEO TRONG BÀI HỌC
-            Route::post('lessons/{lesson}/video/upload', [LessonVideoController::class, 'upload'])->name('lessons.upload');
-            Route::get('lessons/{lesson}/video/check-chunk', [LessonVideoController::class, 'checkChunks'])->name('lessons.upload.check');
+            Route::post('lessons/{lesson}/video/presigned-url', [LessonVideoController::class, 'generatePresignedUrl'])->name('lessons.video.presigned-url');
+            Route::post('lessons/{lesson}/video/confirm', [LessonVideoController::class, 'confirmUpload'])->name('lessons.video.confirm');
+            
             // QUIZ (CÂU HỎI TRẮC NGHIỆM)
             Route::post('quiz/{lesson}/questions', [QuizController::class, 'storeQuestion'])->name('quiz.store-question');
             Route::post('quiz/{lesson}/reorder', [QuizController::class, 'reorderQuizzes'])->name('quiz.reorder');

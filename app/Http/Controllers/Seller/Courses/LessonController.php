@@ -71,9 +71,6 @@ class LessonController extends Controller
         return back()->with('success', 'Đã cập nhật vị trí bài học bằng kéo thả!');
     }
 
-    /**
-     * Helper kiểm tra bảo mật cho các phương thức GET/DELETE không qua Form Request (show, destroy)
-     */
     protected function authorizeAccess(Course $course, Lesson $lesson): void
     {
         $isSellerCourse = (int) $course->seller_id === (int) auth()->id();
