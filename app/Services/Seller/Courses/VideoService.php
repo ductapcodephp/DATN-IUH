@@ -28,7 +28,6 @@ class VideoService
             now()->addMinutes(30)
         );
 
-        // Laravel phiên bản mới (hoặc với S3 client) có thể trả về mảng chứa URL và Headers
         $actualUrl = is_array($tempUrl) ? $tempUrl['url'] : (is_string($tempUrl) ? $tempUrl : '');
 
         return [
