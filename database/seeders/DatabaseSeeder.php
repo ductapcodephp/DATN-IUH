@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\User;
+use App\Models\Coupon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -67,18 +68,40 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
             ]);
 
+            // Chuẩn bị danh sách tiêu đề khóa học thực tế
+            $courseTopics = [
+                'Lập trình Web Frontend với ReactJS và TailwindCSS',
+                'Khóa học Fullstack Laravel & VueJS Thực chiến',
+                'Mastering UI/UX Design cho người mới bắt đầu',
+                'Digital Marketing Toàn tập: Từ con số 0 đến Chuyên gia',
+                'Lập trình Python cơ bản đến phân tích dữ liệu',
+                'SEO Thực chiến: Đưa Website lên top Google nhanh chóng',
+                'Thiết kế đồ họa chuyên nghiệp với Adobe Illustrator',
+                'Xây dựng API bảo mật cao với Node.js và Express',
+                'Phát triển ứng dụng Mobile với React Native',
+                'Nghệ thuật giao tiếp và thuyết trình trước đám đông'
+            ];
+
             // 5. TẠO 5 KHÓA HỌC CHO MỖI SELLER (Tổng 50 khóa)
             for ($j = 0; $j < 5; $j++) {
-                $title = rtrim($faker->sentence(6), '.');
+                $baseTitle = $faker->randomElement($courseTopics);
+                $title = $baseTitle . ' - Phần ' . rand(1, 5);
                 $isFree = $faker->boolean(20); // 20% tỷ lệ khóa học miễn phí
                 $isVip = $faker->boolean(10);  // 10% tỷ lệ khóa học VIP
+                
+                $thumbnails = [
+                    '/assets/img/course-1.jpg',
+                    '/assets/img/course-2.jpg',
+                    '/assets/img/course-3.jpg',
+                    '/assets/frontend/img/default-course.png'
+                ];
 
                 Course::query()->create([
                     'seller_id' => $seller->id,
                     'title' => $title,
                     'slug' => Str::slug($title) . '-' . Str::random(5),
-                    'description' => $faker->paragraphs(3, true),
-                    'thumbnail' => 'https://via.placeholder.com/640x360.png?text=Course+' . rand(1, 100),
+                    'description' => 'Đây là khóa học tuyệt vời giúp bạn nắm vững các kiến thức cốt lõi và ứng dụng thực tế. Nội dung được biên soạn bài bản, chi tiết, phù hợp với mọi đối tượng học viên mong muốn nâng cao kỹ năng thực chiến.',
+                    'thumbnail' => $faker->randomElement($thumbnails),
                     'price' => $isFree ? 0 : $faker->randomElement([299000, 499000, 999000]),
                     'original_price' => $isFree ? null : $faker->randomElement([1200000, 1500000, 2000000]),
                     'level' => $faker->randomElement(['beginner', 'intermediate', 'advanced']),
@@ -90,11 +113,13 @@ class DatabaseSeeder extends Seeder
                     'vip_expires_at' => $isVip ? now()->addDays(rand(3, 14)) : null,
                     'requirements' => [
                         'Máy tính có kết nối Internet ổn định',
-                        'Tinh thần tự học và kiên nhẫn',
+                        'Tinh thần tự học, kiên nhẫn và đam mê',
+                        'Không yêu cầu quá nhiều kiến thức đầu vào'
                     ],
                     'outcomes' => [
                         'Nắm vững toàn bộ kiến thức từ cơ bản đến nâng cao',
-                        'Tự tin xây dựng dự án thực tế sau khóa học',
+                        'Tự tin xây dựng dự án thực tế và đi làm ngay',
+                        'Có tư duy giải quyết vấn đề độc lập'
                     ],
                 ]);
             }
@@ -102,6 +127,32 @@ class DatabaseSeeder extends Seeder
 
         $this->call(ReviewSeeder::class);
 
-        $this->command->info('🎉 Gộp file thành công! Đã nạp: 3 Danh mục, 1 Siêu Admin, 30 Học viên, 10 Giảng viên đa vai trò sở hữu 50 Khóa học!');
+        // 6. TẠO MÃ GIẢM GIÁ MẪU
+        Coupon::query()->create([
+            'code' => 'GIAM200K',
+            'type' => 'fixed',
+            'value' => 200000,
+            'min_order_amount' => 500000,
+            'max_uses' => 100,
+            'used_count' => 0,
+            'starts_at' => now(),
+            'expires_at' => now()->addDays(30),
+            'is_active' => true,
+        ]);
+
+        Coupon::query()->create([
+            'code' => 'GIAM10PT',
+            'type' => 'percent',
+            'value' => 10,
+            'max_discount_amount' => 500000,
+            'min_order_amount' => 0,
+            'max_uses' => 50,
+            'used_count' => 0,
+            'starts_at' => now(),
+            'expires_at' => now()->addDays(30),
+            'is_active' => true,
+        ]);
+
+        $this->command->info('🎉 Gộp file thành công! Đã nạp: 3 Danh mục, 1 Siêu Admin, 30 Học viên, 10 Giảng viên đa vai trò sở hữu 50 Khóa học và 2 Mã giảm giá!');
     }
 }

@@ -2,77 +2,133 @@
 
 namespace App\Services\Frontend;
 
-use App\Models\Cart;
-use App\Models\CartItem;
+use App\Repositories\Frontend\Cart\CartRepositoryInterface;
+use App\DTO\Frontend\Cart\CartItemData;
 use App\Models\Course;
-use Illuminate\Support\Facades\Auth;
+use Exception;
 
 class CartService
 {
-    public function getCart()
+    protected $cartRepository;
+
+    public function __construct(CartRepositoryInterface $cartRepository)
     {
-        $userId = Auth::id();
-        if (!$userId) return [];
-
-        $cart = Cart::with('items.course')->firstOrCreate(['user_id' => $userId]);
-
-        return $cart->items->map(function ($item) {
-            return [
-                'id' => $item->course->id,
-                'title' => $item->course->title,
-                'price' => $item->course->price,
-                'original_price' => $item->course->original_price,
-                'thumbnail' => $item->course->thumbnail,
-                'slug' => $item->course->slug,
-            ];
-        })->toArray();
+        $this->cartRepository = $cartRepository;
     }
 
-    public function addToCart($courseId)
+    public function getCartDataForUser(int $userId)
     {
-        $userId = Auth::id();
-        if (!$userId) return false;
+        $cart = $this->cartRepository->getCartByUserId($userId);
+        $cartItems = $this->cartRepository->getCartItemsWithRelations($cart->id, ['course.seller', 'course.category']);
+        
+        return [
+            'cart' => $cart,
+            'cartItems' => $cartItems,
+            'totalAmount' => $cartItems->sum('price')
+        ];
+    }
 
-        $course = Course::find($courseId);
-        if (!$course) return false;
+    public function addCourseToCart(CartItemData $dto)
+    {
+        $cart = $this->cartRepository->getCartByUserId($dto->userId);
 
-        $cart = Cart::firstOrCreate(['user_id' => $userId]);
-
-        $exists = CartItem::where('cart_id', $cart->id)->where('course_id', $courseId)->exists();
-        if ($exists) {
-            return false;
+        $existingItem = $this->cartRepository->findItemInCart($cart->id, $dto->courseId);
+        
+        if ($existingItem) {
+            throw new Exception('Khóa học này đã có trong giỏ hàng.');
         }
 
-        CartItem::create([
-            'cart_id' => $cart->id,
-            'course_id' => $course->id,
-            'price' => $course->price,
-        ]);
-
-        return true;
+        return $this->cartRepository->addItemToCart($cart->id, $dto->courseId, $dto->price);
     }
 
-    public function removeFromCart($courseId)
+    public function removeCourseFromCart(int $cartItemId, int $userId)
     {
-        $userId = Auth::id();
-        if (!$userId) return false;
+        $cartItem = $this->cartRepository->getCartItemById($cartItemId);
 
-        $cart = Cart::where('user_id', $userId)->first();
-        if (!$cart) return false;
+        if (!$cartItem) {
+            throw new Exception('Không tìm thấy khóa học trong giỏ hàng.');
+        }
 
-        CartItem::where('cart_id', $cart->id)->where('course_id', $courseId)->delete();
+        if ($cartItem->cart->user_id !== $userId) {
+            throw new Exception('Bạn không có quyền xóa khóa học này.');
+        }
 
-        return true;
+        return $this->cartRepository->removeItemFromCart($cartItemId);
+    }
+    
+    public function getCouponForCourse($courseId)
+    {
+        return $this->cartRepository->getCouponForCourse($courseId);
     }
 
-    public function clearCart()
+    public function calculateDiscountForCart($cartItems, array $codes)
     {
-        $userId = Auth::id();
-        if ($userId) {
-            $cart = Cart::where('user_id', $userId)->first();
-            if ($cart) {
-                $cart->items()->delete();
+        $discountAmount = 0;
+        $validCoupons = [];
+        
+        $coupons = \App\Models\Coupon::whereIn('code', $codes)->active()->get();
+        
+        if ($coupons->isEmpty() && !empty($codes)) {
+            throw new Exception('Mã giảm giá không hợp lệ hoặc đã hết hạn.');
+        }
+
+        $totalAmount = $cartItems->sum('price');
+        
+        foreach ($coupons as $coupon) {
+            if (!$coupon->isValid()) {
+                throw new Exception("Mã {$coupon->code} đã hết hạn hoặc hết lượt dùng.");
             }
+            
+            if ($coupon->course_id) {
+                // Course-specific coupon
+                $cartItem = $cartItems->firstWhere('course_id', $coupon->course_id);
+                if (!$cartItem) {
+                    throw new Exception("Mã {$coupon->code} không áp dụng cho các khóa học trong giỏ hàng.");
+                }
+                $itemPrice = $cartItem->price;
+                $discount = $coupon->calculateDiscount($itemPrice);
+                $discount = min($discount, $itemPrice);
+                
+                $discountAmount += $discount;
+                $validCoupons[] = $coupon;
+            } elseif ($coupon->seller_id) {
+                // Instructor-wide coupon
+                $sellerItemsTotal = $cartItems->filter(function($item) use ($coupon) {
+                    return $item->course && $item->course->seller_id === $coupon->seller_id;
+                })->sum('price');
+                
+                if ($sellerItemsTotal == 0) {
+                    throw new Exception("Mã {$coupon->code} không áp dụng cho giảng viên của các khóa học này.");
+                }
+                
+                $discount = $coupon->calculateDiscount($sellerItemsTotal);
+                $discount = min($discount, $sellerItemsTotal);
+                
+                $discountAmount += $discount;
+                $validCoupons[] = $coupon;
+            } else {
+                // Platform-wide coupon (Voucher toàn sàn - seller_id = null)
+                $discount = $coupon->calculateDiscount($totalAmount);
+                $discount = min($discount, $totalAmount);
+                
+                $discountAmount += $discount;
+                $validCoupons[] = $coupon;
+            }
+        }
+        
+        $discountAmount = min($discountAmount, $totalAmount);
+
+        return [
+            'discountAmount' => $discountAmount,
+            'validCoupons' => $validCoupons
+        ];
+    }
+
+    public function clearCart(int $userId)
+    {
+        $cart = $this->cartRepository->getCartByUserId($userId);
+        if ($cart) {
+            $cart->items()->delete();
         }
     }
 }

@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Http\Controllers\Frontend;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Services\Payment\PaymentService;
+use App\Services\Payment\PaymentGatewayFactory;
+use Illuminate\Support\Facades\Auth;
+use Exception;
+use Inertia\Inertia;
+
+class PaymentController extends Controller
+{
+    protected $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
+
+    public function process(Request $request)
+    {
+        $gatewayName = $request->input('gateway', 'vnpay');
+        $userId = Auth::id();
+
+        try {
+            $paymentUrl = $this->paymentService->processCheckout($userId, $gatewayName);
+            return Inertia::location($paymentUrl);
+        } catch (Exception $e) {
+            return redirect()->route('frontend.cart.index')->with('error', $e->getMessage());
+        }
+    }
+
+    public function gatewayReturn(Request $request, $gatewayName)
+    {
+        try {
+            $gateway = PaymentGatewayFactory::create($gatewayName);
+            $callbackData = $gateway->handleCallback($request);
+            
+            $isSuccess = $this->paymentService->handleGatewayReturn($gatewayName, $callbackData);
+
+            if ($isSuccess) {
+                return redirect()->route('frontend.home')->with('success', 'Thanh toán thành công. Khóa học đã được thêm vào tài khoản của bạn!');
+            } else {
+                return redirect()->route('frontend.cart.index')->with('error', 'Thanh toán thất bại hoặc đã bị hủy.');
+            }
+        } catch (Exception $e) {
+            return redirect()->route('frontend.cart.index')->with('error', $e->getMessage());
+        }
+    }
+}

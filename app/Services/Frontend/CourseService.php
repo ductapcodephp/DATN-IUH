@@ -32,4 +32,9 @@ class CourseService
     {
         return $this->courseRepository->getAllPublishedCourses($filters, $perPage);
     }
+
+    public function getCourseById($id)
+    {
+        return $this->courseRepository->getCourseById($id);
+    }
 }

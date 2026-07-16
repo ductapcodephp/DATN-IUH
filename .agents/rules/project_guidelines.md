@@ -93,6 +93,9 @@ graph TD
 4. **Trừu tượng hóa Data Access**: Phải luôn tạo Repository Interface và đăng ký liên kết (bind) trong `AppServiceProvider.php` trước khi sử dụng.
 5. **Kiểm soát dữ liệu thông qua DTO**: Sử dụng `readonly class` DTO để định dạng dữ liệu đầu vào cho các Service, loại bỏ sự phụ thuộc vào dữ liệu thô (raw array) hoặc HTTP Request.
 6. **Kiến trúc hướng sự kiện (Event-Driven)**: Tách biệt các tác vụ phụ trợ (như tạo ví học viên, ghi nhật ký, gửi mail) ra ngoài tầng nghiệp vụ chính bằng cách phát ra các **Events** và xử lý qua **Listeners**.
+7. **Kiểm soát Race Condition**: Bắt buộc sử dụng khóa bi quan (`lockForUpdate()`) trong Database Transaction khi thực hiện các tác vụ liên quan đến tài chính, rút tiền, hoặc cập nhật số dư ví để tránh lỗi double-spending do request đồng thời.
+8. **Kiểu dữ liệu tiền tệ**: Tuyệt đối không dùng `FLOAT` hay `DOUBLE` để lưu dữ liệu tiền tệ. Bắt buộc dùng `DECIMAL(15,2)` hoặc lưu đơn vị nhỏ nhất bằng kiểu `BIGINT` để tránh sai số thập phân.
+9. **Caching bắt buộc cho Scale (Redis)**: Các query nặng (ví dụ: lấy danh sách khóa học có lượng truy cập lớn ở Trang chủ, `ORDER BY`) phải được lưu trữ Cache bằng Redis. Chỉ load lại từ DB khi có thay đổi dữ liệu liên quan.
 
 ---
 

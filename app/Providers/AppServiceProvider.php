@@ -55,6 +55,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Frontend\Wishlist\WishlistRepositoryInterface::class,
             \App\Repositories\Frontend\Wishlist\WishlistRepository::class
         );
+        $this->app->bind(
+            \App\Repositories\Frontend\Cart\CartRepositoryInterface::class,
+            \App\Repositories\Frontend\Cart\CartRepository::class
+        );
     }
 
     public function boot(): void

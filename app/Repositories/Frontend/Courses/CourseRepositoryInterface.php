@@ -14,4 +14,5 @@ interface CourseRepositoryInterface
     public function getRelatedCourses($course, $limit = 4);
     public function getPopularCourses($limit = 4);
     public function getAllPublishedCourses($filters = [], $perPage = 12);
+    public function getCourseById($id);
 }

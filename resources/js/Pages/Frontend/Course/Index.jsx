@@ -3,10 +3,11 @@ import FrontendLayout from "@/Layouts/Frontend/FrontendLayout";
 import { Link, useForm, router, usePage } from "@inertiajs/react";
 
 export default function Index({ courses, categories, filters }) {
+        
     const { auth } = usePage().props;
     // Pagination data
     const { data: courseList, links, current_page, last_page, total } = courses;
-
+console.log(courseList);
     const { data, setData, get } = useForm({
         search: filters.search || "",
         category: filters.category || [],
@@ -200,8 +201,15 @@ export default function Index({ courses, categories, filters }) {
                                                 >
                                                     <i className={`fa-heart text-danger ${isWishlisted ? 'fa-solid' : 'fa-regular'}`}></i>
                                                 </button>
+                                              
                                             <Link href={route('frontend.course.detail', { slug: course.slug })} className="text-decoration-none text-dark">
-                                                <img src={course.thumbnail ? `/storage/${course.thumbnail}` : '/assets/frontend/img/no-thumbnail.png'} alt={course.title} className="course-thumb" loading="lazy" />
+                                                <img 
+                                                    src={course.thumbnail || '/assets/frontend/img/default-course.png'} 
+                                                    alt={course.title} 
+                                                    className="course-thumb" 
+                                                    loading="lazy"
+                                                    onError={(e) => { e.target.src = "/assets/frontend/img/default-course.png"; }}
+                                                />
                                             <div className="course-body">
                                                 <span className="course-cat">{course.category?.name}</span>
                                                 <h3 className="course-title">{course.title}</h3>

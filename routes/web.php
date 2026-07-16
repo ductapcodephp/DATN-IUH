@@ -1,15 +1,15 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Frontend\AboutController;
+use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\CourseController;
+use App\Http\Controllers\Frontend\FaqController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\InstructorController;
 use App\Http\Controllers\Frontend\WishlistController;
-use App\Http\Controllers\Frontend\AboutController;
-use App\Http\Controllers\Frontend\BlogController;
-use App\Http\Controllers\Frontend\FaqController;
-use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Seller\CouponController;
 use App\Http\Controllers\Seller\Courses\ChapterController;
 use App\Http\Controllers\Seller\Courses\CurriculumController;
@@ -117,10 +117,11 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
-        Route::post('/checkout/process', function () {
-            return back();
-        })->name('checkout.process');
-
+        Route::post('/checkout/process', [\App\Http\Controllers\Frontend\PaymentController::class, 'process'])->name('checkout.process');
+        Route::get('/payment/{gateway}/return', [\App\Http\Controllers\Frontend\PaymentController::class, 'gatewayReturn'])->name('payment.return');
+        Route::get('/cart/course/{course}/coupons', [CartController::class, 'getCouponForCourse'])
+            ->name('cart.course.coupons');
+        Route::post('/cart/apply-coupons', [CartController::class, 'applyCoupons'])->name('cart.apply-coupons');
         // Wishlist route
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
         Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');

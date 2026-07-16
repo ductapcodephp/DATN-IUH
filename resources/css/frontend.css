@@ -1116,3 +1116,379 @@ a {
 .review-item-box:last-child {
   border-bottom: none;
 }
+
+/* CART CUSTOM CSS */
+:root{
+  --ink-900:#1B1E27;
+  --ink-700:#4B5162;
+  --ink-500:#8B90A0;
+  --ink-300:#E4E6ED;
+  --ink-100:#F6F7FA;
+  --paper:#FFFFFF;
+  --blue:#2E5AF0;
+  --blue-dark:#1E42C4;
+  --blue-50:#EBF0FF;
+  --clay:#E8672B;
+  --clay-dark:#C6551F;
+  --clay-50:#FDEEE5;
+  --green-600:#1F8A5C;
+  --green-50:#E7F7EF;
+  --radius-md:10px;
+  --radius-lg:16px;
+}
+.page-head{
+  max-width:1040px;
+  margin:0 auto;
+  padding:32px 24px 8px;
+}
+.page-head h1{font-size:22px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.page-head p{font-size:13px;color:var(--ink-500);margin-top:4px;}
+
+.cart-layout{
+  max-width:1040px;
+  margin:0 auto;
+  padding:20px 24px 64px;
+  display:grid;
+  grid-template-columns:1fr 340px;
+  gap:24px;
+  align-items:start;
+}
+@media(max-width:800px){ .cart-layout{grid-template-columns:1fr;} }
+
+.cart-card{
+  background:var(--paper);
+  border:1px solid var(--ink-300);
+  border-radius:var(--radius-lg);
+  padding:22px;
+}
+.cart-card + .cart-card{margin-top:18px;}
+
+.cart-card-title{
+  font-size:15px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:16px;
+}
+.cart-card-title .count{font-weight:400;color:var(--ink-500);font-size:13px;}
+
+.cart-item{
+  display:flex;
+  gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid var(--ink-100);
+}
+.cart-item:last-child{border-bottom:none;padding-bottom:4px;}
+.cart-item:first-child{padding-top:0;}
+.cart-thumb{
+  width:60px;height:60px;
+  border-radius:8px;
+  background:linear-gradient(135deg,var(--blue-50),var(--ink-300));
+  flex-shrink:0;
+  object-fit:cover;
+}
+.cart-item-body{flex:1;min-width:0;}
+.cart-item-tag{
+  display:inline-block;
+  font-size:11px;
+  font-weight:700;
+  color:var(--blue-dark);
+  background:var(--blue-50);
+  padding:2px 8px;
+  border-radius:20px;
+  margin-bottom:6px;
+}
+.cart-item-title{
+  font-size:14px;
+  font-weight:600;
+  color:var(--ink-900);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  display:block;
+  text-decoration:none;
+}
+.cart-item-right{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+}
+.cart-item-price{font-size:14px;font-weight:700;color:var(--ink-900);white-space:nowrap;}
+.cart-item-remove{
+  width:26px;height:26px;
+  border-radius:50%;
+  border:none;
+  background:none;
+  color:var(--ink-500);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.15s;
+  font-size:13px;
+}
+.cart-item-remove:hover{background:#FBEAEA;color:#C0392B;}
+
+.cart-promo-row{display:flex;gap:8px;}
+.cart-promo-row input{
+  flex:1;
+  border:1px solid var(--ink-300);
+  border-radius:var(--radius-md);
+  padding:10px 12px;
+  font-size:13px;
+  background:var(--ink-100);
+}
+.cart-promo-row input:focus{outline:none;border-color:var(--blue);background:#fff;}
+.cart-promo-row button{
+  border:none;
+  background:var(--ink-900);
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+  padding:0 18px;
+  border-radius:var(--radius-md);
+  cursor:pointer;
+}
+.cart-promo-hint{font-size:12px;color:var(--ink-500);margin-top:8px;}
+.cart-promo-hint b{color:var(--blue-dark);}
+
+.cart-summary-row{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  color:var(--ink-700);
+  padding:6px 0;
+}
+.cart-summary-row.discount{color:var(--green-600);}
+.cart-divider{border-top:1px dashed var(--ink-300);margin:14px 0;}
+
+.cart-total-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:18px;
+}
+.cart-total-row .label{font-size:14px;font-weight:700;}
+.cart-total-row .value{font-size:23px;font-weight:800;color:var(--clay-dark);letter-spacing:-0.02em;}
+
+.cart-pay-btn{
+  width:100%;
+  background:var(--clay);
+  color:#fff;
+  border:none;
+  padding:15px;
+  border-radius:var(--radius-md);
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.cart-pay-btn:hover{background:var(--clay-dark);}
+.cart-pay-btn:disabled{opacity: 0.7; cursor: not-allowed;}
+
+.cart-trust-row{
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  margin-top:14px;
+  font-size:11px;
+  color:var(--ink-500);
+}
+
+.cart-method-grid{display:flex;gap:12px;}
+.cart-method{
+  flex:1;
+  border:1.5px solid var(--ink-300);
+  border-radius:var(--radius-md);
+  padding:14px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  cursor:pointer;
+  position:relative;
+}
+.cart-method.active{border-color:var(--blue);background:var(--blue-50);}
+.cart-method .badge{
+  width:36px;height:36px;
+  border-radius:8px;
+  background:var(--ink-900);
+  color:#fff;
+  font-size:10px;
+  font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.cart-method .name{font-size:13px;font-weight:700;}
+.cart-method .desc{font-size:11px;color:var(--ink-500);}
+.cart-method .check{
+  position:absolute;top:8px;right:8px;
+  width:16px;height:16px;
+  border-radius:50%;
+  background:var(--blue);
+  color:#fff;
+  font-size:10px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.cart-refund-note{
+  display:flex;
+  gap:10px;
+  background:var(--green-50);
+  border-radius:var(--radius-md);
+  padding:12px 14px;
+  font-size:12px;
+  color:var(--green-600);
+  margin-top:16px;
+}
+
+.cart-cross-sell{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--ink-100);
+  border-radius:var(--radius-md);
+  padding:12px 14px;
+  margin-top:16px;
+}
+.cart-cross-sell .cart-thumb{width:44px;height:44px;}
+.cart-cross-sell-body{flex:1;}
+.cart-cross-sell-title{font-size:13px;font-weight:600;}
+.cart-cross-sell-price{font-size:12px;color:var(--ink-500);}
+.cart-cross-sell button{
+  border:1px solid var(--ink-300);
+  background:#fff;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.cart-legal{
+  font-size:11px;
+  color:var(--ink-500);
+  text-align:center;
+  margin-top:12px;
+  line-height:1.5;
+}
+
+
+/* =========================================
+   COUPON MODAL
+   ========================================= */
+.coupon-modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.coupon-modal-title {
+    font-size: 20px;
+}
+
+.coupon-input {
+    border-radius: 10px;
+    padding: 12px 15px;
+    border: 1px solid var(--border, #E5E7EB);
+    box-shadow: none !important;
+}
+.coupon-input:focus {
+    border-color: var(--fire, #EA580C);
+    outline: none;
+}
+
+.coupon-btn-apply {
+    background: var(--fire, #EA580C);
+    border: none;
+    border-radius: 10px;
+    white-space: nowrap;
+    transition: all 0.2s ease-in-out;
+}
+.coupon-btn-apply:hover {
+    background: #C2410C;
+    color: #fff;
+}
+
+.coupon-section-title {
+    font-size: 15px;
+    color: var(--text-main, #1F2937);
+}
+
+.coupon-section-indicator {
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    border-radius: 4px;
+    margin-right: 8px;
+}
+.coupon-section-indicator.course {
+    background: #D97706;
+}
+.coupon-section-indicator.instructor {
+    background: #2563EB;
+}
+
+.coupon-card-course {
+    background: #fdfaee;
+    border-radius: 12px;
+}
+
+.coupon-card-instructor {
+    background: #f0f9ff;
+    border-radius: 12px;
+}
+
+.coupon-item-wrap {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+}
+.coupon-item-wrap:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.coupon-code-text {
+    font-size: 16px;
+}
+.coupon-desc-text {
+    font-size: 14px;
+    color: var(--text-main, #1F2937);
+}
+.coupon-cond-text {
+    font-size: 12px;
+}
+
+.coupon-btn-use {
+    transition: all 0.2s;
+}
+.coupon-btn-use.course-theme {
+    background: #fff7ed;
+    color: #D97706;
+    border: 1px solid #D97706;
+}
+.coupon-btn-use.course-theme:hover {
+    background: #D97706;
+    color: #fff;
+}
+
+.coupon-btn-use.instructor-theme {
+    background: #eff6ff;
+    color: #2563EB;
+    border: 1px solid #2563EB;
+}
+.coupon-btn-use.instructor-theme:hover {
+    background: #2563EB;
+    color: #fff;
+}
+
+.coupon-empty-state {
+    background: var(--bg-surface, #F8F9FA);
+    border-radius: 12px;
+}

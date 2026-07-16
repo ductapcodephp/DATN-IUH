@@ -101,4 +101,9 @@ class CourseRepository implements CourseRepositoryInterface
 
         return $query->paginate($perPage)->withQueryString();
     }
+
+    public function getCourseById($id)
+    {
+        return Course::find($id);
+    }
 }
