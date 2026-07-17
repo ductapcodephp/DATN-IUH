@@ -34,9 +34,6 @@ class StudentController extends Controller
         ]);
     }
 
-    /**
-     * Cấm học viên truy cập khóa học (Tham số truyền vào là ID của bảng course_enrollments)
-     */
     public function ban(BanStudentRequest $request, int $enrollmentId): RedirectResponse
     {
         $dto = BanStudentData::fromRequest($request);

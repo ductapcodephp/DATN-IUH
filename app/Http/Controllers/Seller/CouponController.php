@@ -8,7 +8,9 @@ use App\DTO\Seller\Coupon\CouponData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Coupons\StoreCouponRequest;
 use App\Http\Requests\Seller\Coupons\UpdateCouponRequest;
+use App\Http\Resources\Seller\CouponResource;
 use App\Models\Coupon;
+use App\Models\Course;
 use App\Services\Seller\Coupons\CouponService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -23,14 +25,14 @@ class CouponController extends Controller
     public function index(): Response
     {
         $coupons = $this->couponService->getSellerCoupons((int) auth()->id());
-        $courses = \App\Models\Course::where('seller_id', auth()->id())->select('id', 'title')->get();
+        $courses = Course::where('seller_id', auth()->id())->select('id', 'title')->get();
 
         return Inertia::render('Seller/Coupons/Index', [
-            'coupons' => $coupons,
+            'coupons' => CouponResource::collection($coupons),
             'courses' => $courses,
         ]);
+    
     }
-
     public function store(StoreCouponRequest $request): RedirectResponse
     {
         $dto = CouponData::fromRequest($request);
@@ -64,11 +66,7 @@ class CouponController extends Controller
 
         return back();
     }
-
-    /**
-     * Helper kiểm tra phân quyền cho các route không dùng Form Request riêng (destroy, toggleStatus)
-     */
-    protected function authorizeAccess(Coupon $coupon): void
+        protected function authorizeAccess(Coupon $coupon): void
     {
         if ((int) $coupon->seller_id !== (int) auth()->id()) {
             abort(403, 'Bạn không có quyền thao tác trên mã giảm giá này!');

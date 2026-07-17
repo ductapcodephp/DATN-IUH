@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import Pagination from "@/Components/Pagination.jsx";
+import FormModal from "@/Components/FormModal.jsx";
 
 export default function Coupons({ coupons, courses }) {
     const [showModal, setShowModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(null);
 
-    const { data, setData, post, put, reset, errors, clearErrors } = useForm({
+    const { data, setData, post, put, reset, errors, clearErrors, processing } = useForm({
         code: '',
         type: 'percent',
         value: '',
@@ -54,7 +55,6 @@ export default function Coupons({ coupons, courses }) {
             });
         }
     };
-
     const handleDelete = (id) => {
         if (confirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')) {
             router.delete(`/seller/coupons/${id}/destroy`);
@@ -79,27 +79,15 @@ export default function Coupons({ coupons, courses }) {
                 .ios-toggle input:checked + .ios-slider { background-color: #4CAF50; }
                 .ios-toggle input:checked + .ios-slider:before { transform: translateX(20px); }
 
-                .modern-modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); }
-                .modern-modal-content { background: #fff; border-radius: 8px; width: 100%; max-width: 600px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; }
-                .modern-modal-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; }
-                .modern-modal-header h3 { margin: 0; font-size: 18px; color: #111827; font-weight: 600; }
-                .modern-modal-close { cursor: pointer; font-size: 20px; color: #6b7280; background: none; border: none; }
-                .modern-modal-close:hover { color: #111827; }
-                .modern-modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-                .modern-modal-footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 12px; background: #f9fafb; }
-
-                .form-group label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px; }
-                .form-control { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
-                .form-control:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-                .form-row { display: flex; gap: 16px; }
-                .form-row > div { flex: 1; }
-                .error-text { color: #ef4444; font-size: 12px; margin-top: 4px; }
-
-                .btn-cancel { padding: 8px 16px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; font-weight: 500; color: #374151; }
-                .btn-cancel:hover { background: #f3f4f6; }
-                .btn-save { padding: 8px 16px; background: var(--primary, #3b82f6); border: none; border-radius: 6px; cursor: pointer; font-weight: 500; color: #fff; }
-                .btn-save:hover { opacity: 0.9; }
-                .btn-action { background: none; border: none; cursor: pointer; font-size: 14px; }
+                .btn-action { 
+                    background: none; 
+                    border: none; 
+                    cursor: pointer; 
+                    font-size: 14px; 
+                    font-family: inherit;
+                    text-decoration: none; 
+                    display: inline-block; 
+                }
             `}</style>
 
             <div className="page">
@@ -108,7 +96,7 @@ export default function Coupons({ coupons, courses }) {
                         <div className="page-title">Mã giảm giá chiến dịch</div>
                         <div className="page-sub">Tự tạo coupon ưu đãi để thúc đẩy doanh thu</div>
                     </div>
-                    <button className="btn-primary" onClick={() => openModal()}>
+                    <button className="btn-primary" onClick={() => openModal()} style={{ textDecoration: 'none' }}>
                         <i className="fa-solid fa-plus"></i> Phát hành mã mới
                     </button>
                 </div>
@@ -131,7 +119,7 @@ export default function Coupons({ coupons, courses }) {
                                 {coupons?.data?.map((coupon) => (
                                     <tr key={coupon.id}>
                                         <td style={{ color: 'var(--fire, #ff4500)', fontWeight: '700' }}>{coupon.code}</td>
-                                        <td>{coupon.type === 'percent' ? `${coupon.value}%` : `${new Intl.NumberFormat('vi-VN').format(coupon.value)} đ`}</td>
+                                        <td>{coupon.value_formatted}</td>
                                         <td>{coupon.used_count} / {coupon.max_uses || '∞'}</td>
                                         <td style={{ fontSize: '13px', color: '#4b5563' }}>
                                             {coupon.course_id 
@@ -139,8 +127,8 @@ export default function Coupons({ coupons, courses }) {
                                                 : <span className="text-success">Áp dụng tất cả khóa học</span>}
                                         </td>
                                         <td style={{ fontSize: '13px', color: '#4b5563' }}>
-                                            Từ: {coupon.starts_at ? new Date(coupon.starts_at).toLocaleString('vi-VN') : 'Không giới hạn'} <br/>
-                                            Đến: {coupon.expires_at ? new Date(coupon.expires_at).toLocaleString('vi-VN') : 'Không giới hạn'}
+                                            Từ: {coupon.starts_at_formatted} <br/>
+                                            Đến: {coupon.expires_at_formatted}
                                         </td>
                                         <td>
                                             <label className="ios-toggle">
@@ -172,79 +160,104 @@ export default function Coupons({ coupons, courses }) {
                             </tbody>
                         </table>
                     </div>
-                    {coupons && <Pagination links={coupons.links} />}
+                    {coupons?.meta?.links && <Pagination links={coupons.meta.links} />}
                 </div>
             </div>
 
-            {showModal && (
-                <div className="modern-modal">
-                    <div className="modern-modal-content">
-                        <div className="modern-modal-header">
-                            <h3>{isEdit ? 'Chỉnh sửa mã giảm giá' : 'Tạo mã giảm giá mới'}</h3>
-                            <button type="button" className="modern-modal-close" onClick={() => setShowModal(false)}>&times;</button>
-                        </div>
+            <FormModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                title={isEdit ? 'Chỉnh sửa mã giảm giá' : 'Tạo mã giảm giá mới'}
+                subtitle="Điền thông tin bên dưới để thiết lập ưu đãi cho học viên"
+                icon={<i className={isEdit ? "fa-solid fa-pen" : "fa-solid fa-plus"}></i>}
+                onSubmit={handleSubmit}
+                isSubmitting={processing}
+                maxWidth="680px"
+            >
+                <div className="form-modal-group">
+                    <label className="form-modal-label">Mã Code (Nhập chữ in hoa, vd: SUMMER20) <span className="required">*</span></label>
+                    <input 
+                        type="text" 
+                        className={`form-modal-input ${errors.code ? 'has-error' : ''}`}
+                        value={data.code} 
+                        onChange={e => setData('code', e.target.value.toUpperCase())} 
+                        required 
+                        placeholder="VD: TET2026" 
+                    />
+                    {errors.code && <div className="form-modal-error"><i className="fa-solid fa-circle-exclamation"></i> {errors.code}</div>}
+                </div>
 
-                        <form onSubmit={handleSubmit}>
-                            <div className="modern-modal-body">
-                                <div className="form-group">
-                                    <label>Mã Code (Nhập chữ in hoa, vd: SUMMER20)</label>
-                                    <input type="text" className="form-control" value={data.code} onChange={e => setData('code', e.target.value.toUpperCase())} required placeholder="VD: TET2026" />
-                                    {errors.code && <div className="error-text">{errors.code}</div>}
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Loại giảm giá</label>
-                                        <select className="form-control" value={data.type} onChange={e => setData('type', e.target.value)}>
-                                            <option value="percent">Giảm theo phần trăm (%)</option>
-                                            <option value="fixed">Giảm số tiền trực tiếp</option>
-                                        </select>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Giá trị giảm {data.type === 'percent' ? '(%)' : '(VNĐ)'}</label>
-                                        <input type="number" className="form-control" value={data.value} onChange={e => setData('value', e.target.value)} required min="0" placeholder="VD: 20" />
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Số lượt sử dụng tối đa</label>
-                                    <input type="number" className="form-control" value={data.max_uses} onChange={e => setData('max_uses', e.target.value)} min="1" placeholder="Bỏ trống nếu không giới hạn" />
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Áp dụng cho khóa học</label>
-                                    <select className="form-control" value={data.course_id} onChange={e => setData('course_id', e.target.value)}>
-                                        <option value="">-- Áp dụng cho tất cả khóa học của tôi --</option>
-                                        {courses?.map(course => (
-                                            <option key={course.id} value={course.id}>{course.title}</option>
-                                        ))}
-                                    </select>
-                                    {errors.course_id && <div className="error-text">{errors.course_id}</div>}
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Bắt đầu từ</label>
-                                        <input type="datetime-local" className="form-control" value={data.starts_at} onChange={e => setData('starts_at', e.target.value)} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Kết thúc lúc</label>
-                                        <input type="datetime-local" className="form-control" value={data.expires_at} onChange={e => setData('expires_at', e.target.value)} />
-                                        {errors.expires_at && <div className="error-text">{errors.expires_at}</div>}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="modern-modal-footer">
-                                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Hủy bỏ</button>
-                                <button type="submit" className="btn-save">
-                                    {isEdit ? 'Lưu thay đổi' : 'Tạo mã ngay'}
-                                </button>
-                            </div>
-                        </form>
+                <div className="form-modal-row">
+                    <div className="form-modal-group">
+                        <label className="form-modal-label">Loại giảm giá</label>
+                        <select className="form-modal-select" value={data.type} onChange={e => setData('type', e.target.value)}>
+                            <option value="percent">Giảm theo phần trăm (%)</option>
+                            <option value="fixed">Giảm số tiền trực tiếp</option>
+                        </select>
+                    </div>
+                    <div className="form-modal-group">
+                        <label className="form-modal-label">Giá trị giảm {data.type === 'percent' ? '(%)' : '(VNĐ)'} <span className="required">*</span></label>
+                        <input 
+                            type="number" 
+                            className={`form-modal-input ${errors.value ? 'has-error' : ''}`}
+                            value={data.value} 
+                            onChange={e => setData('value', e.target.value)} 
+                            required 
+                            min="0" 
+                            placeholder="VD: 20" 
+                        />
+                        {errors.value && <div className="form-modal-error"><i className="fa-solid fa-circle-exclamation"></i> {errors.value}</div>}
                     </div>
                 </div>
-            )}
+
+                <div className="form-modal-row">
+                    <div className="form-modal-group">
+                        <label className="form-modal-label">Số lượt sử dụng tối đa</label>
+                        <input 
+                            type="number" 
+                            className={`form-modal-input ${errors.max_uses ? 'has-error' : ''}`}
+                            value={data.max_uses} 
+                            onChange={e => setData('max_uses', e.target.value)} 
+                            min="1" 
+                            placeholder="Bỏ trống nếu không giới hạn" 
+                        />
+                        {errors.max_uses && <div className="form-modal-error"><i className="fa-solid fa-circle-exclamation"></i> {errors.max_uses}</div>}
+                    </div>
+                    <div className="form-modal-group">
+                        <label className="form-modal-label">Áp dụng cho khóa học</label>
+                        <select className={`form-modal-select ${errors.course_id ? 'has-error' : ''}`} value={data.course_id} onChange={e => setData('course_id', e.target.value)}>
+                            <option value="">-- Tất cả khóa học --</option>
+                            {courses?.map(course => (
+                                <option key={course.id} value={course.id}>{course.title}</option>
+                            ))}
+                        </select>
+                        {errors.course_id && <div className="form-modal-error"><i className="fa-solid fa-circle-exclamation"></i> {errors.course_id}</div>}
+                    </div>
+                </div>
+
+                <div className="form-modal-row">
+                    <div className="form-modal-group">
+                        <label className="form-modal-label">Bắt đầu từ</label>
+                        <input 
+                            type="datetime-local" 
+                            className={`form-modal-input ${errors.starts_at ? 'has-error' : ''}`}
+                            value={data.starts_at} 
+                            onChange={e => setData('starts_at', e.target.value)} 
+                        />
+                        {errors.starts_at && <div className="form-modal-error"><i className="fa-solid fa-circle-exclamation"></i> {errors.starts_at}</div>}
+                    </div>
+                    <div className="form-modal-group">
+                        <label className="form-modal-label">Kết thúc lúc</label>
+                        <input 
+                            type="datetime-local" 
+                            className={`form-modal-input ${errors.expires_at ? 'has-error' : ''}`}
+                            value={data.expires_at} 
+                            onChange={e => setData('expires_at', e.target.value)} 
+                        />
+                        {errors.expires_at && <div className="form-modal-error"><i className="fa-solid fa-circle-exclamation"></i> {errors.expires_at}</div>}
+                    </div>
+                </div>
+            </FormModal>
         </>
     );
 }

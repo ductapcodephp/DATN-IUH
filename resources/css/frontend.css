@@ -1,9 +1,9 @@
 /* ==========================================================
-   EDUFLOW — MASTER STYLESHEET (gộp toàn bộ CSS của hệ thống)
-   Thứ tự: biến gốc -> layout chung -> từng trang
+   EDUFLOW â€” MASTER STYLESHEET (gá»™p toÃ n bá»™ CSS cá»§a há»‡ thá»‘ng)
+   Thá»© tá»±: biáº¿n gá»‘c -> layout chung -> tá»«ng trang
    ========================================================== */
 
-/* ============ 1. BIẾN & LAYOUT CHUNG (trước đây: home.css) ============ */
+/* ============ 1. BIáº¾N & LAYOUT CHUNG (trÆ°á»›c Ä‘Ã¢y: home.css) ============ */
 :root {
   --bg-main: #FFFFFF;
   --bg-surface: #F8F9FA;
@@ -463,9 +463,9 @@ a {
   border-top: 1px solid var(--border);
 }
 .scroll-margin { scroll-margin-top: 100px; }
-/* ============ 2. TRANG DANH SÁCH KHÓA HỌC (trước đây: courses.css) ============ */
+/* ============ 2. TRANG DANH SÃCH KHÃ“A Há»ŒC (trÆ°á»›c Ä‘Ã¢y: courses.css) ============ */
 /* =========================================
-   UI TRANG DANH SÁCH KHÓA HỌC (CSS THUẦN)
+   UI TRANG DANH SÃCH KHÃ“A Há»ŒC (CSS THUáº¦N)
    ========================================= */
 
 .font-sm { font-size: 0.85rem; }
@@ -479,7 +479,7 @@ a {
   border-radius: var(--radius);
   padding: 24px;
   position: sticky;
-  top: 90px; /* Dính lại khi cuộn màn hình */
+  top: 90px; /* DÃ­nh láº¡i khi cuá»™n mÃ n hÃ¬nh */
 }
 .filter-group {
   border-bottom: 1px solid var(--bg-surface-alt);
@@ -508,7 +508,7 @@ a {
   cursor: pointer;
   user-select: none;
 }
-/* Ẩn thẻ input mặc định xấu xí của trình duyệt */
+/* áº¨n tháº» input máº·c Ä‘á»‹nh xáº¥u xÃ­ cá»§a trÃ¬nh duyá»‡t */
 .custom-checkbox input, .custom-radio input {
   position: absolute; 
   opacity: 0; 
@@ -517,34 +517,34 @@ a {
   width: 0;
 }
 
-/* Tạo ô vuông cho checkbox / Hình tròn cho Radio */
+/* Táº¡o Ã´ vuÃ´ng cho checkbox / HÃ¬nh trÃ²n cho Radio */
 .checkmark, .radiomark {
   height: 20px; width: 20px;
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: 4px; /* Vuông bo góc nhẹ */
+  border-radius: 4px; /* VuÃ´ng bo gÃ³c nháº¹ */
   margin-right: 12px;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.2s ease-in-out;
 }
 .radiomark { 
-  border-radius: 50%; /* Tròn xoe cho Radio */
+  border-radius: 50%; /* TrÃ²n xoe cho Radio */
 }
 
-/* Đổi màu viền khi Hover */
+/* Äá»•i mÃ u viá»n khi Hover */
 .custom-checkbox:hover input ~ .checkmark, 
 .custom-radio:hover input ~ .radiomark { 
   border-color: var(--accent); 
 }
 
-/* Đổi màu nền khi được Tick chọn */
+/* Äá»•i mÃ u ná»n khi Ä‘Æ°á»£c Tick chá»n */
 .custom-checkbox input:checked ~ .checkmark,
 .custom-radio input:checked ~ .radiomark {
   background-color: var(--accent);
   border-color: var(--accent);
 }
 
-/* Dấu tick trắng bên trong Checkbox */
+/* Dáº¥u tick tráº¯ng bÃªn trong Checkbox */
 .checkmark:after, .radiomark:after {
   content: ""; 
   position: absolute; 
@@ -561,14 +561,14 @@ a {
   transform: rotate(45deg);
   margin-bottom: 2px;
 }
-/* Dấu chấm trắng bên trong Radio */
+/* Dáº¥u cháº¥m tráº¯ng bÃªn trong Radio */
 .custom-radio .radiomark:after {
   width: 8px; height: 8px;
   border-radius: 50%; 
   background: white;
 }
 
-/* Hiệu ứng Text khi được chọn */
+/* Hiá»‡u á»©ng Text khi Ä‘Æ°á»£c chá»n */
 .label-text { 
   font-size: 0.95rem; 
   color: var(--text-muted); 
@@ -580,7 +580,7 @@ a {
   color: var(--text-main); 
 }
 
-/* Dropdown sắp xếp */
+/* Dropdown sáº¯p xáº¿p */
 .sort-dropdown { 
   border-color: var(--border); 
   border-radius: 6px; 
@@ -590,7 +590,7 @@ a {
   border-color: var(--accent); 
 }
 
-/* Tuỳ biến Pagination Bootstrap cho đẹp mắt & giống theme */
+/* Tuá»³ biáº¿n Pagination Bootstrap cho Ä‘áº¹p máº¯t & giá»‘ng theme */
 .pagination { margin-bottom: 0; }
 .page-link {
   color: var(--text-muted);
@@ -615,18 +615,18 @@ a {
   background-color: var(--bg-surface);
   color: #D1D5DB;
 }
-/* ============ 3. TRANG CHI TIẾT KHÓA HỌC (trước đây: detail-course.css) ============ */
+/* ============ 3. TRANG CHI TIáº¾T KHÃ“A Há»ŒC (trÆ°á»›c Ä‘Ã¢y: detail-course.css) ============ */
 /* =========================================
-   UI TRANG CHI TIẾT KHÓA HỌC (COURSE DETAIL)
+   UI TRANG CHI TIáº¾T KHÃ“A Há»ŒC (COURSE DETAIL)
    ========================================= */
 
 /* Hero Banner */
 .cd-hero {
-  /* Tăng z-index để nằm dưới navbar nhưng đè lên bg nếu cần */
+  /* TÄƒng z-index Ä‘á»ƒ náº±m dÆ°á»›i navbar nhÆ°ng Ä‘Ã¨ lÃªn bg náº¿u cáº§n */
   z-index: 1;
 }
 .cd-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
-  content: var(--bs-breadcrumb-divider, "›");
+  content: var(--bs-breadcrumb-divider, "â€º");
   color: rgba(255, 255, 255, 0.5);
 }
 .cd-title {
@@ -635,11 +635,11 @@ a {
 }
 .cd-rating i { font-size: 0.9rem; }
 
-/* Sticky Floating Card (Khối chứa Giá tiền bên phải) */
+/* Sticky Floating Card (Khá»‘i chá»©a GiÃ¡ tiá»n bÃªn pháº£i) */
 .cd-floating-card {
   z-index: 10;
-  top: 90px; /* Cân chỉnh khoảng cách so với navbar khi cuộn dính */
-  margin-top: -120px; /* Kéo thẻ chồi lên đè vào phần nền đen Hero ở Desktop */
+  top: 90px; /* CÃ¢n chá»‰nh khoáº£ng cÃ¡ch so vá»›i navbar khi cuá»™n dÃ­nh */
+  margin-top: -120px; /* KÃ©o tháº» chá»“i lÃªn Ä‘Ã¨ vÃ o pháº§n ná»n Ä‘en Hero á»Ÿ Desktop */
 }
 .cd-preview-box:hover .play-icon-overlay i {
   transform: scale(1.1);
@@ -650,7 +650,7 @@ a {
   text-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 .text-shadow { text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-.w-20px { width: 24px; text-align: center; } /* Căn giữa icon cam kết */
+.w-20px { width: 24px; text-align: center; } /* CÄƒn giá»¯a icon cam káº¿t */
 
 /* Bootstrap Tabs Customization */
 .cd-tabs { border-bottom: 2px solid var(--border); }
@@ -659,7 +659,7 @@ a {
   border: none;
   border-bottom: 2px solid transparent;
   padding: 12px 20px;
-  margin-bottom: -2px; /* Đè lên viền dưới */
+  margin-bottom: -2px; /* ÄÃ¨ lÃªn viá»n dÆ°á»›i */
   background: transparent;
 }
 .cd-tabs .nav-link:hover { color: var(--text-main); border-color: #D1D5DB; }
@@ -669,7 +669,7 @@ a {
   background: transparent;
 }
 
-/* Curriculum Accordion (Lộ trình học tập) */
+/* Curriculum Accordion (Lá»™ trÃ¬nh há»c táº­p) */
 .cd-accordion .accordion-item {
   border: 1px solid var(--border);
   border-radius: 8px !important;
@@ -695,35 +695,35 @@ a {
   background-color: #F8FAFC;
 }
 
-/* Responsive Điều chỉnh lại layout cho Mobile */
+/* Responsive Äiá»u chá»‰nh láº¡i layout cho Mobile */
 @media (max-width: 991px) {
   .cd-floating-card {
-    margin-top: 24px; /* Trả lại layout bình thường trên mobile, không chồi lên Hero nữa */
+    margin-top: 24px; /* Tráº£ láº¡i layout bÃ¬nh thÆ°á»ng trÃªn mobile, khÃ´ng chá»“i lÃªn Hero ná»¯a */
     position: relative;
     top: 0;
   }
 }
-/* ============ 4. TRANG HỌC / LEARNING APP (trước đây: learn.css) ============ */
+/* ============ 4. TRANG Há»ŒC / LEARNING APP (trÆ°á»›c Ä‘Ã¢y: learn.css) ============ */
 /* =========================================
-   UI TRANG HỌC (LEARNING APP LAYOUT)
+   UI TRANG Há»ŒC (LEARNING APP LAYOUT)
    ========================================= */
 
-/* Tránh cuộn toàn trang, chỉ cuộn ở những khu vực chỉ định */
+/* TrÃ¡nh cuá»™n toÃ n trang, chá»‰ cuá»™n á»Ÿ nhá»¯ng khu vá»±c chá»‰ Ä‘á»‹nh */
 
 .learn-nav { height: 60px; z-index: 100; flex-shrink: 0; }
 .learn-wrapper { min-height: calc(100vh - 60px); overflow: hidden; }
 
-/* Main Cột Trái */
+/* Main Cá»™t TrÃ¡i */
 .learn-main { height: 100%; overflow: hidden; }
 .video-container {
   width: 100%;
-  aspect-ratio: 16/9; /* Giữ tỷ lệ chuẩn */
-  max-height: 70vh; /* Không cho video quá to gây mất tabs bên dưới */
+  aspect-ratio: 16/9; /* Giá»¯ tá»· lá»‡ chuáº©n */
+  max-height: 70vh; /* KhÃ´ng cho video quÃ¡ to gÃ¢y máº¥t tabs bÃªn dÆ°á»›i */
   flex-shrink: 0;
 }
 .learn-tabs-area { overflow-y: auto; }
 
-/* Cột Phải Sidebar */
+/* Cá»™t Pháº£i Sidebar */
 .learn-sidebar {
   width: 380px; /* Fixed width */
   height: 100%;
@@ -732,7 +732,7 @@ a {
 }
 .learn-curriculum { overflow-y: auto; }
 
-/* Tùy chỉnh Video.js Player đè CSS mặc định */
+/* TÃ¹y chá»‰nh Video.js Player Ä‘Ã¨ CSS máº·c Ä‘á»‹nh */
 .video-js .vjs-big-play-button {
   background-color: var(--accent);
   border: none;
@@ -749,14 +749,14 @@ a {
 .learn-lesson-item { border-left: none; border-right: none; transition: 0.2s; cursor: pointer; }
 .learn-lesson-item:hover:not(.locked) { background-color: var(--bg-surface); }
 .learn-lesson-item.active-lesson {
-  background-color: var(--accent-dim); /* Highlight nhẹ */
+  background-color: var(--accent-dim); /* Highlight nháº¹ */
   border-left: 3px solid var(--accent);
 }
 .cursor-pointer { cursor: pointer; }
 .hover-text-accent:hover { color: var(--accent) !important; }
 .hover-text-danger:hover { color: #EF4444 !important; }
 
-/* Tùy chỉnh thanh cuộn siêu mỏng đẹp như Mac */
+/* TÃ¹y chá»‰nh thanh cuá»™n siÃªu má»ng Ä‘áº¹p nhÆ° Mac */
 .learn-tabs-area::-webkit-scrollbar, .learn-curriculum::-webkit-scrollbar { width: 6px; }
 .learn-tabs-area::-webkit-scrollbar-thumb, .learn-curriculum::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .learn-tabs-area::-webkit-scrollbar-thumb:hover, .learn-curriculum::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
@@ -766,19 +766,19 @@ a {
   .learn-wrapper { flex-direction: column; }
   .learn-sidebar { 
     position: fixed; 
-    top: 60px; right: -100%; /* Giấu đi */
+    top: 60px; right: -100%; /* Giáº¥u Ä‘i */
     width: 100%; min-height: calc(100vh - 60px); 
     transition: 0.3s;
   }
   .learn-sidebar.show { right: 0; }
   .video-container { max-height: 40vh; }
 }
-/* ============ 5. TRANG GIỎ HÀNG & THANH TOÁN (trước đây: payment.css) ============ */
+/* ============ 5. TRANG GIá»Ž HÃ€NG & THANH TOÃN (trÆ°á»›c Ä‘Ã¢y: payment.css) ============ */
 /* =========================================
    UI TRANG CART & CHECKOUT
    ========================================= */
 
-/* List Items Giỏ hàng */
+/* List Items Giá» hÃ ng */
 .cart-item {
   display: flex;
   align-items: center;
@@ -800,7 +800,7 @@ a {
 .cart-item-info { flex: 1; }
 .cart-item-price { width: 120px; font-size: 1.1rem; }
 
-/* Nút xóa item (Màu đỏ nhạt khi hover) */
+/* NÃºt xÃ³a item (MÃ u Ä‘á» nháº¡t khi hover) */
 .btn-remove-item {
   background: none;
   border: none;
@@ -816,14 +816,14 @@ a {
 }
 
 /* -----------------------------------------
-   Custom Radio Box cho Chọn Phương Thức Thanh Toán 
+   Custom Radio Box cho Chá»n PhÆ°Æ¡ng Thá»©c Thanh ToÃ¡n 
    ----------------------------------------- */
 .payment-method-box {
   display: block;
   position: relative;
   cursor: pointer;
 }
-/* Ẩn input mặc định */
+/* áº¨n input máº·c Ä‘á»‹nh */
 .payment-method-box input[type="radio"] {
   position: absolute;
   opacity: 0;
@@ -836,14 +836,14 @@ a {
   background: #fff;
   transition: all 0.2s ease;
 }
-/* Trạng thái khi được chọn */
+/* Tráº¡ng thÃ¡i khi Ä‘Æ°á»£c chá»n */
 .payment-method-box input[type="radio"]:checked ~ .payment-content {
   border-color: var(--accent);
-  background: var(--accent-dim); /* Vùng nền xanh lợt */
+  background: var(--accent-dim); /* VÃ¹ng ná»n xanh lá»£t */
 }
-/* Thêm dấu tick góc phải trên khi active */
+/* ThÃªm dáº¥u tick gÃ³c pháº£i trÃªn khi active */
 .payment-method-box input[type="radio"]:checked ~ .payment-content::before {
-  content: '\f058'; /* Icon tick tròn FontAwesome */
+  content: '\f058'; /* Icon tick trÃ²n FontAwesome */
  font-family: "Roboto", sans-serif;
   font-weight: 900;
   position: absolute;
@@ -858,13 +858,13 @@ a {
   border-color: #D1D5DB;
 }
 
-/* Responsives nhỏ */
+/* Responsives nhá» */
 @media (max-width: 768px) {
   .cart-item { flex-wrap: wrap; position: relative; }
   .cart-item-price { width: 100%; text-align: left !important; margin-top: 8px; }
   .btn-remove-item { position: absolute; top: 16px; right: 0; }
 }
-  /* CSS RI�NG CHO TRANG GI?NG VI�N */
+  /* CSS RIï¿½NG CHO TRANG GI?NG VIï¿½N */
 .hero-instructors {
   background: linear-gradient(135deg, #F8F9FA 0%, #E0F2FE 100%);
   padding: 60px 0;
@@ -984,7 +984,7 @@ a {
   border-radius: 4px;
   font-weight: 500;
 }
-/* CSS RI�NG CHO TRANG H? SO CHI TI?T GI?NG VI�N */
+/* CSS RIï¿½NG CHO TRANG H? SO CHI TI?T GI?NG VIï¿½N */
 .profile-header-section {
   background: linear-gradient(to bottom, #0f172a 0%, #1e293b 100%);
   color: #fff;
@@ -1488,7 +1488,7 @@ a {
     background: var(--bg-surface, #F8F9FA);
     border-radius: 12px;
 }
-/* ── QUIZ OVERLAY — đè toàn bộ learn-main ── */
+/* â”€â”€ QUIZ OVERLAY â€” Ä‘Ã¨ toÃ n bá»™ learn-main â”€â”€ */
     .quiz-overlay {
       display: none;
       position: absolute;
@@ -1621,7 +1621,7 @@ a {
     .result-msg { color: #6b7280; font-size: 0.9rem; margin-bottom: 24px; }
     .result-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
-    /* ── SIDEBAR quiz lesson item ── */
+    /* â”€â”€ SIDEBAR quiz lesson item â”€â”€ */
     .quiz-badge-pill {
       font-size: 0.68rem; font-weight: 700;
       background: #fef9c3; color: #854d0e;
@@ -1629,11 +1629,11 @@ a {
       display: inline-block; margin-left: 6px;
     }
 
-    /* ── TABS always scroll independently ── */
+    /* â”€â”€ TABS always scroll independently â”€â”€ */
     .learn-tabs-area { overflow-y: auto; }
     .tab-content      { padding-bottom: 40vh; }
 
-    /* ── COMMENT ── */
+    /* â”€â”€ COMMENT â”€â”€ */
     .comment-avatar {
       width: 34px; height: 34px; border-radius: 50%;
       background: #0284c7; color: #fff;
@@ -2103,3 +2103,207 @@ a {
 
 .hover-underline:hover { text-decoration: underline !important; }
 .learn-note-toolbar button:hover i { color: #111827 !important; }
+
+/* FORM MODAL STYLES */
+.form-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+}
+.form-modal-overlay.open {
+    opacity: 1;
+}
+
+.form-modal-container {
+    background: #fff;
+    width: 100%;
+    margin: 16px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    transform: scale(0.95);
+    opacity: 0;
+    transition: all 0.2s ease-out;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+.form-modal-container.open {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.form-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.form-modal-header .header-left {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+.form-modal-header .header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #fff4ed;
+    color: #fd7e14;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.form-modal-header .header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+}
+.form-modal-header .header-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+.form-modal-header .header-close-btn {
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #9ca3af;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.form-modal-header .header-close-btn:hover {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.form-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.form-modal-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.form-modal-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2937;
+    margin: 0;
+}
+.form-modal-label .required {
+    color: #ef4444;
+    margin-left: 4px;
+}
+.form-modal-input, .form-modal-select, .form-modal-textarea {
+    width: 100%;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #374151;
+    background: #fff;
+    transition: all 0.2s;
+    outline: none;
+    font-family: inherit;
+}
+.form-modal-textarea {
+    resize: none;
+    min-height: 100px;
+}
+.form-modal-input:focus, .form-modal-select:focus, .form-modal-textarea:focus {
+    border-color: #fd7e14;
+    box-shadow: 0 0 0 3px rgba(253,126,20,0.1);
+}
+.form-modal-input.has-error, .form-modal-select.has-error, .form-modal-textarea.has-error {
+    border-color: #ef4444;
+}
+.form-modal-error {
+    color: #ef4444;
+    font-size: 13px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: #f9fafb;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+.form-modal-btn-cancel {
+    padding: 10px 20px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.form-modal-btn-cancel:hover {
+    background: #f3f4f6;
+}
+.form-modal-btn-cancel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.form-modal-btn-submit {
+    padding: 10px 24px;
+    background: #fd7e14;
+    border: none;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+}
+.form-modal-btn-submit:hover {
+    background: #e86b04;
+}
+.form-modal-btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Row utilities for modal */
+.form-modal-row {
+    display: flex;
+    gap: 20px;
+}
+.form-modal-row > .form-modal-group {
+    flex: 1;
+}
