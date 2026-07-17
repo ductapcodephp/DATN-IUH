@@ -9,6 +9,8 @@ use App\Http\Controllers\Frontend\CourseController;
 use App\Http\Controllers\Frontend\FaqController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\InstructorController;
+use App\Http\Controllers\Frontend\LearningController;
+use App\Http\Controllers\Frontend\PaymentController;
 use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\Seller\CouponController;
 use App\Http\Controllers\Seller\Courses\ChapterController;
@@ -78,7 +80,7 @@ Route::middleware('auth')->group(function () {
             // VIDEO TRONG BÀI HỌC
             Route::post('lessons/{lesson}/video/presigned-url', [LessonVideoController::class, 'generatePresignedUrl'])->name('lessons.video.presigned-url');
             Route::post('lessons/{lesson}/video/confirm', [LessonVideoController::class, 'confirmUpload'])->name('lessons.video.confirm');
-            
+
             // QUIZ (CÂU HỎI TRẮC NGHIỆM)
             Route::post('quiz/{lesson}/questions', [QuizController::class, 'storeQuestion'])->name('quiz.store-question');
             Route::post('quiz/{lesson}/reorder', [QuizController::class, 'reorderQuizzes'])->name('quiz.reorder');
@@ -113,18 +115,27 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
     Route::get('/faqs', [FaqController::class, 'index'])->name('faq.index');
     Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 
+    // VNPAY IPN Webhook (Server-to-Server) - BẮT BUỘC ĐỂ NGOÀI AUTH VÌ VNPAY KHÔNG CÓ SESSION
+    Route::get('/payment/{gateway}/ipn', [PaymentController::class, 'gatewayIpn'])->name('payment.ipn');
+
     // Cart routes (Requires Authentication)
     Route::middleware('auth')->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
-        Route::post('/checkout/process', [\App\Http\Controllers\Frontend\PaymentController::class, 'process'])->name('checkout.process');
-        Route::get('/payment/{gateway}/return', [\App\Http\Controllers\Frontend\PaymentController::class, 'gatewayReturn'])->name('payment.return');
+        Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
+        Route::get('/payment/{gateway}/return', [PaymentController::class, 'gatewayReturn'])->name('payment.return');
         Route::get('/cart/course/{course}/coupons', [CartController::class, 'getCouponForCourse'])
             ->name('cart.course.coupons');
         Route::post('/cart/apply-coupons', [CartController::class, 'applyCoupons'])->name('cart.apply-coupons');
         // Wishlist route
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
         Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
+        // Course Learn route
+        Route::get('/courses/{slug}/learn', [LearningController::class, 'learn'])->name('course.learn');
+        Route::post('/courses/{slug}/learn/quiz/{quiz}', [LearningController::class, 'submitQuiz'])->name('course.learn.submit-quiz')->middleware('auth');
+        Route::post('/courses/{slug}/learn/lesson/{lessonId}/progress', [LearningController::class, 'updateVideoProgress'])
+            ->name('course.update_video_progress');
     });
 });

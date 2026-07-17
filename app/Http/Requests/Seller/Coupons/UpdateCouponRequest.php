@@ -27,6 +27,7 @@ class UpdateCouponRequest extends FormRequest
             'max_uses'   => ['nullable', 'integer', 'min:1'],
             'starts_at'  => ['nullable', 'date'],
             'expires_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'course_id'  => ['nullable', 'integer', 'exists:courses,id'],
             'is_active'  => ['boolean'],
         ];
     }

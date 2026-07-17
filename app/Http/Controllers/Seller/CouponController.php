@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Coupons\StoreCouponRequest;
 use App\Http\Requests\Seller\Coupons\UpdateCouponRequest;
 use App\Models\Coupon;
-use App\Services\Seller\Coupons\CouponServiceInterface;
+use App\Services\Seller\Coupons\CouponService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,15 +17,17 @@ use Inertia\Response;
 class CouponController extends Controller
 {
     public function __construct(
-        protected CouponServiceInterface $couponService
+        protected CouponService $couponService
     ) {}
 
     public function index(): Response
     {
         $coupons = $this->couponService->getSellerCoupons((int) auth()->id());
+        $courses = \App\Models\Course::where('seller_id', auth()->id())->select('id', 'title')->get();
 
         return Inertia::render('Seller/Coupons/Index', [
             'coupons' => $coupons,
+            'courses' => $courses,
         ]);
     }
 

@@ -28,6 +28,7 @@
         "@popperjs/core": "^2.11.8",
         "bootstrap": "^5.3.8",
         "sweetalert2": "^11.26.25",
+        "video.js": "^8.23.9",
         "ziggy-js": "^2.6.2"
     }
 }

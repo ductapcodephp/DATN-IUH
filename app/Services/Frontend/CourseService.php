@@ -37,4 +37,21 @@ class CourseService
     {
         return $this->courseRepository->getCourseById($id);
     }
+
+    public function getActiveCategories()
+    {
+        return $this->courseRepository->getActiveCategories();
+    }
+
+    public function getEnrolledCourseIds($userId)
+    {
+        if (!$userId) return [];
+        return $this->courseRepository->getEnrolledCourseIds($userId);
+    }
+
+    public function checkEnrollment($userId, $courseId)
+    {
+        if (!$userId) return false;
+        return $this->courseRepository->checkEnrollment($userId, $courseId);
+    }
 }

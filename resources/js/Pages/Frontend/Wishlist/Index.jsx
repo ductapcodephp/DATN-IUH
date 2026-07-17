@@ -69,7 +69,7 @@ export default function Index({ wishlistCourses }) {
                                                     
                                                     <div className="course-footer mt-auto">
                                                         <span className="price-new">{formatPrice(course.price)}</span>
-                                                        {course.original_price > course.price && (
+                                                        {Number(course.original_price) > Number(course.price) && (
                                                             <span className="price-old">{formatPrice(course.original_price)}</span>
                                                         )}
                                                     </div>

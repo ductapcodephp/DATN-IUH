@@ -11,9 +11,10 @@ class ReorderQuizQuestionsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $lesson = $this->route('lesson');
+        $routeParam = $this->route('lesson');
+        $lesson = $routeParam instanceof Lesson ? $routeParam : Lesson::with('course')->find((int) $routeParam);
 
-        if (!$lesson instanceof Lesson) {
+        if (!$lesson) {
             return false;
         }
 

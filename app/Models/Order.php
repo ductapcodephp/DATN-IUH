@@ -63,6 +63,7 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'course_id',
+        'online_payment_id',
         'vip_package_id',
         'coupon_id',
         'amount_original',
@@ -97,6 +98,11 @@ class Order extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function onlinePayment(): BelongsTo
+    {
+        return $this->belongsTo(OnlinePayment::class);
     }
 
     public function vipPackage(): BelongsTo

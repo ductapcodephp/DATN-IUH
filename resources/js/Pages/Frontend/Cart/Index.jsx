@@ -6,13 +6,13 @@ import CouponModal from './CouponModal';
 
 export default function Index({ cart, cartItems = [], totalAmount, popularCourses = [] , availableCoupons = [], discountAmount = 0, appliedCoupons = [] }) {
 
-    const [selectedGateway, setSelectedGateway] = useState('stripe');
+    const [selectedGateway, setSelectedGateway] = useState('vnpay');
     const [processing, setProcessing] = useState(false);
     const [isLoadingCoupons, setIsLoadingCoupons] = useState(false);
     const formatPrice = (amount) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     };
-
+    console.log("Các mã giảm giá đang áp dụng (Index):", appliedCoupons);
     const removeCoupon = (codeToRemove) => {
         const currentCodes = appliedCoupons.map(c => c.code);
         const newCodes = currentCodes.filter(c => c !== codeToRemove);
@@ -341,7 +341,6 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                 </div>
             )}
 
-            {/* Bootstrap Modal cho Mã Giảm Giá */}
             <CouponModal 
                 availableCoupons={availableCoupons}
                 isLoadingCoupons={isLoadingCoupons}

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\PaymentGatewayFactory;
+use App\Exceptions\PaymentException;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use Inertia\Inertia;
@@ -34,6 +35,7 @@ class PaymentController extends Controller
 
     public function gatewayReturn(Request $request, $gatewayName)
     {
+        
         try {
             $gateway = PaymentGatewayFactory::create($gatewayName);
             $callbackData = $gateway->handleCallback($request);
@@ -47,6 +49,27 @@ class PaymentController extends Controller
             }
         } catch (Exception $e) {
             return redirect()->route('frontend.cart.index')->with('error', $e->getMessage());
+        }
+    }
+
+    public function gatewayIpn(Request $request, $gatewayName)
+    {
+        try {
+            $gateway = PaymentGatewayFactory::create($gatewayName);
+            $callbackData = $gateway->handleCallback($request);
+            
+            if ($callbackData['status'] === 'invalid_signature') {
+                return response()->json(['RspCode' => '97', 'Message' => 'Invalid signature']);
+            }
+
+            // Gọi logic xử lý ngầm (cập nhật DB)
+            $this->paymentService->handleGatewayIpn($gatewayName, $callbackData);
+
+            return response()->json(['RspCode' => '00', 'Message' => 'Confirm Success']);
+        } catch (PaymentException $e) {
+            return response()->json(['RspCode' => $e->getErrorCode(), 'Message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            return response()->json(['RspCode' => '99', 'Message' => 'Unknown error']);
         }
     }
 }

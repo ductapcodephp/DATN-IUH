@@ -15,14 +15,14 @@ return new class extends Migration {
             $table->foreignId('lesson_id')->constrained('lessons')->onDelete('cascade');
             $table->integer('watched_seconds')->default(0)->comment('Seconds watched in this lesson');
             $table->integer('duration_seconds')->default(0)->comment('Total lesson duration');
+            $table->integer('skipped_seconds')->default(0)->comment('Tổng số giây đã tua trái phép');
             $table->boolean('is_completed')->default(false)->comment('Lesson fully watched');
             $table->timestamp('last_watched_at')->nullable();
             $table->timestamps();
             
             // Indexes
             $table->unique(['user_id', 'lesson_id']);
-            $table->index('user_id');
-            $table->index('course_id');
+            // Foreign keys automatically create indexes in MySQL, no need to manually index user_id and course_id here
             $table->index('is_completed');
         });
     }

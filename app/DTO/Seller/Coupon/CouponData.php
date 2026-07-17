@@ -15,6 +15,7 @@ readonly class CouponData
         public ?int $maxUses,
         public ?string $startsAt,
         public ?string $expiresAt,
+        public ?int $courseId,
         public bool $isActive,
     ) {}
 
@@ -27,6 +28,7 @@ readonly class CouponData
             maxUses: $request->filled('max_uses') ? (int) $request->input('max_uses') : null,
             startsAt: $request->filled('starts_at') ? (string) $request->input('starts_at') : null,
             expiresAt: $request->filled('expires_at') ? (string) $request->input('expires_at') : null,
+            courseId: $request->filled('course_id') ? (int) $request->input('course_id') : null,
             isActive: $request->boolean('is_active', true),
         );
     }
@@ -41,6 +43,7 @@ readonly class CouponData
             'max_uses'   => $this->maxUses,
             'starts_at'  => $this->startsAt,
             'expires_at' => $this->expiresAt,
+            'course_id'  => $this->courseId,
             'is_active'  => $this->isActive,
         ];
     }

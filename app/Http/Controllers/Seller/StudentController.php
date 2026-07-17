@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Students\BanStudentRequest;
 use App\Http\Requests\Seller\Students\StudentIndexRequest;
 use App\Http\Resources\Seller\StudentResource;
-use App\Services\Seller\Students\StudentServiceInterface;
+use App\Services\Seller\Students\StudentService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,7 +18,7 @@ use Inertia\Response;
 class StudentController extends Controller
 {
     public function __construct(
-        protected StudentServiceInterface $studentService
+        protected StudentService $studentService
     ) {}
 
     public function index(StudentIndexRequest $request): Response

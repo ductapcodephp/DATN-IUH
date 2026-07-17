@@ -10,8 +10,8 @@ class StoreQuizQuestionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $lessonId = (int) $this->route('lessonId');
-        $lesson = Lesson::with('course')->find($lessonId);
+        $routeParam = $this->route('lesson');
+        $lesson = $routeParam instanceof Lesson ? $routeParam : Lesson::with('course')->find((int) $routeParam);
 
         if (!$lesson || !$lesson->course) {
             return false;

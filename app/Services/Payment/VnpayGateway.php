@@ -11,7 +11,6 @@ class VnpayGateway implements PaymentGatewayInterface
         $vnp_TmnCode = config('vnpay.tmn_code');
         $vnp_HashSecret = config('vnpay.hash_secret');
         $vnp_Url = config('vnpay.url');
-        // Sử dụng route động cho gateway
         $vnp_Returnurl = route('frontend.payment.return', ['gateway' => 'vnpay']);
 
         $vnp_TxnRef = $transactionCode;

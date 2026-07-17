@@ -17,6 +17,7 @@ class HomeController extends Controller
         
         $vipCourses = $this->homeService->getVipCourses();
         $topInstructors = $this->homeService->getTopInstructors();
-        return Inertia::render('Frontend/Home/Index', compact('vipCourses', 'topInstructors'));
+        $enrolledCourseIds = auth()->check() ? \App\Models\CourseEnrollment::where('student_id', auth()->id())->pluck('course_id')->toArray() : [];
+        return Inertia::render('Frontend/Home/Index', compact('vipCourses', 'topInstructors', 'enrolledCourseIds'));
     }
 }

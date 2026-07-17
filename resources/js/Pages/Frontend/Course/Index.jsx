@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import FrontendLayout from "@/Layouts/Frontend/FrontendLayout";
 import { Link, useForm, router, usePage } from "@inertiajs/react";
 
-export default function Index({ courses, categories, filters }) {
+export default function Index({ courses, categories, filters, enrolledCourseIds }) {
         
     const { auth } = usePage().props;
     // Pagination data
@@ -104,7 +104,7 @@ console.log(courseList);
                                 <div className="filter-group">
                                     <h6 className="filter-title">Giá khóa học</h6>
                                     <div className="filter-options">
-                                        <label className="custom-radio">
+                                        <label className="custo  m-radio">
                                             <input type="radio" name="price" value="all" checked={data.price === 'all'} onChange={handleFilterChange} />
                                             <span className="radiomark"></span>
                                             <span className="label-text">Tất cả mức giá</span>
@@ -220,12 +220,18 @@ console.log(courseList);
                                                     <span><i className="fa-solid fa-users"></i> {course.students_count || 0}</span>
                                                 </div>
                                             </div>
-                                            <div className="course-footer">
-                                                <span className="price-new">{formatPrice(course.price)}</span>
-                                                {course.original_price > course.price && (
-                                                    <span className="price-old">{formatPrice(course.original_price)}</span>
-                                                )}
-                                            </div>
+                                                <div className="course-footer">
+                                                    {enrolledCourseIds && enrolledCourseIds.includes(course.id) ? (
+                                                        <span className="fw-bold text-success"><i className="fa-solid fa-circle-check"></i> Đã mua</span>
+                                                    ) : (
+                                                        <>
+                                                            <span className="price-new">{formatPrice(course.price)}</span>
+                                                            {Number(course.original_price) > Number(course.price) && (
+                                                                <span className="price-old">{formatPrice(course.original_price)}</span>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
                                             </Link>
                                         </div>
                                     </div>

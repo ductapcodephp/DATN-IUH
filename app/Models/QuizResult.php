@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $score User score
  * @property int $total_questions
  * @property int $correct_answers
- * @property string|null $user_answers Lưu lịch sử các đáp án user đã chọn để review lại
+ * @property string|null $user_answers  
  * @property \Illuminate\Support\Carbon|null $completed_at
  * @property string|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -60,6 +60,7 @@ class QuizResult extends Model
 
     protected $casts = [
         'completed_at' => 'datetime',
+        'user_answers' => 'array',
     ];
 
     // ===== RELATIONSHIPS =====
@@ -119,3 +120,4 @@ class QuizResult extends Model
         return "{$this->correct_answers}/{$this->total_questions}";
     }
 }
+

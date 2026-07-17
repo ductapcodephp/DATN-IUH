@@ -148,53 +148,42 @@ Hệ thống sử dụng các biến CSS (`:root`) thống nhất tại `resourc
 * **Quy tắc về Git**: **TUYỆT ĐỐI KHÔNG** tự ý chạy các lệnh `git commit`, `git push` hoặc tự động triển khai mã lên Github. Chỉ được thực hiện commit/push khi sếp đưa ra yêu cầu rõ ràng bằng lời nói (Ví dụ: *"commit và push code lên github cho tao"*).
 * **Định dạng file trả về**: Khi sửa đổi hoặc hoàn thành các chức năng, hãy liệt kê danh sách các tệp đã cập nhật ở cuối phản hồi. Mỗi tệp phải là một liên kết click được theo định dạng: `[tên_file.ext](file:///C:/VsCode/DATN/backend-api/...)` (sử dụng đường dẫn tuyệt đối với dấu gạch chéo `/`).
 * **Không để lại mã giả lập (No placeholders)**: Khi viết code, luôn hoàn thành các hàm và giao diện đầy đủ chức năng, không viết mã mẫu bị cắt xén, không để lại comment `// TO-DO: implement later` trừ khi có hướng dẫn cụ thể.
- ──────                                                                                                                                                
-  ### 1. Repository Pattern (Mẫu thiết kế Kho lưu trữ)                                                                                                  
-                                                                                                                                                        
-  • Vị trí: Nằm trong thư mục Repositories.                                                                                                             
-  • Chi tiết: Sếp tách biệt phần truy vấn dữ liệu khỏi tầng nghiệp vụ bằng cách tạo ra các Interfaces (ví dụ:  CourseRepositoryInterface.php ) và các   
-  lớp triển khai thực tế (Concrete class như  CourseRepository.php ). Điều này giúp dễ dàng thay đổi thư viện truy vấn hoặc cấu trúc DB mà không ảnh    
-  hưởng đến tầng Service.                                                                                                                               
-                                                                                                                                                        
-  ### 2. Dependency Injection / IoC Container (Tiêm phụ thuộc)                                                                                          
-                                                                                                                                                        
-  • Vị trí: Rải rác khắp các Controllers và Services, cũng như việc đăng ký binding trong AppServiceProvider.php.                                       
-  • Chi tiết: Laravel tự động phân giải các class. Ví dụ, trong  CourseController , sếp inject  CourseService  vào hàm constructor. Trong  CourseService ,
-  sếp lại tiếp tục inject  CourseRepositoryInterface . Điều này giúp code lỏng lẻo (loose coupling) và dễ viết Unit Test.                               
-                                                                                                                                                        
-  ### 3. Data Transfer Object - DTO Pattern (Mẫu chuyển đối dữ liệu)                                                                                    
-                                                                                                                                                        
-  • Vị trí: Thư mục DTO (ví dụ:  CourseData.php ).                                                                                                      
-  • Chi tiết: Dùng các  readonly class  để đóng gói dữ liệu đầu vào. Việc định rõ các thuộc tính giúp kiểm soát dữ liệu nghiêm ngặt khi chuyển tiếp từ  
-  tầng Controller sang tầng Service thay vì dùng mảng thô (raw array).                                                                                  
-                                                                                                                                                        
-  ### 4. Observer / Event-Driven Pattern (Mẫu người quan sát / Hướng sự kiện)                                                                           
-                                                                                                                                                        
-  • Vị trí: Thư mục Events và Listeners.                                                                                                                
-  • Chi tiết: Khi một sự kiện xảy ra (ví dụ:  UserRegistered ), hệ thống sẽ phát tín hiệu (Notify) cho nhiều đối tượng khác lắng nghe ( CreateUserWallet ,
-  GenerateFirstSession ) để tự động thực thi mà không làm phình luồng xử lý của hàm đăng ký gốc.                                                        
-                                                                                                                                                        
-  ### 5. Active Record Pattern (Mẫu bản ghi hoạt động)                                                                                                  
-                                                                                                                                                        
-  • Vị trí: Thư mục Models.                                                                                                                             
-  • Chi tiết: Đây là mẫu mặc định của Laravel Eloquent ORM. Mỗi Model tương ứng trực tiếp với một hàng trong bảng cơ sở dữ liệu (ví dụ:  Course.php  đại
-  diện cho bảng  courses ), chứa cả dữ liệu và các phương thức truy vấn/lưu trữ dữ liệu đó.                                                             
-                                                                                                                                                        
-  ### 6. Facade Pattern (Mẫu mặt tiền)                                                                                                                  
-                                                                                                                                                        
-  • Vị trí: Rải rác khắp dự án (ví dụ: các lệnh gọi static như  Route::get ,  Event::listen ,  Category::where ,  Inertia::render ).                    
-  • Chi tiết: Cung cấp một giao diện tĩnh (static interface) đơn giản cho một hệ thống con phức tạp bên dưới Service Container của Laravel, giúp code   
-  ngắn gọn và dễ đọc hơn.                                                                                                                               
-                                                                                                                                                        
-  ### 7. Static Factory Method (Phương thức nhà máy tĩnh)                                                                                               
-                                                                                                                                                        
-  • Vị trí: Bên trong các lớp DTO (ví dụ: hàm  fromRequest  ở CourseData.php).                                                                          
-  • Chi tiết: Thay vì gọi trực tiếp  new CourseData(...) , sếp cung cấp một phương thức tĩnh  fromRequest  đóng vai trò là một nhà máy nhỏ để tạo và trả
-  về chính instance của lớp đó dựa trên tham số đầu vào.                                                                                                
-                                                                                                                                                        
-  ### 8. Model Factory Pattern (Mẫu nhà máy dữ liệu mẫu)                                                                                                
-                                                                                                                                                        
-  • Vị trí: Thư mục  database/factories/ .                                                                                                              
-  • Chi tiết: Dùng để sinh nhanh hàng loạt dữ liệu mẫu (mock data) phục vụ cho seeding cơ sở dữ liệu và viết Test case.                                 
 
-────────────────────────────────────────────────────────────
+---
+
+## 5. Danh sách các Pattern & Kỹ thuật trọng tâm
+
+### 5.1. Repository Pattern (Mẫu thiết kế Kho lưu trữ)
+* **Vị trí**: Nằm trong thư mục `Repositories`.
+* **Chi tiết**: Tách biệt phần truy vấn dữ liệu khỏi tầng nghiệp vụ bằng cách tạo ra các Interfaces (ví dụ: `CourseRepositoryInterface.php`) và các lớp triển khai thực tế (Concrete class như `CourseRepository.php`). Điều này giúp dễ dàng thay đổi thư viện truy vấn hoặc cấu trúc DB mà không ảnh hưởng đến tầng Service.
+
+### 5.2. Dependency Injection / IoC Container (Tiêm phụ thuộc)
+* **Vị trí**: Rải rác khắp các Controllers và Services, cũng như việc đăng ký binding trong `AppServiceProvider.php`.
+* **Chi tiết**: Laravel tự động phân giải các class. Ví dụ, trong `CourseController`, inject `CourseService` vào hàm constructor. Trong `CourseService`, lại tiếp tục inject `CourseRepositoryInterface`. Điều này giúp code lỏng lẻo (loose coupling) và dễ viết Unit Test.
+
+### 5.3. Data Transfer Object - DTO Pattern (Mẫu chuyển đối dữ liệu)
+* **Vị trí**: Thư mục `DTO` (ví dụ: `CourseData.php`).
+* **Chi tiết**: Dùng các `readonly class` để đóng gói dữ liệu đầu vào. Việc định rõ các thuộc tính giúp kiểm soát dữ liệu nghiêm ngặt khi chuyển tiếp từ tầng Controller sang tầng Service thay vì dùng mảng thô (raw array).
+
+### 5.4. Observer / Event-Driven Pattern (Mẫu người quan sát / Hướng sự kiện)
+* **Vị trí**: Thư mục `Events` và `Listeners`.
+* **Chi tiết**: Khi một sự kiện xảy ra (ví dụ: `UserRegistered`), hệ thống sẽ phát tín hiệu (Notify) cho nhiều đối tượng khác lắng nghe (`CreateUserWallet`, `GenerateFirstSession`) để tự động thực thi mà không làm phình luồng xử lý của hàm đăng ký gốc.
+
+### 5.5. Active Record Pattern (Mẫu bản ghi hoạt động)
+* **Vị trí**: Thư mục `Models`.
+* **Chi tiết**: Đây là mẫu mặc định của Laravel Eloquent ORM. Mỗi Model tương ứng trực tiếp với một hàng trong bảng cơ sở dữ liệu (ví dụ: `Course.php` đại diện cho bảng `courses`), chứa cả dữ liệu và các phương thức truy vấn/lưu trữ dữ liệu đó.
+
+### 5.6. Facade Pattern (Mẫu mặt tiền)
+* **Vị trí**: Rải rác khắp dự án (ví dụ: các lệnh gọi static như `Route::get`, `Event::listen`, `Category::where`, `Inertia::render`).
+* **Chi tiết**: Cung cấp một giao diện tĩnh (static interface) đơn giản cho một hệ thống con phức tạp bên dưới Service Container của Laravel, giúp code ngắn gọn và dễ đọc hơn.
+
+### 5.7. Static Factory Method (Phương thức nhà máy tĩnh)
+* **Vị trí**: Bên trong các lớp DTO (ví dụ: hàm `fromRequest` ở `CourseData.php`).
+* **Chi tiết**: Thay vì gọi trực tiếp `new CourseData(...)`, sếp cung cấp một phương thức tĩnh `fromRequest` đóng vai trò là một nhà máy nhỏ để tạo và trả về chính instance của lớp đó dựa trên tham số đầu vào.
+
+### 5.8. Model Factory Pattern (Mẫu nhà máy dữ liệu mẫu)
+* **Vị trí**: Thư mục `database/factories/`.
+* **Chi tiết**: Dùng để sinh nhanh hàng loạt dữ liệu mẫu (mock data) phục vụ cho seeding cơ sở dữ liệu và viết Test case.
+
+> [!NOTE]
+> **Lưu ý Đặc biệt từ Sếp:** Cái nào hay, được sếp kêu note lại thì bắt buộc phải ghi (append) vào file `C:\VsCode\DATN\backend-api\.agents\thesis_notes.md` để sếp làm luận án tốt nghiệp. **TUYỆT ĐỐI KHÔNG ĐƯỢC XÓA** nội dung cũ trong file đó, chỉ được thêm nội dung mới vào cuối.

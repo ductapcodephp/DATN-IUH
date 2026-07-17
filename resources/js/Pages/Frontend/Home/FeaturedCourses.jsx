@@ -1,8 +1,7 @@
 import React from "react";
 import { Link, router, usePage } from "@inertiajs/react";
 
-// Hứng biến courses (gán mặc định là mảng rỗng [] để không bị lỗi nếu không có data)
-export default function FeaturedCourses({ courses = [] }) {
+export default function FeaturedCourses({ courses = [], enrolledCourseIds = [] }) {
     const { auth } = usePage().props;
     const wishlistedIds = auth?.wishlisted_course_ids || [];
     
@@ -85,14 +84,20 @@ export default function FeaturedCourses({ courses = [] }) {
                                     </div>
 
                                     <div className="course-footer">
-                                        <span className="price-new">
-                                            {formatCurrency(course.price)}
-                                        </span>
-                                        
-                                        {course.original_price > course.price && (
-                                            <span className="price-old">
-                                                {formatCurrency(course.original_price)}
-                                            </span>
+                                        {enrolledCourseIds && enrolledCourseIds.includes(course.id) ? (
+                                            <span className="fw-bold text-success"><i className="fa-solid fa-circle-check"></i> Đã mua</span>
+                                        ) : (
+                                            <>
+                                                <span className="price-new">
+                                                    {formatCurrency(course.price)}
+                                                </span>
+                                                
+                                                {Number(course.original_price) > Number(course.price) && (
+                                                    <span className="price-old">
+                                                        {formatCurrency(course.original_price)}
+                                                    </span>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                     </Link>

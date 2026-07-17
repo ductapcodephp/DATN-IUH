@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->foreignId('course_id')->nullable()->constrained('courses')->onDelete('restrict');
             $table->foreignId('vip_package_id')->nullable()->constrained('vip_packages')->onDelete('restrict');
             $table->foreignId('coupon_id')->nullable()->constrained('coupons')->onDelete('set null');
+            $table->foreignId('online_payment_id')->nullable()->constrained('online_payments')->onDelete('set null');
             $table->decimal('amount_original', 10, 2)->comment('Original course price');
             $table->decimal('discount_amount', 10, 2)->default(0)->comment('Total discount from coupon');
             $table->decimal('amount_paid', 10, 2)->comment('Final amount paid');

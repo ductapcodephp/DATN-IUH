@@ -10,6 +10,7 @@ use App\DTO\Seller\Course\Lesson\UpdateLessonData;
 use App\Models\Chapter;
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Quiz;
 use App\Repositories\Seller\Courses\LessonRepository;
 use Illuminate\Support\Facades\DB;
 
@@ -28,15 +29,28 @@ class LessonService
     {
         $maxSort = $this->lessonRepository->getMaxSortOrder((int) $chapter->id);
 
-        return $this->lessonRepository->create([
-            'chapter_id'   => $chapter->id,
-            'course_id'    => $course->id,
-            'title'        => $dto->title,
-            'type'         => $dto->type,
-            'sort_order'   => $maxSort + 1,
-            'is_published' => false,
-            'is_preview'   => false,
-        ]);
+        return DB::transaction(function () use ($course, $chapter, $dto, $maxSort) {
+            $lesson = $this->lessonRepository->create([
+                'chapter_id'   => $chapter->id,
+                'course_id'    => $course->id,
+                'title'        => $dto->title,
+                'type'         => $dto->type,
+                'sort_order'   => $maxSort + 1,
+                'is_published' => false,
+                'is_preview'   => false,
+            ]);
+
+            if ($lesson->type === 'quiz_only' || $lesson->type === 'quiz') {
+                Quiz::create([
+                    'lesson_id'       => $lesson->id,
+                    'title'           => 'Bài tập: ' . $lesson->title,
+                    'trigger_seconds' => 0,
+                    'is_required'     => false,
+                ]);
+            }
+
+            return $lesson;
+        });
     }
 
     public function updateLesson(Lesson $lesson, UpdateLessonData $dto): bool

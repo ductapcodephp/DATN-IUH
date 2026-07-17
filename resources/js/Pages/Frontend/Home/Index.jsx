@@ -9,14 +9,13 @@ import CategorySection from "./CategorySection";
 import BecomeSeller from "./BecomeSeller";
 
 
-export default function Home({vipCourses, topInstructors}) {
+export default function Home({vipCourses, topInstructors, enrolledCourseIds}) {
 
-    console.log(vipCourses);
     return (
         <>
             <HeroSection />
 
-            <FeaturedCourses courses={vipCourses} />
+            <FeaturedCourses courses={vipCourses} enrolledCourseIds={enrolledCourseIds} />
 
             <InstructorSection instructors={topInstructors} />
 

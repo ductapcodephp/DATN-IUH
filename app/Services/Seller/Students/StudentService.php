@@ -9,7 +9,7 @@ use App\DTO\Seller\Student\StudentFilterData;
 use App\Models\CourseEnrollment;
 use App\Repositories\Seller\Students\StudentRepositoryInterface;
 
-class StudentService implements StudentServiceInterface
+class StudentService
 {
     public function __construct(
         protected StudentRepositoryInterface $studentRepository,

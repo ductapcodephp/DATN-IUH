@@ -3,7 +3,7 @@ import FrontendLayout from "@/Layouts/Frontend/FrontendLayout";
 import { Link, useForm } from "@inertiajs/react";
 import SweetAlert from '@/Components/SweetAlert';
 
-export default function Detail({ course, relatedCourses }) {
+export default function Detail({ course, relatedCourses, isEnrolled }) {
     const { data, setData, post, processing } = useForm({
         course_id: course.id,
     });
@@ -189,17 +189,23 @@ export default function Detail({ course, relatedCourses }) {
                                 <div className="p-4">
                                     <div className="d-flex align-items-center gap-2 mb-3">
                                         <span className="fs-2 fw-bold text-fire">{course.is_free ? 'Miễn phí' : formatCurrency(course.price)}</span>
-                                        {course.original_price > course.price && (
+                                        {Number(course.original_price) > Number(course.price) && (
                                             <span className="text-muted text-decoration-line-through fs-5">{formatCurrency(course.original_price)}</span>
                                         )}
                                     </div>
 
                                     <div className="d-flex flex-column gap-2 mb-4">
-                                        <form onSubmit={handleAddToCart}>
-                                            <input type="hidden" name="course_id" value={course.id} />
-                                            <button type="submit" className="btn btn-fire py-3 fw-bold fs-5 w-100 mb-2">Mua ngay</button>
-                                            <button type="button" onClick={handleAddToCart} className="btn btn-outline-dark py-3 fw-semibold w-100" disabled={processing}>Thêm vào giỏ hàng</button>
-                                        </form>
+                                        {isEnrolled ? (
+                                            <Link href={route('frontend.course.learn', course.slug)} className="btn btn-success py-3 fw-bold fs-5 w-100 mb-2">
+                                                <i className="fa-solid fa-circle-play me-2"></i> Vào học ngay
+                                            </Link>
+                                        ) : (
+                                            <form onSubmit={handleAddToCart}>
+                                                <input type="hidden" name="course_id" value={course.id} />
+                                                <button type="submit" className="btn btn-fire py-3 fw-bold fs-5 w-100 mb-2">Mua ngay</button>
+                                                <button type="button" onClick={handleAddToCart} className="btn btn-outline-dark py-3 fw-semibold w-100" disabled={processing}>Thêm vào giỏ hàng</button>
+                                            </form>
+                                        )}
                                     </div>
 
                                     <ul className="list-unstyled text-muted font-sm mb-0 d-flex flex-column gap-2">
@@ -246,7 +252,7 @@ export default function Detail({ course, relatedCourses }) {
                                             </div>
                                             <div className="course-footer p-3 border-top mt-auto d-flex flex-wrap align-items-baseline gap-2">
                                                 <span className="price-new fw-bold text-fire fs-5">{formatCurrency(rcourse.price)}</span>
-                                                {rcourse.original_price > rcourse.price && (
+                                                {Number(rcourse.original_price) > Number(rcourse.price) && (
                                                     <span className="price-old text-muted text-decoration-line-through font-sm">{formatCurrency(rcourse.original_price)}</span>
                                                 )}
                                             </div>

@@ -49,6 +49,7 @@ class CourseProgress extends Model
         'course_id',
         'lesson_id',
         'watched_seconds',
+        'skipped_seconds',
         'duration_seconds',
         'is_completed',
         'last_watched_at',
@@ -108,12 +109,13 @@ class CourseProgress extends Model
         return round(($this->watched_seconds / $this->duration_seconds) * 100, 2);
     }
 
-    public function updateWatchedSeconds($seconds)
+    public function updateWatchedAndSkippedSeconds($watchedSeconds, $skippedSeconds = 0)
     {
-        $this->watched_seconds = max($this->watched_seconds, $seconds);
+        $this->watched_seconds = max($this->watched_seconds, $watchedSeconds);
+        $this->skipped_seconds = max($this->skipped_seconds ?? 0, $skippedSeconds);
         
-        // Mark as completed if watched >= 90% of duration
-        if ($this->duration_seconds > 0 && $this->getProgressPercentage() >= 90) {
+        // Mark as completed if watched >= 70% of duration
+        if ($this->duration_seconds > 0 && $this->getProgressPercentage() >= 70) {
             $this->is_completed = true;
         }
 

@@ -21,7 +21,7 @@ class QuizController extends Controller
         protected QuizService $quizService
     ) {}
 
-    public function storeQuestion(StoreQuizQuestionRequest $request, int $lessonId): RedirectResponse
+    public function storeQuestion(StoreQuizQuestionRequest $request, mixed $course, int $lessonId): RedirectResponse
     {
         $lesson = Lesson::findOrFail($lessonId);
         $dto = StoreQuestionData::fromRequest($request);

@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('online_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('order_id')->nullable()->constrained('orders')->onDelete('set null');
             $table->string('payment_gateway')->comment('vnpay, momo, stripe, paypal, etc.');
             $table->string('transaction_code')->unique()->comment('Unique transaction reference sent to gateway');
             $table->string('gateway_transaction_id')->nullable()->comment('Transaction ID returned by payment gateway');
@@ -23,7 +22,6 @@ return new class extends Migration
 
             // Indexes
             $table->index('user_id');
-            $table->index('order_id');
             $table->index('payment_gateway');
             $table->index('transaction_code');
             $table->index('status');

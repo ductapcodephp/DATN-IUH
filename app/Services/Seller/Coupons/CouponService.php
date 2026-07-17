@@ -9,7 +9,7 @@ use App\Models\Coupon;
 use App\Repositories\Seller\Coupons\CouponRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-class CouponService implements CouponServiceInterface
+class CouponService
 {
     public function __construct(
         protected CouponRepositoryInterface $couponRepository

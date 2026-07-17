@@ -6,13 +6,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $payment_gateway
+ * @property string $transaction_code
+ * @property string|null $gateway_transaction_id
+ * @property float $amount
+ * @property string $status
+ * @property array|null $raw_response
+ * @property \Illuminate\Support\Carbon|null $paid_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
+ * @property-read \App\Models\User $user
+ */
 class OnlinePayment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'order_id',
         'payment_gateway',
         'transaction_code',
         'gateway_transaction_id',
@@ -35,9 +49,9 @@ class OnlinePayment extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function order(): BelongsTo
+    public function orders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->belongsTo(Order::class);
+        return $this->hasMany(Order::class);
     }
 
     // ===== SCOPES =====

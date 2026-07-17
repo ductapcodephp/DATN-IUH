@@ -3,6 +3,8 @@
 namespace App\Repositories\Frontend\Courses;
 
 use App\Models\Course;
+use App\Models\Category;
+use App\Models\CourseEnrollment;
 
 class CourseRepository implements CourseRepositoryInterface
 {
@@ -105,5 +107,20 @@ class CourseRepository implements CourseRepositoryInterface
     public function getCourseById($id)
     {
         return Course::find($id);
+    }
+
+    public function getActiveCategories()
+    {
+        return Category::where('is_active', true)->get(['id', 'name', 'slug']);
+    }
+
+    public function getEnrolledCourseIds($userId)
+    {
+        return CourseEnrollment::where('student_id', $userId)->pluck('course_id')->toArray();
+    }
+
+    public function checkEnrollment($userId, $courseId)
+    {
+        return CourseEnrollment::where('student_id', $userId)->where('course_id', $courseId)->exists();
     }
 }
