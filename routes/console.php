@@ -9,5 +9,4 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 
-// Mỗi phút gọi command hủy các đơn bỏ hoang (tránh lỗi cache code cũ của schedule:work)
 Schedule::command('payments:cancel-abandoned')->everyMinute();
