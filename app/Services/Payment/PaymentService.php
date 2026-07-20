@@ -8,7 +8,9 @@ use App\Events\PaymentCompleted;
 use App\Models\CourseEnrollment;
 use App\Services\Frontend\CartService;
 use App\Exceptions\PaymentException;
+use App\Models\Coupon;
 use Illuminate\Support\Str;
+use App\Models\CouponUsage;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -39,52 +41,103 @@ class PaymentService
             throw new Exception('Trong giỏ hàng có khóa học bạn đã sở hữu.');
         }
 
-        $appliedCoupons = session('applied_coupons', []);
-        $discountAmount = 0;
-        
-        if (!empty($appliedCoupons)) {
-            try {
-                $discountResult = $this->cartService->calculateDiscountForCart($cartData['cartItems'], $appliedCoupons);
-                $discountAmount = $discountResult['discountAmount'];
-            } catch (Exception $e) {
-                // Ignore
-            }
-        }
-
-        $totalAmount = $cartData['totalAmount'] - $discountAmount;
-        
-        if ($totalAmount <= 0) {
-            throw new Exception('Số tiền thanh toán không hợp lệ.');
-        }
-
         $transactionCode = strtoupper($gatewayName) . '_' . time() . '_' . Str::random(5);
 
-        // Bọc trong DB Transaction để tránh lỗi lưu nửa vời
+        // Bọc trong DB Transaction sớm hơn để Khóa Coupon
         DB::beginTransaction();
         try {
-            // Tạo 1 giao dịch tổng (Parent Transaction)
-            $onlinePayment = OnlinePayment::create([
-                'user_id' => $userId,
-                'payment_gateway' => $gatewayName,
-                'transaction_code' => $transactionCode,
-                'amount' => $totalAmount,
-                'status' => 'pending',
-            ]);
+            $appliedCoupons = session('applied_coupons', []);
+            $discountAmount = 0;
+            $validCoupons = [];
+            
+            if (!empty($appliedCoupons)) {
+                $discountResult = $this->cartService->calculateDiscountForCart($cartData['cartItems'], $appliedCoupons);
+                $discountAmount = $discountResult['discountAmount'];
+                
+                // --- CHỐNG RACE CONDITION (Problem 2) ---
+                $couponIds = collect($discountResult['validCoupons'])->pluck('id')->toArray();
+                if (!empty($couponIds)) {
+                    $validCoupons = Coupon::whereIn('id', $couponIds)->lockForUpdate()->get();
+                    foreach ($validCoupons as $coupon) {
+                        if (!$coupon->isValid()) {
+                            throw new Exception("Mã {$coupon->code} vừa mới hết lượt sử dụng. Vui lòng chọn lại.");
+                        }
+                        // Trừ luôn số lượng (Tăng lượt dùng) lúc order pending
+                        $coupon->increment('used_count');
+                    }
+                }
+            }
+
+            $totalAmount = $cartData['totalAmount'] - $discountAmount;
+            
+            if ($totalAmount <= 0) {
+                throw new Exception('Số tiền thanh toán không hợp lệ.');
+            }
+
+            // Sử dụng updateOrCreate để đảm bảo Idempotency (chỉ có 1 giao dịch pending duy nhất cho mỗi user)
+            $onlinePayment = OnlinePayment::updateOrCreate(
+                [
+                    'user_id' => $userId,
+                    'status' => 'pending',
+                ],
+                [
+                    'payment_gateway' => $gatewayName,
+                    'transaction_code' => $transactionCode,
+                    'amount' => $totalAmount,
+                ]
+            );
 
             $ordersToInsert = [];
             foreach ($cartData['cartItems'] as $item) {
                 $discount = $item->price > 0 ? ($item->price / $cartData['totalAmount']) * $discountAmount : 0;
                 
+                $amountPaid = $item->price - $discount;
+                
+                // Xác định tỷ lệ phần trăm hoa hồng theo quy tắc Startup Model (revenue_sharing_model.md)
+                $commissionRate = 15; // Mặc định gói Free là 15%
+                $seller = $item->course->seller ?? null;
+                
+                if ($seller) {
+                    $activeVip = $seller->vipSubscriptions()
+                        ->where('status', 'active')
+                        ->where('expires_at', '>', now())
+                        ->with('vipPackage')
+                        ->first();
+                        
+                    if ($activeVip && $activeVip->vipPackage) {
+                        $packageName = strtolower($activeVip->vipPackage->name);
+                        if (str_contains($packageName, 'business')) {
+                            $commissionRate = 7;
+                        } elseif (str_contains($packageName, 'pro')) {
+                            $commissionRate = 10;
+                        }
+                    }
+                }
+                
+                $commissionAmount = $amountPaid * ($commissionRate / 100);
+                $sellerAmount = $amountPaid - $commissionAmount;
+
+                // Tìm coupon tương ứng cho khóa học này
+                $matchedCouponId = null;
+                foreach ($validCoupons as $coupon) {
+                    if ($coupon->course_id == $item->course_id || $coupon->seller_id == ($item->course->seller_id ?? null) || (!$coupon->course_id && !$coupon->seller_id)) {
+                        $matchedCouponId = $coupon->id;
+                        break;
+                    }
+                }
+
                 $ordersToInsert[] = [
                     'user_id' => $userId,
                     'course_id' => $item->course_id,
+                    'vip_package_id' => null,
+                    'coupon_id' => $matchedCouponId,
                     'online_payment_id' => $onlinePayment->id,
                     'amount_original' => $item->price,
                     'discount_amount' => $discount,
-                    'amount_paid' => $item->price - $discount,
-                    'commission_rate' => 30, // mặc định
-                    'commission_amount' => 0,
-                    'seller_amount' => 0,
+                    'amount_paid' => $amountPaid,
+                    'commission_rate' => $commissionRate,
+                    'commission_amount' => $commissionAmount,
+                    'seller_amount' => $sellerAmount,
                     'status' => 'pending',
                     'payment_method' => $gatewayName,
                     'created_at' => now(),
@@ -150,8 +203,20 @@ class PaymentService
                 $this->cartService->clearCart($payment->user_id);
 
                 $enrollmentsToInsert = [];
+                $usedCoupons = [];
                 foreach ($payment->orders as $order) {
                     $order->update(['status' => 'completed']);
+                    
+                    // --- GHI NHẬN LỊCH SỬ DÙNG MÃ GIẢM GIÁ (Problem 1) ---
+                    if ($order->coupon_id && !in_array($order->coupon_id, $usedCoupons)) {
+                        CouponUsage::create([
+                            'coupon_id' => $order->coupon_id,
+                            'user_id' => $payment->user_id,
+                            'order_id' => $order->id,
+                            'discount_applied' => $order->discount_amount
+                        ]);
+                        $usedCoupons[] = $order->coupon_id;
+                    }
                     
                     if ($order->course_id) {
                         $enrollmentsToInsert[] = [
@@ -180,8 +245,18 @@ class PaymentService
                     'raw_response' => $callbackData['raw_response'] ?? $callbackData,
                 ]);
                 
+                $restoredCoupons = [];
                 foreach ($payment->orders as $order) {
-                    $order->update(['status' => 'failed']);
+                    // Xóa Order để giải phóng unique key, tránh lỗi ENUM status (chỉ có pending, completed, refunded)
+                    $orderId = $order->id;
+                    
+                    // --- HOÀN TRẢ LẠI SỐ LƯỢNG MÃ GIẢM GIÁ (Problem 2) ---
+                    if ($order->coupon_id && !in_array($order->coupon_id, $restoredCoupons)) {
+                        \App\Models\Coupon::where('id', $order->coupon_id)->decrement('used_count');
+                        $restoredCoupons[] = $order->coupon_id;
+                    }
+                    
+                    $order->delete();
                 }
                 
                 return false;

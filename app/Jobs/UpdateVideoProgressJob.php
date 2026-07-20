@@ -22,7 +22,7 @@ class UpdateVideoProgressJob implements ShouldQueue, ShouldBeUnique
     public $courseId;
 
     public $uniqueFor = 3600; // Khóa 1 tiếng để tránh lặp job khi worker bị tắt
-
+    
     public function uniqueId(): string
     {
         return $this->userId . '_' . $this->lessonId;

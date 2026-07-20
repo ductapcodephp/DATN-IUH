@@ -95,3 +95,34 @@ sequenceDiagram
 
 ### 3.4. Database Transaction
 - **Giải pháp:** Toàn bộ quá trình tạo đơn (Tạo Payment -> Tạo các Order) và xác nhận đơn (Cập nhật Payment -> Cập nhật Order -> Tạo Enrollment) đều được bọc trong `DB::beginTransaction()` và `DB::rollBack()`. Lỗi ở bất cứ bước nào cũng trả DB về trạng thái sạch sẽ.
+
+### 3.5. Xử lý "Đơn bị bỏ hoang" (Abandoned Cart) & Hoàn trả mã giảm giá
+- **Bối cảnh:** Khi user click "Thanh toán", mã giảm giá bị trừ (giữ chỗ). Nếu user thoát ngang hoặc VNPAY báo lỗi, mã giảm giá sẽ bị khóa vĩnh viễn, đồng thời khóa `Unique(user_id, course_id)` của `orders` sẽ ngăn user tạo lại đơn mới.
+- **Giải pháp Kiến trúc:** Thiết lập Cronjob chạy định kỳ rà quét các giao dịch `pending` quá thời gian (vd: 15 phút).
+  - Thu hồi: Tăng lại `used_count` cho mã giảm giá (refund coupon).
+  - Giải phóng: Xóa (Delete) `orders` bị bỏ hoang để phá khóa Unique Key.
+  - Ghi vết: Cập nhật `online_payments` thành `failed`.
+- **Laravel Scheduling:**
+  - KHÔNG DÙNG: `Schedule::call()` vì nhược điểm chết người là **cached in RAM** trên `schedule:work`. Khi sửa lỗi ENUM hay logic, code mới không được nạp dẫn đến cronjob chạy sai âm thầm.
+  - KHUYÊN DÙNG: Dùng `Schedule::command('tên-command')` trỏ tới file Command riêng biệt. Mỗi phút Laravel sinh ra một **Process mới** đọc trực tiếp code từ ổ cứng, đảm bảo luôn chạy code mới nhất, đồng thời phân tách logic (Clean Code).
+
+---
+
+## 4. Đặc thù Tích hợp Cổng thanh toán Quốc tế (Stripe)
+
+Bên cạnh cổng thanh toán nội địa (VNPAY), hệ thống được mở rộng tích hợp cổng **Stripe** cho khách hàng quốc tế. Kiến trúc tích hợp Stripe bám sát tiêu chuẩn RESTful API, sử dụng `Illuminate\Support\Facades\Http` thay vì dùng các thư viện (SDK) bên thứ ba quá cồng kềnh.
+
+### 4.1. Luồng Stripe Checkout Session
+1. **Khởi tạo:** Server backend tạo một payload chứa danh sách khóa học (Line Items), giá tiền (quy đổi sang USD), và `success_url` / `cancel_url`.
+2. **Giao tiếp API:** Gọi POST đến `https://api.stripe.com/v1/checkout/sessions` qua cURL/Http Facade với header chứa `Authorization: Bearer sk_test_...`.
+3. **Lưu vết:** Hệ thống lưu lại `id` của Stripe Checkout Session vào trường `transaction_code` của bảng `online_payments` với trạng thái `pending`.
+4. **Điều hướng (Redirect):** API trả về URL thanh toán của Stripe (`session.url`), Frontend chuyển hướng người dùng sang trang của Stripe để nhập thẻ Visa/Mastercard.
+
+### 4.2. Xử lý IPN (Stripe Webhook)
+Khác với VNPAY truyền data qua URL Query String, Stripe gửi một HTTP POST Request với payload JSON khổng lồ (Event Object) về webhook endpoint của hệ thống.
+- **Bảo mật:** Hệ thống phải xác thực chữ ký (Signature) gửi trong header `Stripe-Signature` để đảm bảo webhook không bị giả mạo.
+- **Xử lý Bất đồng bộ (Async):** Webhook của Stripe (như sự kiện `checkout.session.completed`) sẽ được hứng lại. Hệ thống tiến hành dò tìm `transaction_code` (chính là Checkout Session ID), khóa dòng bằng `lockForUpdate()`, cập nhật trạng thái `completed`, và mở khóa học (Insert `CourseEnrollment`).
+
+### 4.3. Ưu điểm kiến trúc Đa cổng (Multi-Gateway Abstract)
+- Toàn bộ logic lõi (tạo Order, gán Coupon, Cronjob hủy đơn, Cấp quyền khóa học) được **tái sử dụng 100%**.
+- Các cổng thanh toán (VNPAY, Stripe) chỉ đóng vai trò là "Module xử lý trung gian" (Adapter). Module này nhận input, sinh URL, và nhận webhook để trả về kết quả `SUCCESS` hoặc `FAILED` cho Core System xử lý. Đây là điểm sáng trong thiết kế **Strategy Pattern** giúp hệ thống cực kỳ dễ mở rộng.

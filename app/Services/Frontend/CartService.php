@@ -73,10 +73,20 @@ class CartService
         }
 
         $totalAmount = $cartItems->sum('price');
+        $userId = auth()->id();
         
         foreach ($coupons as $coupon) {
             if (!$coupon->isValid()) {
                 throw new Exception("Mã {$coupon->code} đã hết hạn hoặc hết lượt dùng.");
+            }
+            
+            if ($userId) {
+                $hasUsed = \App\Models\CouponUsage::where('coupon_id', $coupon->id)
+                    ->where('user_id', $userId)
+                    ->exists();
+                if ($hasUsed) {
+                    throw new Exception("Mã {$coupon->code} đã được bạn sử dụng trước đó. Mỗi tài khoản chỉ được dùng 1 lần.");
+                }
             }
             
             if ($coupon->course_id) {

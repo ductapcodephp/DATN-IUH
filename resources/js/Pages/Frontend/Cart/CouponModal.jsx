@@ -1,17 +1,15 @@
 import React from 'react';
 import { router } from '@inertiajs/react';
 
-export default function CouponModal({ availableCoupons, isLoadingCoupons, appliedCoupons = [] }) {
+export default function CouponModal({ courseCoupons = [], instructorCoupons = [], platformCoupons = [], isLoadingCoupons, appliedCoupons = [] }) {
     const [inputValue, setInputValue] = React.useState('');
     const [selectedCodes, setSelectedCodes] = React.useState([]);
 
+    const availableCoupons = [...courseCoupons, ...instructorCoupons, ...platformCoupons];
+
     React.useEffect(() => {
         setSelectedCodes(appliedCoupons.map(c => c.code));
-    }, [appliedCoupons, availableCoupons]);
-
-    // Phân loại mã giảm giá dựa trên course_id
-    const courseCoupons = availableCoupons?.filter(c => c.course_id !== null) || [];
-    const instructorCoupons = availableCoupons?.filter(c => c.course_id === null) || [];
+    }, [appliedCoupons, courseCoupons, instructorCoupons, platformCoupons]);
 
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
@@ -31,10 +29,10 @@ export default function CouponModal({ availableCoupons, isLoadingCoupons, applie
                 const modalCourseCodes = courseCoupons.map(c => c.code);
                 newCodes = newCodes.filter(c => !modalCourseCodes.includes(c));
             } else if (actualType === 'instructor') {
-                const modalInstructorCodes = instructorCoupons.filter(c => c.seller_id !== null).map(c => c.code);
+                const modalInstructorCodes = instructorCoupons.map(c => c.code);
                 newCodes = newCodes.filter(c => !modalInstructorCodes.includes(c));
             } else if (actualType === 'platform') {
-                const modalPlatformCodes = instructorCoupons.filter(c => c.seller_id === null).map(c => c.code);
+                const modalPlatformCodes = platformCoupons.map(c => c.code);
                 newCodes = newCodes.filter(c => !modalPlatformCodes.includes(c));
             }
             
@@ -228,6 +226,23 @@ export default function CouponModal({ availableCoupons, isLoadingCoupons, applie
                                             {instructorCoupons.map((coupon, index) => (
                                                 <React.Fragment key={coupon.id}>
                                                     {renderCouponItem(coupon, index === instructorCoupons.length - 1, 'instructor')}
+                                                </React.Fragment>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Danh sách mã Toàn sàn */}
+                                {platformCoupons.length > 0 && (
+                                    <div className="mb-2 mt-4">
+                                        <h6 className="fw-bold mb-3 d-flex align-items-center coupon-section-title" style={{ color: '#DC2626' }}>
+                                            <i className="fa-solid fa-gift me-2"></i>
+                                            Ưu đãi hệ thống EduFlow
+                                        </h6>
+                                        <div className="card border-0 shadow-sm p-3" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
+                                            {platformCoupons.map((coupon, index) => (
+                                                <React.Fragment key={coupon.id}>
+                                                    {renderCouponItem(coupon, index === platformCoupons.length - 1, 'platform')}
                                                 </React.Fragment>
                                             ))}
                                         </div>

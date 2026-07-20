@@ -43,9 +43,6 @@ class StudentController extends Controller
         return back()->with('success', 'Đã cấm học viên khỏi khóa học thành công! 🚫');
     }
 
-    /**
-     * Mở cấm cho học viên
-     */
     public function unban(int $enrollmentId): RedirectResponse
     {
         $this->studentService->unbanStudent((int) auth()->id(), $enrollmentId);

@@ -33,7 +33,7 @@ class SendPaymentSuccessEmail implements ShouldQueue
         Log::info("🔔 [Background Job] Đang tiến hành gửi Email hóa đơn cho User ID: {$userId}, Mã GD: {$txnCode}");
 
         $user = User::find($userId);
-        $payments = OnlinePayment::with('order.course')->where('transaction_code', 'LIKE', $txnCode . '%')->get();
+        $payments = OnlinePayment::with('orders.course')->where('transaction_code', 'LIKE', $txnCode . '%')->get();
 
         if ($user && $payments->isNotEmpty()) {
             Mail::to($user->email)->send(new PaymentSuccessMail($user, $payments));

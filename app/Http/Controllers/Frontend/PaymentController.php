@@ -23,6 +23,7 @@ class PaymentController extends Controller
     public function process(Request $request)
     {
         $gatewayName = $request->input('gateway', 'vnpay');
+        $coupons = $request->input('coupon_ids');
         $userId = Auth::id();
 
         try {

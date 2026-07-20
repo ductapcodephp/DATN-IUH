@@ -49,9 +49,24 @@ class CartController extends Controller
             'popularCourses' => $popularCourses,
             'discountAmount' => $discountAmount,
             'appliedCoupons' => $validCoupons,
-            'availableCoupons' => Inertia::lazy(function () use ($request) {
+            'courseCoupons' => Inertia::lazy(function () use ($request) {
                 if ($courseId = $request->input('course_id')) {
-                    return $this->cartService->getCouponForCourse($courseId);
+                    $res = $this->cartService->getCouponForCourse($courseId);
+                    return $res['courseCoupons'] ?? [];
+                }
+                return [];
+            }),
+            'instructorCoupons' => Inertia::lazy(function () use ($request) {
+                if ($courseId = $request->input('course_id')) {
+                    $res = $this->cartService->getCouponForCourse($courseId);
+                    return $res['instructorCoupons'] ?? [];
+                }
+                return [];
+            }),
+            'platformCoupons' => Inertia::lazy(function () use ($request) {
+                if ($courseId = $request->input('course_id')) {
+                    $res = $this->cartService->getCouponForCourse($courseId);
+                    return $res['platformCoupons'] ?? [];
                 }
                 return [];
             })

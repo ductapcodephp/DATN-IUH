@@ -4,8 +4,10 @@ import { Link, useForm, router, Head } from "@inertiajs/react";
 import Swal from 'sweetalert2';
 import CouponModal from './CouponModal';
 
-export default function Index({ cart, cartItems = [], totalAmount, popularCourses = [] , availableCoupons = [], discountAmount = 0, appliedCoupons = [] }) {
-
+export default function Index({ cart, cartItems = [], totalAmount, popularCourses = [] , courseCoupons = [], instructorCoupons = [], platformCoupons = [], discountAmount = 0, appliedCoupons = [] }) {
+    console.log(instructorCoupons)
+    console.log(courseCoupons)
+    console.log(platformCoupons)
     const [selectedGateway, setSelectedGateway] = useState('vnpay');
     const [processing, setProcessing] = useState(false);
     const [isLoadingCoupons, setIsLoadingCoupons] = useState(false);
@@ -46,7 +48,8 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
         e.preventDefault();
         setProcessing(true);
         router.post(route('frontend.checkout.process'), {
-            gateway: selectedGateway
+            gateway: selectedGateway,
+            coupon_ids: appliedCoupons.map(c => c.id)
         }, {
             onFinish: () => setProcessing(false)
         });
@@ -54,7 +57,7 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
     const fetchAvailableCoupons = async (courseId) => {
         setIsLoadingCoupons(true);
         router.reload({
-            only: ['availableCoupons'],
+            only: ['courseCoupons', 'instructorCoupons', 'platformCoupons'],
             data: { course_id: courseId },
             preserveState: true,
             preserveScroll: true,
@@ -342,7 +345,9 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
             )}
 
             <CouponModal 
-                availableCoupons={availableCoupons}
+                courseCoupons={courseCoupons}
+                instructorCoupons={instructorCoupons}
+                platformCoupons={platformCoupons}
                 isLoadingCoupons={isLoadingCoupons}
                 appliedCoupons={appliedCoupons}
             />

@@ -46,27 +46,42 @@ class CartRepository implements CartRepositoryInterface
     {
         if ($courseId === 'all') {
             // Lấy voucher toàn sàn (seller_id = null)
-            return Coupon::whereNull('seller_id')
+            $platformCoupons = Coupon::whereNull('seller_id')
                 ->active()
                 ->validNow()
+                ->available()
                 ->get();
+                
+            return [
+                'courseCoupons' => collect(),
+                'instructorCoupons' => collect(),
+                'platformCoupons' => $platformCoupons
+            ];
         }
 
         $course = Course::select('id', 'seller_id')->findOrFail((int) $courseId);
         
-        // Lấy voucher của khóa học này (course_id = $courseId) 
-        // HOẶC voucher toàn khóa học của giảng viên này (course_id = null, seller_id = $course->seller_id)
-        // HOẶC voucher toàn sàn (seller_id = null)
-        return Coupon::where(function ($query) use ($course, $courseId) {
-            $query->where('seller_id', $course->seller_id)
-                  ->where(function ($q) use ($courseId) {
-                      $q->where('course_id', $courseId)
-                        ->orWhereNull('course_id');
-                  });
-        })->orWhereNull('seller_id') // Voucher toàn sàn
-        ->active()
-        ->validNow()
-        ->get();
+        // Tách ra 3 truy vấn độc lập và gộp lại cho cực kỳ dễ hiểu theo đúng ý sếp:
+        
+        // 1. Mã giảm giá CHỈ DÀNH RIÊNG cho khóa học này (của đúng giảng viên này)
+        $courseCoupons = Coupon::where('course_id', $courseId)
+            ->where('seller_id', $course->seller_id)
+            ->active()->validNow()->available()->get();
+
+        // 2. Mã giảm giá áp dụng TOÀN BỘ KHÓA HỌC của giảng viên này
+        $sellerCoupons = Coupon::whereNull('course_id')
+            ->where('seller_id', $course->seller_id)
+            ->active()->validNow()->available()->get();
+
+        // 3. Mã giảm giá TOÀN SÀN của hệ thống (KHÔNG TRẢ VỀ Ở ĐÂY NỮA VÌ NÓ THUỘC MODAL KHÁC)
+        // Sếp đã nhắc: "2 cái modal mở ra khác nhau nha mày không chung dữ liệu"
+        
+        // Trả về mảng riêng rẽ
+        return [
+            'courseCoupons' => $courseCoupons,
+            'instructorCoupons' => $sellerCoupons,
+            'platformCoupons' => collect() // Trả mảng rỗng để không lọt mã toàn sàn vào modal của khóa học
+        ];
     }
     
 }

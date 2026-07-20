@@ -91,3 +91,207 @@ Trong hệ thống EduFlow, Queue (Hàng đợi) được áp dụng cho nhiều
 | **Xử lý lỗi (Retry)** | Nếu rớt vài giây vào DB không quá nghiêm trọng. Thường bỏ qua hoặc xử lý nhẹ để tiết kiệm tài nguyên hệ thống. | **Bắt buộc (Guaranteed Delivery):** Lỗi mạng kết nối SMTP phải tự động Retry (3-5 lần). Nếu thất bại hẳn phải đưa vào Dead Letter Queue (DLQ) để điều tra. |
 
 > **Kết luận cho Luận án:** Việc dùng Queue không chỉ đơn giản là "ném tác vụ chạy ngầm cho nhanh". Hiểu rõ bản chất luồng dữ liệu để cấu hình Queue phù hợp (cái nào cần Batching, cái nào cần Fire-and-Forget, cái nào cần Retry) mới thể hiện tư duy thiết kế hệ thống chuyên sâu của một Kỹ sư phần mềm.
+
+---
+
+## 4. Xử lý "Đơn hàng bị bỏ hoang" (Abandoned Cart) & Hoàn trả tài nguyên
+
+### 4.1. Bài toán: Khách hàng "Tạo đơn - Nhập mã giảm giá" nhưng không thanh toán
+Trong các hệ thống E-commerce (ví dụ: mua khóa học), khi user click "Thanh toán", hệ thống sẽ tạo một đơn hàng (trạng thái `pending`) và **tạm trừ (giam) số lượng mã giảm giá**.
+**Vấn đề phát sinh:**
+- Nếu user tắt trình duyệt (abandoned cart) hoặc hủy giao dịch trên cổng thanh toán (VNPAY/Stripe), đơn hàng sẽ bị kẹt mãi ở trạng thái `pending`.
+- Mã giảm giá bị "giam" vĩnh viễn, người dùng khác không thể áp mã dù mã chưa thực sự được dùng.
+- Khóa Unique Key trên database (ví dụ: một User chỉ được có 1 đơn hàng cho 1 Khóa học) khiến khách hàng không thể tạo lại đơn thanh toán cho chính khóa học đó.
+
+### 4.2. Giải pháp Kiến trúc (Background Cronjob & Auto-Reclaim)
+Để giải quyết, hệ thống cần một **Background Worker (Cronjob)** chạy định kỳ (vd: mỗi 1 phút) để rà quét và dọn dẹp các đơn rác.
+**Workflow dọn dẹp:**
+1. Quét tìm toàn bộ các giao dịch (`online_payments`) có trạng thái `pending` và vượt quá ngưỡng timeout (ví dụ: quá 1 phút/15 phút).
+2. Duyệt qua các `orders` thuộc giao dịch đó. Nếu order có chứa `coupon_id`, tiến hành **hoàn trả (decrement `used_count`)** vào bảng `coupons`.
+3. Xóa sổ vĩnh viễn (Hard Delete) hoặc cập nhật (Soft Delete/Refunded) các đơn `orders` này để **giải phóng Unique Key**, cho phép user mua lại.
+4. Đánh dấu `online_payments` thành `failed`.
+
+### 4.3. Kinh nghiệm sâu sắc về Laravel Task Scheduling (Điểm cộng cho Luận án)
+Khi triển khai Cronjob dọn dẹp, việc lựa chọn kiến trúc chạy lệnh ngầm (Schedule) cực kỳ quan trọng. Laravel cung cấp 2 phương pháp phổ biến nhưng có cơ chế hoạt động hoàn toàn khác nhau:
+
+| Tiêu chí | `Schedule::call(function() { ... })` (Closure) | `Schedule::command('tên-command')` (Artisan Command) |
+| :--- | :--- | :--- |
+| **Vị trí viết code** | Trực tiếp trong file `routes/console.php` hoặc `Kernel.php` | Tách riêng thành một class độc lập (vd: `CancelAbandonedPayments.php`) |
+| **Cơ chế nạp vào RAM (Lifecycle)** | Load **1 lần duy nhất** khi khởi chạy worker (`schedule:work`). Đoạn code bị đóng băng (cached) trong RAM của tiến trình worker đó suốt vòng đời. | Tạo ra một **tiến trình PHP mới hoàn toàn (New Process)** mỗi lần được kích hoạt. Đọc lại file từ ổ cứng tại thời điểm chạy. |
+| **Bảo trì & Hot-Reload** | **Lỗi Chí mạng:** Nếu sửa code, thay đổi sẽ KHÔNG có hiệu lực trừ khi tắt nóng (kill process) và khởi động lại worker. Rất dễ sinh lỗi âm thầm do chạy code cũ. | **An Toàn:** Sửa code là có tác dụng ở lần chạy tiếp theo của phút tới mà không cần can thiệp hệ thống. |
+| **Tính đóng gói (Clean Code)** | Gây "phình to" file config, trộn lẫn cấu hình và business logic. Khó test độc lập. | Chuẩn OOP, logic được đóng gói độc lập. Có thể gọi test thủ công trên terminal dễ dàng. |
+
+**👉 Nhận định kiến trúc:** Việc sử dụng `Schedule::command()` không chỉ là vấn đề cú pháp mà là tư duy **tách biệt tiến trình (Process Isolation)** và **dễ dàng bảo trì (Maintainability)**. Dù tốn thêm chi phí siêu nhỏ khởi tạo tiến trình hệ điều hành, nhưng đảm bảo tính đúng đắn và an toàn cho dữ liệu (đặc biệt là tiền bạc, mã giảm giá) trong môi trường production.
+
+---
+
+## 5. PHÂN TÍCH 6 CẤP ĐỘ THIẾT KẾ PHẦN MỀM CỦA EDUFLOW
+
+Hệ thống EduFlow được đánh giá qua 6 cấp độ thiết kế phần mềm, xếp theo thứ tự từ **vi mô (code-level)** đến **vĩ mô (system-level)**:
+
+```
+1. Programming Paradigm (Mô hình lập trình)
+│
+├── OOP ⭐⭐⭐⭐⭐
+│   ├── Class
+│   ├── Object
+│   ├── Interface
+│   ├── Abstract Class
+│   ├── Trait
+│   ├── Namespace
+│   ├── Encapsulation
+│   ├── Inheritance
+│   ├── Polymorphism
+│   └── Abstraction
+│
+└── (Functional, Procedural...)
+        │
+        ▼
+2. Design Principles (Nguyên tắc thiết kế)
+│
+├── SOLID ⭐⭐⭐⭐⭐
+├── DRY
+├── KISS
+├── YAGNI
+└── Dependency Injection (DI)
+        │
+        ▼
+3. Design Patterns (Mẫu thiết kế)
+│
+├── Repository
+├── Factory
+├── Strategy
+├── Observer
+├── Singleton
+├── Builder
+├── Adapter
+├── Facade
+└── Command
+        │
+        ▼
+4. Application Architecture (Kiến trúc ứng dụng)
+│
+├── MVC
+├── Layered Architecture
+├── Clean Architecture
+├── Hexagonal
+└── Onion
+        │
+        ▼
+5. System Architecture (Kiến trúc hệ thống)
+│
+├── Monolithic
+├── Microservices
+├── SOA
+├── Event-Driven
+└── Serverless
+        │
+        ▼
+6. Coding Standards (Chuẩn code)
+│
+├── PSR-12
+├── PHPDoc
+├── Naming Convention
+└── Git Convention
+```
+
+### 5.1. Tầng 1 – Programming Paradigm: OOP (⭐⭐⭐⭐⭐ – 5/5)
+
+EduFlow sử dụng mô hình lập trình hướng đối tượng (OOP) xuyên suốt toàn bộ hệ thống.
+
+| Khái niệm OOP | Mức độ áp dụng | Ví dụ cụ thể trong EduFlow |
+| :--- | :--- | :--- |
+| **Class / Object** | ✅ Rất nhiều | Service, Repository, DTO, Model, Controller – mỗi thành phần là 1 class độc lập |
+| **Interface** | ✅ | `CourseRepositoryInterface`, `PayableContract` – định nghĩa hợp đồng giữa các tầng |
+| **Abstract Class** | ✅ (Ngầm) | Laravel base classes: `Illuminate\Database\Eloquent\Model`, `Controller` |
+| **Trait** | ✅ | `HasFactory`, `SoftDeletes`, `Notifiable` – tái sử dụng hành vi xuyên class |
+| **Namespace** | ✅ | `App\Services\Payment\PaymentService`, `App\DTO\Seller\Course\CourseData` – phân vùng code rõ ràng |
+| **Encapsulation** | ✅ | `readonly class` DTO (PHP 8.2+) – dữ liệu chỉ gán 1 lần, không thể sửa từ bên ngoài |
+| **Inheritance** | ✅ | Model extends `Eloquent\Model`, Controller extends `BaseController` |
+| **Polymorphism** | ✅ | `payable_type/payable_id` (Polymorphic Relations), `PayableContract::fulfill()` – 1 hàm, nhiều hành vi |
+| **Abstraction** | ✅ | Repository Interface ẩn toàn bộ chi tiết Eloquent/Query Builder khỏi tầng Service |
+
+> **Nhận xét:** OOP được áp dụng rất bài bản. Đặc biệt, việc sử dụng Polymorphism trong module thanh toán (cho phép 1 luồng VNPAY xử lý đa dạng loại giao dịch: Mua khóa học, Mua gói Seller, Nạp ví...) là điểm sáng thể hiện tư duy OOP chuyên sâu.
+
+### 5.2. Tầng 2 – Design Principles (⭐⭐⭐⭐ – 4/5)
+
+Hệ thống tuân thủ các nguyên tắc thiết kế phần mềm cốt lõi, đặc biệt là bộ nguyên tắc SOLID:
+
+| Nguyên tắc | Mức độ | Minh chứng trong EduFlow |
+| :--- | :--- | :--- |
+| **S – Single Responsibility** | ✅ | Controller chỉ điều phối (nhận Request, gọi Service, trả Response). Service chỉ xử lý logic nghiệp vụ. Repository chỉ truy vấn CSDL. Mỗi class đúng 1 trách nhiệm duy nhất. |
+| **O – Open/Closed** | ✅ | `PayableContract` interface cho phép mở rộng thêm loại thanh toán mới (Livestream, Ebook...) mà không cần sửa code luồng VNPAY/Stripe hiện tại. |
+| **L – Liskov Substitution** | ✅ | Có thể hoán đổi `CourseRepository` thành `CachedCourseRepository` qua Interface mà Service không cần biết sự thay đổi. |
+| **I – Interface Segregation** | ✅ | Interface được tách riêng theo domain (`CourseRepositoryInterface`, `PaymentRepositoryInterface`...), không ép 1 class phải implement các method không liên quan. |
+| **D – Dependency Inversion** | ✅ | Service không phụ thuộc vào class cụ thể mà phụ thuộc vào Interface. Mọi binding được khai báo trong `AppServiceProvider`. |
+| **DRY (Don't Repeat Yourself)** | ✅ | Components Frontend dùng chung (`Buttons`, `Modals`, `Cards`), Layouts tái sử dụng (`FrontendLayout`, `SellerLayout`). |
+| **KISS (Keep It Simple)** | ⚠️ | Một số luồng phức tạp (Payment + IPN + Fallback) là do bản chất bài toán tài chính đòi hỏi, không phải over-engineer. |
+| **YAGNI (You Aren't Gonna Need It)** | ✅ | Chọn Monolith thay vì Microservices = đúng tinh thần "không làm cái chưa cần". |
+| **Dependency Injection (DI)** | ✅ | Constructor Injection xuyên suốt: Controller inject Service, Service inject Repository Interface. |
+
+> **Nhận xét:** SOLID được áp dụng tốt ở cả 5 nguyên tắc. Điểm trừ nhẹ là chưa có bộ Unit Test đầy đủ để chứng minh lợi ích thực tế của DI/Interface Segregation trong môi trường kiểm thử.
+
+### 5.3. Tầng 3 – Design Patterns (⭐⭐⭐⭐⭐ – 5/5 – Điểm mạnh nhất)
+
+EduFlow áp dụng **8 Design Patterns** thực tế trong source code:
+
+| Pattern | Vị trí áp dụng | Mục đích giải quyết |
+| :--- | :--- | :--- |
+| **Repository Pattern** | `app/Repositories/` – Interface + Concrete class | Trừu tượng hóa truy vấn DB, tách biệt tầng Data Access khỏi Business Logic. |
+| **Static Factory Method** | `DTO::fromRequest()` trong các lớp DTO | Chuẩn hóa quy trình khởi tạo DTO từ HTTP Request, thay vì gọi constructor trực tiếp. |
+| **Model Factory** | `database/factories/` | Sinh dữ liệu mẫu (mock data) phục vụ Seeding và Testing. |
+| **Strategy Pattern** | `VnpayGateway`, `StripeGateway` | Đa cổng thanh toán hoán đổi được. Core System không cần biết đang dùng cổng nào. |
+| **Observer / Event-Driven** | `app/Events/` + `app/Listeners/` | Tách tác vụ phụ trợ (gửi mail, tạo ví, tính doanh thu) khỏi luồng chính. |
+| **Facade Pattern** | `Route::`, `Event::`, `Storage::`, `Inertia::` | Cung cấp interface tĩnh đơn giản che giấu hệ thống phức tạp bên dưới Service Container. |
+| **Active Record** | `app/Models/` (Eloquent ORM) | Mỗi Model tương ứng trực tiếp với 1 bảng DB, chứa cả dữ liệu và phương thức truy vấn. |
+| **DTO Pattern** | `app/DTO/` – `readonly class` PHP 8.2+ | Đóng gói dữ liệu đầu vào với kiểu dữ liệu tường minh (Strongly Typed), loại bỏ mảng thô. |
+
+> **Nhận xét:** 8 patterns được áp dụng thực tế (không phải lý thuyết suông) trong 1 dự án tốt nghiệp là rất ấn tượng. Đặc biệt, sự kết hợp giữa **Strategy Pattern** (đa cổng thanh toán) và **Observer Pattern** (Event-Driven xử lý hậu thanh toán) cho thấy khả năng lựa chọn pattern phù hợp với từng bài toán cụ thể.
+
+### 5.4. Tầng 4 – Application Architecture (⭐⭐⭐⭐ – 4/5)
+
+| Kiến trúc | Mức độ áp dụng | Ghi chú |
+| :--- | :--- | :--- |
+| **MVC** | ✅ (Nền tảng) | Laravel bản chất là framework MVC. EduFlow kế thừa cấu trúc này. |
+| **Layered Architecture** | ✅✅ (Chính) | Mở rộng MVC thành 4 tầng rõ ràng: `Presentation (Controller)` → `DTO` → `Business Logic (Service)` → `Data Access (Repository)` → `Database (Model)`. |
+| Clean Architecture | ⚠️ Một phần | Có tách tầng và dependency inversion, nhưng chưa đến mức Domain Layer thuần túy (Entities/Use Cases). |
+| Hexagonal / Onion | ❌ | Không áp dụng – và cũng không cần thiết cho scope dự án Startup/DATN. |
+
+> **Nhận xét:** Layered Architecture (Kiến trúc phân tầng) là lựa chọn rất phù hợp. Nó đủ mạnh để đảm bảo Separation of Concerns mà không quá phức tạp như Clean Architecture hay Hexagonal. Đây là mức kiến trúc ứng dụng tối ưu cho quy mô DATN.
+
+### 5.5. Tầng 5 – System Architecture (⭐⭐⭐⭐ – 4/5)
+
+| Kiến trúc | Mức độ áp dụng | Ghi chú |
+| :--- | :--- | :--- |
+| **Monolithic** | ✅ (Chính) | 1 codebase duy nhất: Laravel 12 (BE) + ReactJS/Inertia (FE), deploy trên cùng 1 server. |
+| **Event-Driven** | ✅ (Bổ trợ) | Events/Listeners + Redis Queue xử lý bất đồng bộ các tác vụ nặng. |
+| Microservices | ❌ | Không áp dụng – đúng quyết định tránh over-engineering cho giai đoạn Startup. |
+| SOA | ❌ | Không áp dụng. |
+| **Serverless** | ⚠️ (Một phần) | Kiến trúc Direct Upload lên Cloudflare R2 (Client upload trực tiếp, Server chỉ cấp Presigned URL) mang hơi hướng tư duy Serverless – offload xử lý nặng sang hạ tầng Cloud. |
+
+> **Nhận xét:** Mô hình Hybrid **"Monolith + Event-Driven"** là sự kết hợp thực dụng. Monolith giữ cho hệ thống đơn giản, tiết kiệm chi phí. Event-Driven bổ sung khả năng xử lý bất đồng bộ và chống nghẽn. Kiến trúc Direct Upload R2 thể hiện thêm tư duy Serverless trong việc tối ưu băng thông server.
+
+### 5.6. Tầng 6 – Coding Standards (⭐⭐⭐ – 3/5 – Tầng cần cải thiện)
+
+| Chuẩn | Mức độ | Ghi chú |
+| :--- | :--- | :--- |
+| **PSR-12** | ⚠️ (Tự động) | Tuân thủ nhờ Laravel framework, nhưng chưa cấu hình công cụ kiểm tra tự động như PHP CS Fixer hoặc Laravel Pint. |
+| **PHPDoc** | ⚠️ (Không đồng đều) | Một số Service/Repository có docblock, một số chưa có. Chưa đạt mức coverage đồng đều. |
+| **Naming Convention** | ✅ | Đặt tên file, class, method theo chuẩn Laravel (PascalCase cho class, camelCase cho method, snake_case cho DB columns). |
+| **Git Convention** | ⚠️ | Có quy tắc không tự ý commit/push, nhưng chưa áp dụng quy ước commit message chuẩn (Conventional Commits: `feat:`, `fix:`, `refactor:`...). |
+
+> **Nhận xét:** Đây là tầng yếu nhất trong 6 tầng. Tuy nhiên, Coding Standards mang tính chất **cross-cutting concern** – nó không phải kỹ năng thiết kế cao siêu mà là quy tắc vệ sinh code cần duy trì xuyên suốt. Việc bổ sung PHPDoc đồng đều và Git Conventional Commits sẽ nâng cao tính chuyên nghiệp cho dự án.
+
+### 5.7. Bảng Tổng hợp Đánh giá 6 Cấp Độ
+
+| Cấp Độ | Tên | Đánh giá | Nhận xét ngắn |
+| :--- | :--- | :--- | :--- |
+| 1 | Programming Paradigm (OOP) | ⭐⭐⭐⭐⭐ | Rất vững, Polymorphism trong thanh toán là điểm sáng |
+| 2 | Design Principles (SOLID) | ⭐⭐⭐⭐ | Áp dụng tốt cả 5 nguyên tắc, thiếu Unit Test chứng minh |
+| 3 | Design Patterns | ⭐⭐⭐⭐⭐ | **Điểm mạnh nhất** – 8 patterns thực tế |
+| 4 | Application Architecture | ⭐⭐⭐⭐ | Layered Architecture chuẩn, phù hợp scope DATN |
+| 5 | System Architecture | ⭐⭐⭐⭐ | Hybrid Monolith + Event-Driven, thực dụng |
+| 6 | Coding Standards | ⭐⭐⭐ | Tầng cần cải thiện nhất (PHPDoc, Git Convention) |
+
+> **Kết luận cho Luận án:**
+> Hệ thống EduFlow thể hiện năng lực thiết kế phần mềm toàn diện qua 6 cấp độ, từ nền tảng lập trình hướng đối tượng (OOP) đến kiến trúc hệ thống (System Architecture). Điểm mạnh nổi bật là khả năng lựa chọn và áp dụng **8 Design Patterns** phù hợp với từng bài toán thực tế, kết hợp kiến trúc **Hybrid Monolith + Event-Driven** đảm bảo tính thực dụng cho giai đoạn Startup. Đây là minh chứng cho tư duy thiết kế phần mềm không chạy theo xu hướng mà tập trung vào việc chọn công cụ phù hợp nhất cho bài toán và nguồn lực hiện có.
