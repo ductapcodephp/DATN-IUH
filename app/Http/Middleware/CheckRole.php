@@ -17,8 +17,6 @@ class CheckRole
 
         $user = Auth::user();
         
-        // Cần kiểm tra xem current_role của user có nằm trong mảng roles cho phép không
-        // Nếu user->current_role là đối tượng enum thì lấy value
         $currentRole = $user->current_role instanceof UserRole 
             ? $user->current_role->value 
             : $user->current_role;
@@ -27,7 +25,6 @@ class CheckRole
             return $next($request);
         }
 
-        // Nếu không có quyền, redirect về trang mặc định của user bằng Strategy Pattern
         $strategy = LoginStrategyFactory::make($user->current_role);
         $redirectUrl = $strategy->handlePostLogin($user);
 

@@ -14,7 +14,6 @@ class SellerRepositoryServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Seller bindings
         $this->app->bind(CourseRepositoryInterface::class, CourseRepository::class);
         $this->app->bind(CouponRepositoryInterface::class, CouponRepository::class);
         $this->app->bind(StudentRepositoryInterface::class, StudentRepository::class);

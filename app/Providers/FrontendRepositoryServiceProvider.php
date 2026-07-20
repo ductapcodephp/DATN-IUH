@@ -20,7 +20,6 @@ class FrontendRepositoryServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Frontend bindings
         $this->app->bind(HomeRepositoryInterface::class, HomeRepository::class);
         $this->app->bind(CourseRepositoryInterface::class, CourseRepository::class);
         $this->app->bind(InstructorRepositoryInterface::class, InstructorRepository::class);

@@ -24,7 +24,7 @@ export default function CouponModal({ courseCoupons = [], instructorCoupons = []
         setSelectedCodes(prev => {
             let newCodes = [...prev];
             
-            // Xóa mã cũ CÙNG LOẠI thuộc phạm vi của Modal hiện tại
+
             if (actualType === 'course') {
                 const modalCourseCodes = courseCoupons.map(c => c.code);
                 newCodes = newCodes.filter(c => !modalCourseCodes.includes(c));
@@ -51,13 +51,12 @@ export default function CouponModal({ courseCoupons = [], instructorCoupons = []
     };
 
     const handleSubmit = () => {
-        // Bootstrap sẽ tự đóng modal thông qua thuộc tính data-bs-dismiss="modal" trên button
-        // Để tránh xung đột khi Inertia render quá nhanh, delay việc gọi API một chút
+
         setTimeout(() => {
             router.post(route('frontend.cart.apply-coupons'), { codes: selectedCodes }, {
                 preserveScroll: true,
                 onError: (errors) => {
-                    // Hiển thị lỗi nếu có
+
                 }
             });
         }, 150);
@@ -128,7 +127,7 @@ export default function CouponModal({ courseCoupons = [], instructorCoupons = []
                         <button type="button" className="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body px-4 pb-0">
-                        {/* Khu vực hiển thị mã đã chọn (từ Modal hiện tại) */}
+
                         {selectedCodes.filter(code => availableCoupons?.some(c => c.code === code)).length > 0 && (
                             <>
                                 <div className="mb-0 p-3 rounded" style={{ background: '#f8f9fa', border: '1px solid #e9ecef' }}>
@@ -188,7 +187,7 @@ export default function CouponModal({ courseCoupons = [], instructorCoupons = []
                             </div>
                         ) : availableCoupons?.length > 0 ? (
                             <div className="coupon-lists custom-scrollbar" style={{ overflowY: 'auto' }}>
-                                {/* Danh sách mã của Khóa học */}
+
                                 {courseCoupons.length > 0 && (
                                     <div className="mb-0">
                                         <h6 className="fw-bold mb-3 d-flex align-items-center coupon-section-title">
@@ -205,7 +204,7 @@ export default function CouponModal({ courseCoupons = [], instructorCoupons = []
                                     </div>
                                 )}
 
-                                {/* Dải phân cách kết hợp nếu có cả 2 loại */}
+
                                 {courseCoupons.length > 0 && instructorCoupons.length > 0 && (
                                     <div className="text-center position-relative my-4">
                                         <hr style={{ borderTop: '1px dashed #CBD5E1', opacity: 1 }} />
@@ -215,7 +214,7 @@ export default function CouponModal({ courseCoupons = [], instructorCoupons = []
                                     </div>
                                 )}
 
-                                {/* Danh sách mã Toàn khóa học của Giảng viên */}
+
                                 {instructorCoupons.length > 0 && (
                                     <div className="mb-2">
                                         <h6 className="fw-bold mb-3 d-flex align-items-center coupon-section-title">
@@ -232,7 +231,7 @@ export default function CouponModal({ courseCoupons = [], instructorCoupons = []
                                     </div>
                                 )}
 
-                                {/* Danh sách mã Toàn sàn */}
+
                                 {platformCoupons.length > 0 && (
                                     <div className="mb-2 mt-4">
                                         <h6 className="fw-bold mb-3 d-flex align-items-center coupon-section-title" style={{ color: '#DC2626' }}>

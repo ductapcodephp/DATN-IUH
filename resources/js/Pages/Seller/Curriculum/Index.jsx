@@ -23,7 +23,6 @@ export default function Curriculum({ course, chapters: initialChapters }) {
         setChapters(initialChapters || []);
     }, [initialChapters]);
 
-    // Bọc tất cả các hàm bằng useCallback để tránh re-render vô tội vạ
     const toggleChapter = useCallback((chapterId) => {
         setExpandedChapters(prev =>
             prev.includes(chapterId) ? prev.filter(id => id !== chapterId) : [...prev, chapterId]
@@ -56,7 +55,7 @@ export default function Curriculum({ course, chapters: initialChapters }) {
 
     const submitLesson = (e) => {
         e.preventDefault();
-        // Added 'chapters.' to the route name
+
         lessonForm.post(route('seller.courses.curriculum.chapters.lessons.store', [course.id, activeChapterId]), {
             preserveScroll: true,
             onSuccess: () => {
@@ -198,14 +197,14 @@ export default function Curriculum({ course, chapters: initialChapters }) {
                 </div>
             </div>
 
-            {/* MODAL THÊM CHƯƠNG ĐÃ ĐƯỢC TÁCH RA FILE RIÊNG ĐỂ KHÔNG BỊ GIẬT LAG */}
+
             <AddChapterModal
                 show={showChapterModal}
                 onClose={() => setShowChapterModal(false)}
                 courseId={course.id}
             />
 
-            {/* MODAL THÊM BÀI HỌC (Giữ nguyên cấu trúc phục vụ việc render nhanh) */}
+
             {showLessonModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', animation: 'fadeIn 0.2s' }}>
                     <div style={{ background: '#fff', padding: '32px', borderRadius: '16px', width: '420px', maxWidth: '90%', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', transform: 'translateY(0)', animation: 'fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>

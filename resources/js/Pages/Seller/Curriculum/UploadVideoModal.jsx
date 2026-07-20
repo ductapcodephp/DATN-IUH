@@ -4,14 +4,11 @@ import axios from 'axios';
 import { router } from '@inertiajs/react';
 import Swal from 'sweetalert2';
 export default function UploadVideoModal({ show, onClose, lesson, course }) {
-    // --- 1. KHAI BÁO CÁC STATE (Trạng thái của Component) ---
-    const [videoFile, setVideoFile] = useState(null); // Lưu trữ file video đang được chọn
-    const [progress, setProgress] = useState(0);      // Tiến độ upload (từ 0 đến 100)
-    const [processing, setProcessing] = useState(false); // Trạng thái đang xử lý (để disable nút bấm)
-    const [error, setError] = useState('');           // Lưu tin nhắn lỗi nếu có
+    const [videoFile, setVideoFile] = useState(null);
+    const [progress, setProgress] = useState(0);
+    const [processing, setProcessing] = useState(false);
+    const [error, setError] = useState('');
 
-    // Sử dụng useRef để lưu trữ bộ điều khiển hủy Request (AbortController).
-    // useRef giúp giữ lại giá trị này qua các lần render mà không làm component bị re-render lại.
     const abortControllerRef = useRef(null);
 
     // --- 2. CÁC HÀM XỬ LÝ SỰ KIỆN (Event Handlers) ---
@@ -22,20 +19,18 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
     const handleFileChange = (e) => {
         const file = e.target.files[0]; // Lấy file đầu tiên người dùng chọn
         if (file) {
-            // Giới hạn dung lượng tối đa 1GB (1024 * 1024 * 1024 bytes)
+
             if (file.size > 1024 * 1024 * 1024) {
                 setError('File vượt quá giới hạn cho phép (Tối đa 1GB).');
-                setVideoFile(null); // Reset lại file về null nếu vượt quá dung lượng
+                setVideoFile(null);
                 return;
             }
-            setError(''); // Xóa thông báo lỗi cũ nếu file hợp lệ
-            setVideoFile(file); // Lưu file vào state
+            setError('');
+            setVideoFile(file);
         }
     };
 
-    /**
-     * Hàm chính thực hiện quá trình Upload Video
-     */
+
     const handleUpload = async (e) => {
         e.preventDefault();
         if (!videoFile) return;
@@ -112,23 +107,18 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
         }
     };
 
-    /**
-     * Hàm đóng modal (khi bấm nút X, nút "Hủy" hoặc click ra ngoài modal)
-     */
     const handleClose = () => {
-        // Nếu đang trong quá trình upload mà đóng modal -> Tiến hành hủy request upload ngay lập tức
         if (processing && abortControllerRef.current) {
-            abortControllerRef.current.abort(); // Lệnh hủy request của AbortController
+            abortControllerRef.current.abort();
         }
-        // Trả các state về mặc định ban đầu
         setVideoFile(null);
         setProgress(0);
         setError('');
         setProcessing(false);
-        onClose(); // Gọi hàm onClose từ component cha để ẩn modal đi
+        onClose();
     };
 
-    // --- 3. PHẦN GIAO DIỆN (JSX) ---
+
     return (
         <Modal show={show} onClose={handleClose} maxWidth="md">
             <form onSubmit={handleUpload} style={{ padding: '24px' }}>
@@ -152,7 +142,7 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
                     )}
                 </div>
 
-                {/* Thanh tiến trình upload (chỉ hiển thị khi phần trăm progress lớn hơn 0) */}
+
                 {progress > 0 && (
                     <div style={{ width: '100%', backgroundColor: '#e5e7eb', borderRadius: '9999px', height: '10px', marginTop: '16px', overflow: 'hidden' }}>
                         <div
@@ -164,7 +154,7 @@ export default function UploadVideoModal({ show, onClose, lesson, course }) {
                     </div>
                 )}
 
-                {/* Khu vực nút bấm dưới chân Modal */}
+
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
                     <button
                         type="button"

@@ -31,7 +31,6 @@ class AuthService
                     ->value('id');
             }
 
-            // Gán role ban đầu từ request, mặc định là USER nếu không gửi
             $initialRole = $data['role'] ?? UserRole::USER->value;
 
             return User::query()->create([
@@ -39,7 +38,7 @@ class AuthService
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
                 'phone' => $data['phone'] ?? null,
-                'roles' => [$initialRole], // 🔥 Chuẩn cấu trúc mảng JSON mới
+                'roles' => [$initialRole],
                 'current_role' => $initialRole,
                 'referred_by' => $referrerId,
                 'is_active' => true,
@@ -54,29 +53,24 @@ class AuthService
     {
         $user = User::query()->where('email', $credentials['email'])->first();
 
-        // 1. Kiểm tra tài khoản tồn tại và mật khẩu
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             $this->recordLoginAttempt($credentials['email'], $context, false, 'invalid_credentials');
             throw new Exception('Thông tin đăng nhập không chính xác.');
         }
 
-        // 2. Kiểm tra trạng thái tài khoản
         if (!$user->is_active) {
             $this->recordLoginAttempt($credentials['email'], $context, false, 'account_disabled');
             throw new Exception('Tài khoản của bạn đã bị khóa.');
         }
 
-        // 3. Thực hiện đăng nhập Auth Guard
         Auth::login($user, $remember);
 
-        // 4. Ghi log thành công và cập nhật Last Login
         $this->recordLoginAttempt($credentials['email'], $context, true, null);
         $user->update([
             'last_login_at' => now(),
             'last_login_ip' => $context['ip'],
         ]);
 
-        // 5. Sử dụng Strategy Pattern để quyết định hướng Redirect
         $strategy = LoginStrategyFactory::make($user->current_role);
 
         return $strategy->handlePostLogin($user);

@@ -84,7 +84,6 @@ class Coupon extends Model
         'expires_at' => 'datetime',
     ];
 
-    // ===== RELATIONSHIPS =====
 
     public function seller(): BelongsTo
     {
@@ -101,7 +100,6 @@ class Coupon extends Model
         return $this->hasMany(CouponUsage::class);
     }
 
-    // ===== SCOPES =====
 
     public function scopeActive($query)
     {
@@ -147,7 +145,6 @@ class Coupon extends Model
         });
     }
 
-    // ===== HELPERS =====
 
     public function isValid(): bool
     {
@@ -188,7 +185,6 @@ class Coupon extends Model
             $discount = $this->value;
         }
 
-        // Cap discount at max_discount_amount
         if ($this->max_discount_amount) {
             $discount = min($discount, $this->max_discount_amount);
         }

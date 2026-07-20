@@ -13,12 +13,10 @@ class GenerateFirstSession
     public function handle(UserRegistered $event): void
     {
         $user = $event->user;
-        // Lấy thông tin từ mảng dữ liệu request bổ sung được truyền qua Event
         $ip = $event->requestData['ip'];
         $ua = $event->requestData['user_agent'];
         $country = $event->requestData['country'];
 
-        // 1. Ghi log Nhật ký Đăng ký/Đăng nhập đầu tiên
         LoginAttempt::create([
             'email' => $user->email,
             'ip_address' => $ip,
@@ -28,7 +26,6 @@ class GenerateFirstSession
             'country' => $country,
         ]);
 
-        // 2. Cấp phát Refresh Token cho thiết bị
         $plainToken = Str::random(60);
         $deviceId = md5($ua);
 
@@ -44,7 +41,6 @@ class GenerateFirstSession
         ]);
         Redis::del("user_session:" . $user->id);
 
-        // 3. Đưa vào HttpOnly Cookie
         Cookie::queue('refresh_token', $plainToken, 43200, null, null, true, true, false, 'Lax');
     }
 }

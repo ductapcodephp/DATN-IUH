@@ -105,14 +105,11 @@ class Category extends Model
         'is_active' => 'boolean',
     ];
 
-    // ===== RELATIONSHIPS =====
 
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class);
     }
-
-    // ===== SCOPES =====
 
     public function scopeActive($query)
     {
@@ -121,17 +118,14 @@ class Category extends Model
 
     public function scopeParent($query)
     {
-        // Thay vì dùng ->whereNull('parent_id'), thư viện cung cấp sẵn scope chuẩn chỉ này:
-        return $query->whereIsRoot(); 
+        return $query->whereIsRoot();
     }
 
     public function scopeOrdered($query)
     {
-        // Thuật toán cây sắp xếp thứ tự dựa vào cột `_lft`, dùng hàm mặc định này của thư viện luôn
-        return $query->defaultOrder(); 
+        return $query->defaultOrder();
     }
 
-    // ===== HELPERS =====
 
     protected static function boot()
     {
@@ -152,8 +146,6 @@ class Category extends Model
 
     public function getChildrenRecursive()
     {
-        // Thay vì dùng hàm cũ chạy tốn RAM và dính lỗi N+1: $this->children()->with('children')->get();
-        // Hàm này của NestedSet quét 1 phát ăn ngay toàn bộ con cháu chắt chút chít của nó
         return $this->descendants()->get()->toTree();
     }
 }

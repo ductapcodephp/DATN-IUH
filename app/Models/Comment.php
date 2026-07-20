@@ -91,7 +91,7 @@ class Comment extends Model
 
     protected $fillable = [
         'user_id',
-        'lesson_id',// Vẫn giữ để định vị quan hệ
+        'lesson_id',
         'content',
         'is_hidden',
     ];
@@ -100,7 +100,6 @@ class Comment extends Model
         'is_hidden' => 'boolean',
     ];
 
-    // ===== RELATIONSHIPS =====
 
     public function user(): BelongsTo
     {
@@ -111,8 +110,6 @@ class Comment extends Model
     {
         return $this->belongsTo(Lesson::class);
     }
-
-    // ===== SCOPES =====
 
     public function scopeVisible($query)
     {
@@ -126,7 +123,6 @@ class Comment extends Model
 
     public function scopeTopLevel($query)
     {
-        // Thay vì whereNull('parent_id'), dùng hàm chuẩn của thư viện để lấy các bình luận gốc
         return $query->whereIsRoot();
     }
 
@@ -140,17 +136,14 @@ class Comment extends Model
         return $query->where('lesson_id', $lessonId);
     }
 
-    // ===== HELPERS =====
 
     public function isReply(): bool
     {
-        // Nếu không phải là gốc (Root) thì chắc chắn nó là bình luận phản hồi
         return !$this->isRoot();
     }
 
     public function countReplies(): int
     {
-        // Đếm số câu trả lời trực tiếp cấp dưới của bình luận này
         return $this->children()->count();
     }
     

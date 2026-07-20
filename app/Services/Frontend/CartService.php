@@ -90,7 +90,6 @@ class CartService
             }
             
             if ($coupon->course_id) {
-                // Course-specific coupon
                 $cartItem = $cartItems->firstWhere('course_id', $coupon->course_id);
                 if (!$cartItem) {
                     throw new Exception("Mã {$coupon->code} không áp dụng cho các khóa học trong giỏ hàng.");
@@ -102,7 +101,6 @@ class CartService
                 $discountAmount += $discount;
                 $validCoupons[] = $coupon;
             } elseif ($coupon->seller_id) {
-                // Instructor-wide coupon
                 $sellerItemsTotal = $cartItems->filter(function($item) use ($coupon) {
                     return $item->course && $item->course->seller_id === $coupon->seller_id;
                 })->sum('price');
@@ -117,7 +115,6 @@ class CartService
                 $discountAmount += $discount;
                 $validCoupons[] = $coupon;
             } else {
-                // Platform-wide coupon (Voucher toàn sàn - seller_id = null)
                 $discount = $coupon->calculateDiscount($totalAmount);
                 $discount = min($discount, $totalAmount);
                 

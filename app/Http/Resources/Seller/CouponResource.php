@@ -24,11 +24,9 @@ class CouponResource extends JsonResource
             'course_id' => $this->course_id,
             'is_active' => (bool) $this->is_active,
             
-            // Giữ nguyên định dạng gốc để JS dễ đẩy vào <input type="datetime-local">
             'starts_at' => $this->starts_at,
             'expires_at' => $this->expires_at,
 
-            // Định dạng hiển thị đẹp cho Table
             'starts_at_formatted' => $this->starts_at ? $this->starts_at->format('d/m/Y H:i') : 'Không giới hạn',
             'expires_at_formatted' => $this->expires_at ? $this->expires_at->format('d/m/Y H:i') : 'Không giới hạn',
         ];

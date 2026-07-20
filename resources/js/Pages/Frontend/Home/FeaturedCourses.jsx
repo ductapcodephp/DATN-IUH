@@ -4,8 +4,7 @@ import { Link, router, usePage } from "@inertiajs/react";
 export default function FeaturedCourses({ courses = [], enrolledCourseIds = [] }) {
     const { auth } = usePage().props;
     const wishlistedIds = auth?.wishlisted_course_ids || [];
-    
-    // Hàm tiện ích format tiền tệ
+
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     };

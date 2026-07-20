@@ -24,7 +24,6 @@ class QuizService
         DB::transaction(function () use ($lesson, $dto) {
             $quiz = $this->quizRepository->getFirstByLesson($lesson);
 
-            // Nếu bài học chưa có Quiz nào, tự động khởi tạo 1 Quiz mới
             if (!$quiz) {
                 $quiz = $this->quizRepository->createQuiz([
                     'lesson_id'       => $lesson->id,
@@ -67,7 +66,6 @@ class QuizService
                 'type'     => $dto->type,
             ]);
 
-            // Xóa hết đáp án cũ và tạo lại
             $question->answers()->delete();
 
             foreach ($dto->answers as $index => $answerDto) {

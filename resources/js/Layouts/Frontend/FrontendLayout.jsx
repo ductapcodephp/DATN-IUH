@@ -10,7 +10,6 @@ export default function FrontendLayout({ children }) {
     const { flash } = usePage().props;
     const [flashToast, setFlashToast] = useState({ show: false, type: 'success', title: '' });
 
-    // Global flash messages observer
     useEffect(() => {
         if (flash?.success || flash?.error) {
             setFlashToast({

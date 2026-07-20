@@ -5,7 +5,7 @@ import { Link, useForm, router, usePage } from "@inertiajs/react";
 export default function Index({ courses, categories, filters, enrolledCourseIds }) {
         
     const { auth } = usePage().props;
-    // Pagination data
+
     const { data: courseList, links, current_page, last_page, total } = courses;
 console.log(courseList);
     const { data, setData, get } = useForm({
@@ -32,7 +32,7 @@ console.log(courseList);
         }
     };
 
-    // Auto submit form when filters change (except search input text)
+
     useEffect(() => {
         let isMounted = true;
         const timer = setTimeout(() => {
@@ -43,7 +43,7 @@ console.log(courseList);
                     replace: true
                 });
             }
-        }, 300); // debounce
+        }, 300);
         return () => {
             isMounted = false;
             clearTimeout(timer);
@@ -74,7 +74,7 @@ console.log(courseList);
                     
                     <div className="row g-4">
                         
-                        {/* Sidebar Filters */}
+
                         <div className="col-lg-3">
                             <div className="filter-sidebar">
                                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -150,7 +150,7 @@ console.log(courseList);
                             </div>
                         </div>
 
-                        {/* Main Content */}
+
                         <div className="col-lg-9">
                             <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                                 <div className="text-muted font-sm">
@@ -243,7 +243,7 @@ console.log(courseList);
                                 )}
                             </div>
 
-                            {/* Pagination */}
+
                             {last_page > 1 && (
                                 <div className="d-flex justify-content-center mt-5">
                                     <nav aria-label="Page navigation">

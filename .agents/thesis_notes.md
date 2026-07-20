@@ -295,3 +295,21 @@ EduFlow áp dụng **8 Design Patterns** thực tế trong source code:
 
 > **Kết luận cho Luận án:**
 > Hệ thống EduFlow thể hiện năng lực thiết kế phần mềm toàn diện qua 6 cấp độ, từ nền tảng lập trình hướng đối tượng (OOP) đến kiến trúc hệ thống (System Architecture). Điểm mạnh nổi bật là khả năng lựa chọn và áp dụng **8 Design Patterns** phù hợp với từng bài toán thực tế, kết hợp kiến trúc **Hybrid Monolith + Event-Driven** đảm bảo tính thực dụng cho giai đoạn Startup. Đây là minh chứng cho tư duy thiết kế phần mềm không chạy theo xu hướng mà tập trung vào việc chọn công cụ phù hợp nhất cho bài toán và nguồn lực hiện có.
+
+---
+
+## 6. KIẾN TRÚC PIPELINE TRONG BÀI TOÁN THANH TOÁN (PIPELINE PATTERN)
+
+Trong hệ thống EduFlow, quy trình thanh toán (Checkout) và xử lý callback (IPN) chứa rất nhiều nghiệp vụ phức tạp phải thực hiện đồng thời trong một Database Transaction (Validate giỏ hàng, Kiểm tra khóa học đã sở hữu, Áp dụng mã giảm giá, Tính tổng tiền, Tạo đơn hàng, Tính hoa hồng...).
+
+- **Vấn đề ban đầu (God Method / Anti-pattern):** Việc nhồi nhét tất cả logic này vào một phương thức `processCheckout()` duy nhất dẫn đến việc class bị phình to (hơn 150 dòng code), vi phạm nguyên tắc Single Responsibility (SRP), cực kỳ khó đọc, khó bảo trì và không thể Unit Test từng phần.
+- **Giải pháp Kiến trúc (Pipeline Pattern):** Áp dụng mẫu thiết kế Pipeline (được hỗ trợ sẵn bởi `Illuminate\Pipeline\Pipeline` của Laravel).
+  - Biến toàn bộ dữ liệu đầu vào thành một DTO (ví dụ `CheckoutData`).
+  - Tách mỗi bước xử lý nghiệp vụ thành một class độc lập (Pipe) với duy nhất một phương thức `handle()`. Ví dụ: `ValidateCart`, `ApplyCoupons`, `CalculateTotal`, `CreateOrders`.
+  - Kết nối chúng lại thành một luồng (pipeline) liền mạch.
+
+**Lợi ích đem lại (Bảo vệ luận án):**
+1. **Tuân thủ tuyệt đối SRP (Single Responsibility Principle):** Mỗi Pipe chỉ làm đúng 1 việc. Class `PaymentService` giờ đây cực kỳ gọn nhẹ (chỉ khoảng 20 dòng orchestration), chỉ làm nhiệm vụ điều phối luồng chảy dữ liệu.
+2. **Khả năng mở rộng (Extensibility - OCP):** Dễ dàng thêm, bớt hoặc thay đổi thứ tự các bước xử lý chỉ bằng cách thêm/xóa tên class trong mảng `through([])` mà không lo chạm hỏng các logic đang chạy ổn định.
+3. **Đảm bảo tính vẹn toàn dữ liệu (Data Integrity):** Toàn bộ pipeline vẫn chạy trong cùng một vòng đời DB Transaction. Nếu bất kỳ Pipe nào throw Exception, toàn bộ quá trình sẽ được Rollback.
+4. **Tăng cường khả năng kiểm thử (Testability):** Có thể viết Unit Test cho từng Pipe độc lập với mock data (DTO) riêng rẽ, thay vì phải setup môi trường khổng lồ để test toàn bộ God Method.

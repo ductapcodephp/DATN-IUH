@@ -185,5 +185,10 @@ Hệ thống sử dụng các biến CSS (`:root`) thống nhất tại `resourc
 * **Vị trí**: Thư mục `database/factories/`.
 * **Chi tiết**: Dùng để sinh nhanh hàng loạt dữ liệu mẫu (mock data) phục vụ cho seeding cơ sở dữ liệu và viết Test case.
 
+### 5.9. Pipeline Pattern (Mẫu đường ống)
+* **Vị trí**: Thư mục `app/Services/Payment/Pipes/` và class `PaymentService`.
+* **Chi tiết**: Chia nhỏ một quy trình xử lý phức tạp (như thanh toán) thành nhiều bước (Pipes) độc lập nối tiếp nhau. Dữ liệu (DTO) sẽ chảy qua từng Pipe. Giúp code tuân thủ Single Responsibility, dễ dàng thêm/bớt các bước xử lý (ví dụ: áp dụng coupon, tạo đơn, tính tiền) mà không làm phình to một God Method, đồng thời vẫn giữ được tính toàn vẹn của một Database Transaction.
+
+
 > [!NOTE]
 > **Lưu ý Đặc biệt từ Sếp:** Cái nào hay, được sếp kêu note lại thì bắt buộc phải ghi (append) vào file `C:\VsCode\DATN\backend-api\.agents\thesis_notes.md` để sếp làm luận án tốt nghiệp. **TUYỆT ĐỐI KHÔNG ĐƯỢC XÓA** nội dung cũ trong file đó, chỉ được thêm nội dung mới vào cuối.

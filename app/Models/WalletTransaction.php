@@ -85,22 +85,16 @@ class WalletTransaction extends Model
         'metadata' => 'json',
     ];
 
-    // =========================================================================
-    // BOOT METHOD (Tự động hóa hành vi an toàn hệ thống)
-    // =========================================================================
     protected static function boot()
     {
         parent::boot();
 
-        // 1. Tự động sinh chuỗi UUID ngẫu nhiên không thể đoán trước khi tạo giao dịch
         static::creating(function (self $transaction) {
             if (empty($transaction->uuid)) {
                 $transaction->uuid = (string) Str::uuid();
             }
         });
 
-        // 2. CƠ CHẾ KHÓA DỮ LIỆU TỐI CAO (Immutable Giao dịch)
-        // Nếu giao dịch đã hoàn thành hoặc thất bại, chặn đứng mọi hành vi update thủ công sau đó.
         static::updating(function (self $transaction) {
             $originalStatus = $transaction->getOriginal('status');
 
@@ -109,15 +103,11 @@ class WalletTransaction extends Model
             }
         });
 
-        // 3. Chặn đứng hành vi xóa lịch sử tài chính (Kể cả xóa nhầm)
         static::deleting(function (self $transaction) {
             throw new \Exception('Security Exception: Tuyệt đối không được xóa lịch sử giao dịch tài chính!');
         });
     }
 
-    // =========================================================================
-    // RELATIONSHIPS
-    // =========================================================================
     public function wallet(): BelongsTo
     {
         return $this->belongsTo(Wallet::class);
@@ -128,9 +118,6 @@ class WalletTransaction extends Model
         return $this->belongsTo(User::class);
     }
 
-    // =========================================================================
-    // SCOPES (Đã được viết lại ngắn gọn bằng Constants)
-    // =========================================================================
     public function scopeByType($query, string $type)
     {
         return $query->where('type', $type);
@@ -166,16 +153,12 @@ class WalletTransaction extends Model
         return $query->where('type', self::TYPE_REFUND);
     }
 
-    // =========================================================================
-    // ENTERPRISE HELPERS (Các hàm tiện ích định dạng dữ liệu)
-    // =========================================================================
 
     /**
      * Trả về số tiền được format đẹp theo đơn vị tiền tệ (Ví dụ: 500,000đ hoặc $500.00)
      */
     public function getFormattedAmount(): string
     {
-        // number_format($số, $số_thập_phân, $dấu_ngăn_cách_thập_phân, $dấu_ngăn_cách_hàng_nghìn)
         return number_format((float) $this->amount, 0, ',', '.') . ' đ';
     }
     /**

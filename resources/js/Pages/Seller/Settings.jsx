@@ -8,7 +8,7 @@ export default function Settings() {
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
 
-    // Mock data
+
     const sellerInfo = {
         name: 'Trần Văn Demo',
         email: 'seller@example.com',
@@ -25,7 +25,7 @@ export default function Settings() {
     const handleSave = () => {
         setIsSaving(true);
         setIsSaved(false);
-        // Simulate API call
+
         setTimeout(() => {
             setIsSaving(false);
             setIsSaved(true);
@@ -38,7 +38,7 @@ export default function Settings() {
             <Head title="Seller Settings" />
             
             <div className="settings-container">
-                {/* Breadcrumb & Header */}
+
                 <div className="settings-header">
                     <div className="breadcrumb">
                         <Link href="/seller/dashboard">Dashboard</Link>

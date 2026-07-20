@@ -7,7 +7,6 @@ use Exception;
 class PaymentGatewayFactory
 {
     /**
-     * Create a new payment gateway instance based on the given gateway name.
      *
      * @param string $gateway
      * @return PaymentGatewayInterface

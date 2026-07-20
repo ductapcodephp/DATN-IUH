@@ -117,25 +117,19 @@ class LearningService
         $currentTimestamp = now()->timestamp;
         
         if ($lastUpdatedAt !== null) {
-            // Đã có lịch sử xem
             if ($newWatched > $oldWatched) {
                 $videoTimeJump = $newWatched - $oldWatched; 
                 
-                // MỖI LẦN PING (10s/lần), TIẾN ĐỘ KHÔNG ĐƯỢC NHẢY VỌT QUÁ 25 GIÂY (20s tua hợp lệ + 5s lag)
-                // Cho dù hacker có treo máy chờ 5 phút rồi gửi lên, vẫn bị chặn!
                 $maxJumpAllowed = 25; 
                 
-                // Phát hiện gian lận
                 if ($videoTimeJump > $maxJumpAllowed) {
                     $newWatched = $oldWatched; 
                 }
             }
         } else {
-            // Lần đầu tiên gửi tiến độ (chưa có trong Redis)
-            // Cấp phép cho lần đầu tua tối đa 20s + 5s lag = 25s
             $maxFirstPingAllowed = 25; 
             if ($newWatched > $maxFirstPingAllowed) {
-                $newWatched = 0; // Trả về 0 nếu gian lận ngay lần đầu
+                $newWatched = 0;
             }
         }
 

@@ -20,8 +20,6 @@ class CheckDeviceSession
 
         $plainToken = Cookie::get('refresh_token');
         if (!$plainToken) {
-            // Lần đầu đăng nhập hoặc browser chưa gửi lại cookie refresh_token thì không nên đá session ngay.
-            // Hệ thống vẫn giữ session Auth chuẩn của Laravel và sẽ tạo/cập nhật token ở request sau.
             return $next($request);
         }
 
@@ -30,14 +28,12 @@ class CheckDeviceSession
 
         $redisKey = "user_session:" . Auth::id();
 
-        // 1. Thử lấy data từ Redis trước
         $sessionData = Redis::get($redisKey);
         $isCacheMiss = false;
 
         if ($sessionData) {
             $session = json_decode($sessionData, true);
         } else {
-            // 2. Nếu hụt cache, vào MySQL tìm token ĐANG HỢP LỆ của thiết bị này
             $tokenRecord = RefreshToken::query()
                 ->where('user_id', Auth::id())
                 ->where('device_id', $deviceId)
@@ -45,7 +41,6 @@ class CheckDeviceSession
                 ->first();
 
             if (!$tokenRecord) {
-                // Nếu chưa có record token khớp cho request này, bỏ qua kiểm tra để tránh false positive ở lần đăng nhập đầu tiên.
                 return $next($request);
             }
 
@@ -55,8 +50,8 @@ class CheckDeviceSession
 
             $session = [
                 'id' => $tokenRecord->id,
-                'device_id' => $tokenRecord->device_id, // 🔥 Lưu thêm device_id vào để check
-                'token' => $tokenRecord->token,         // 🔥 Lưu thêm token_hash vào để check
+                'device_id' => $tokenRecord->device_id,
+                'token' => $tokenRecord->token,
                 'is_revoked' => $tokenRecord->is_revoked,
                 'expires_at' => $tokenRecord->expires_at->toDateTimeString(),
                 'last_used_at' => $tokenRecord->last_used_at ? $tokenRecord->last_used_at->toDateTimeString() : null,
@@ -66,20 +61,15 @@ class CheckDeviceSession
             $isCacheMiss = true;
         }
 
-        // 🔥 3. KIỂM TRA ĐỘC QUYỀN THIẾT BỊ:
-        // Nếu cookie tồn tại nhưng token/thiết bị không khớp thì đá session ngay.
         if ($session['device_id'] !== $deviceId || $session['token'] !== $tokenHash) {
-            // Không xóa Redis ở đây vì đây là request của máy cũ (lậu), xóa đi sẽ làm máy mới bị ảnh hưởng.
             return $this->forceLogout($request);
         }
 
-        // 4. Kiểm tra tính hợp lệ về thời gian / thu hồi
         if ($session['is_revoked'] || Carbon::parse($session['expires_at'])->isPast()) {
             Redis::del($redisKey);
             return $this->forceLogout($request);
         }
 
-        // 5. Cập nhật thời gian hoạt động và Sync DB sau 10 phút
         $now = now();
         $session['last_used_at'] = $now->toDateTimeString();
 
@@ -93,7 +83,6 @@ class CheckDeviceSession
             }
         }
 
-        // Ghi nhận lại data mới vào Redis
         Redis::setex($redisKey, 86400, json_encode($session));
 
         return $next($request);

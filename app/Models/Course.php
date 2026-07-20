@@ -1,7 +1,5 @@
 <?php
 
-// === FILE: app/Models/Course.php ===
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -109,10 +107,9 @@ class Course extends Model
         'outcomes' => 'array',
         'is_free' => 'boolean',
         'is_vip' => 'boolean',
-        'total_revenue' => 'decimal:2', // <-- Ép kiểu thành số thập phân khi lấy ra
+        'total_revenue' => 'decimal:2',
     ];
 
-    // ===== RELATIONSHIPS =====
 
    /**
      * Khóa học thuộc về một Người bán (Seller)
@@ -185,7 +182,6 @@ class Course extends Model
         return $this->hasMany(Wishlist::class);
     }
 
-    // ===== SCOPES =====
 
     public function scopePublished($query)
     {
@@ -217,7 +213,6 @@ class Course extends Model
         return $query->where('is_free', false);
     }
 
-    // Sửa 1 nơi, cả hệ thống tự động chạy theo logic mới!
     public function scopeVip($query)
     {
         return $query->where('is_vip', true)
@@ -248,7 +243,6 @@ class Course extends Model
             ->orWhere('description', 'LIKE', "%{$keyword}%");
     }
 
-    // ===== HELPERS =====
 
     protected static function boot()
     {

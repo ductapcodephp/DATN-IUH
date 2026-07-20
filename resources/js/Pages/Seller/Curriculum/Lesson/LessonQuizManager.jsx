@@ -128,7 +128,7 @@ export default function LessonQuizManager({ course, lesson }) {
             className={`dnd-item ${snapshotQuestion.isDragging ? 'is-dragging' : ''}`}
             style={{ padding: '16px', gap: '12px', position: 'relative', alignItems: 'stretch', ...providedQuestion.draggableProps.style }}
         >
-            {/* Thanh nắm kéo */}
+
             <div
                 {...providedQuestion.dragHandleProps}
                 className="dnd-handle"
@@ -148,7 +148,6 @@ export default function LessonQuizManager({ course, lesson }) {
 
             <div style={{ flex: 1 }}>
                 {editingId === q.id ? (
-                    /* FORM SỬA CÂU HỎI TRONG LIST */
                     <form onSubmit={(e) => submitEditQuestion(e, q.id)} className="quiz-box" style={{ margin: 0 }}>
                         <div className="form-group">
                             <label className="form-label">Nội dung câu hỏi:</label>
@@ -212,7 +211,6 @@ export default function LessonQuizManager({ course, lesson }) {
                         </div>
                     </form>
                 ) : (
-                    /* CHẾ ĐỘ XEM NỘI DUNG CÂU HỎI CHƯA SỬA */
                     <>
                         <div style={{ position: 'absolute', top: '14px', right: '16px', display: 'flex', gap: '14px' }}>
                             <button onClick={() => startEditQuestion(q)} className="action-btn text-orange" title="Sửa câu hỏi">
@@ -276,7 +274,6 @@ export default function LessonQuizManager({ course, lesson }) {
                 )}
             </div>
 
-            {/* FORM THÊM MỚI CÂU HỎI */}
             {showQuizForm && (
                 <form onSubmit={handleAddQuestion} className="quiz-box" style={{ marginBottom: '20px' }}>
                     <div className="form-group">

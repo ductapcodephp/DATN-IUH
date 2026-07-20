@@ -41,17 +41,13 @@ class AuthController extends Controller
         $context = $this->extractRequestContext($request);
 
         try {
-            // 1. Gọi Service tạo User
             $user = $this->authService->register($request->validated());
 
-            // 2. Đăng nhập ngay sau khi đăng ký
             Auth::login($user);
             $request->session()->regenerate();
 
-            // 3. Kích hoạt Event (Tạo ví, sinh token, log ngầm)
             UserRegistered::dispatch($user, $context);
 
-            // 4. Lấy route redirect qua Strategy
             $redirectUrl = $this->authService->login(
                 ['email' => $user->email, 'password' => $request->input('password')],
                 $context
@@ -73,7 +69,6 @@ class AuthController extends Controller
         $context = $this->extractRequestContext($request);
 
         try {
-            // Gọi Service thực thi Login & lấy đường dẫn theo Role Strategy
             $redirectUrl = $this->authService->login(
                 $request->only('email', 'password'),
                 $context,
@@ -82,7 +77,6 @@ class AuthController extends Controller
 
             $request->session()->regenerate();
 
-            // Kích hoạt Event
             /** @var User $user */
             $user = Auth::user();
             UserLoggedIn::dispatch($user, $context);

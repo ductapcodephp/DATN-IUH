@@ -60,7 +60,6 @@ class CourseProgress extends Model
         'last_watched_at' => 'datetime',
     ];
 
-    // ===== RELATIONSHIPS =====
 
     public function user(): BelongsTo
     {
@@ -77,7 +76,6 @@ class CourseProgress extends Model
         return $this->belongsTo(Lesson::class);
     }
 
-    // ===== SCOPES =====
 
     public function scopeCompleted($query)
     {
@@ -99,7 +97,6 @@ class CourseProgress extends Model
         return $query->where('course_id', $courseId);
     }
 
-    // ===== HELPERS =====
 
     public function getProgressPercentage(): float
     {
@@ -114,7 +111,6 @@ class CourseProgress extends Model
         $this->watched_seconds = max($this->watched_seconds, $watchedSeconds);
         $this->skipped_seconds = max($this->skipped_seconds ?? 0, $skippedSeconds);
         
-        // Mark as completed if watched >= 70% of duration
         if ($this->duration_seconds > 0 && $this->getProgressPercentage() >= 70) {
             $this->is_completed = true;
         }

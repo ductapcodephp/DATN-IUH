@@ -53,11 +53,9 @@ class StripeGateway implements PaymentGatewayInterface
 
     public function handleCallback(Request $request): array
     {
-        // 1. Nếu là luồng IPN (Webhook do Stripe gọi ngầm về qua phương thức POST)
         if ($request->isMethod('post') && $request->has('type')) {
             $payload = $request->all();
             
-            // Xử lý sự kiện thanh toán thành công
             if ($payload['type'] === 'checkout.session.completed') {
                 $session = $payload['data']['object'];
                 
@@ -69,7 +67,6 @@ class StripeGateway implements PaymentGatewayInterface
                 ];
             }
             
-            // Các sự kiện khác coi như failed
             return [
                 'status' => 'failed',
                 'transaction_code' => $payload['data']['object']['client_reference_id'] ?? null,
@@ -78,7 +75,6 @@ class StripeGateway implements PaymentGatewayInterface
             ];
         }
 
-        // 2. Nếu là luồng Return URL (Trình duyệt của khách hàng gọi về qua GET)
         $status = $request->input('status') === 'success' ? 'success' : 'failed';
         
         return [

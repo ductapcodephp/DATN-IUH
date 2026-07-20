@@ -21,8 +21,7 @@ export default function FormModal({
             setRenderModal(true);
             setTimeout(() => setIsAnimating(true), 10);
             document.body.style.overflow = 'hidden';
-            
-            // Auto focus first input
+
             setTimeout(() => {
                 if (modalRef.current) {
                     const firstInput = modalRef.current.querySelector('input, textarea, select');
@@ -44,7 +43,6 @@ export default function FormModal({
             if (e.key === 'Escape' && isOpen) {
                 onClose();
             }
-            // Basic focus trap
             if (e.key === 'Tab' && isOpen && modalRef.current) {
                 const focusableElements = modalRef.current.querySelectorAll(
                     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'

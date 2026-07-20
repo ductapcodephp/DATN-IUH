@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\PaymentGatewayFactory;
+use App\DTO\Payment\CheckoutData;
+use App\DTO\Payment\IpnData;
 use App\Exceptions\PaymentException;
 use Illuminate\Support\Facades\Auth;
 use Exception;
@@ -22,12 +24,9 @@ class PaymentController extends Controller
 
     public function process(Request $request)
     {
-        $gatewayName = $request->input('gateway', 'vnpay');
-        $coupons = $request->input('coupon_ids');
-        $userId = Auth::id();
-
         try {
-            $paymentUrl = $this->paymentService->processCheckout($userId, $gatewayName);
+            $dto = CheckoutData::fromRequest($request, Auth::id());
+            $paymentUrl = $this->paymentService->processCheckout($dto);
             return Inertia::location($paymentUrl);
         } catch (Exception $e) {
             return redirect()->route('frontend.cart.index')->with('error', $e->getMessage());
@@ -63,8 +62,8 @@ class PaymentController extends Controller
                 return response()->json(['RspCode' => '97', 'Message' => 'Invalid signature']);
             }
 
-            // Gọi logic xử lý ngầm (cập nhật DB)
-            $this->paymentService->handleGatewayIpn($gatewayName, $callbackData);
+            $ipnDto = IpnData::fromCallback($callbackData);
+            $this->paymentService->handleGatewayIpn($gatewayName, $ipnDto);
 
             return response()->json(['RspCode' => '00', 'Message' => 'Confirm Success']);
         } catch (PaymentException $e) {

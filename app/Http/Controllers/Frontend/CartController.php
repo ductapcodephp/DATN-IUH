@@ -113,7 +113,6 @@ class CartController extends Controller
 
         try {
             $cartData = $this->cartService->getCartDataForUser(Auth::id());
-            // Kiểm tra tính hợp lệ, nếu ném lỗi thì sẽ bị catch và thông báo
             $this->cartService->calculateDiscountForCart($cartData['cartItems'], $codes);
             
             session(['applied_coupons' => $codes]);

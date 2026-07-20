@@ -35,8 +35,6 @@ export default function Index({ wishlistCourses }) {
 
                             <div className="row g-4">
                                 {wishlistCourses && wishlistCourses.length > 0 ? wishlistCourses.map((course) => {
-                                    // Because this is the wishlist page, all items here are wishlisted by definition
-                                    // but we still check the array to be safe in case it's toggled off but not refreshed
                                     const isWishlisted = (auth?.wishlisted_course_ids || []).includes(course.id);
                                     
                                     return (

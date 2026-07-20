@@ -39,10 +39,9 @@ class Wallet extends Model
     ];
 
     protected $casts = [
-        'balance' => 'decimal:2', // Đảm bảo độ chính xác tuyệt đối, không dùng float gây sai số
+        'balance' => 'decimal:2',
     ];
 
-    // ===== RELATIONSHIPS =====
 
     public function user(): BelongsTo
     {
@@ -54,21 +53,18 @@ class Wallet extends Model
         return $this->hasMany(WalletTransaction::class);
     }
 
-    // ===== SCOPES =====
 
     public function scopeWithBalance($query, $minBalance)
     {
         return $query->where('balance', '>=', $minBalance);
     }
 
-    // ===== HELPERS ĐẲNG CẤP ENTERPRISE =====
 
     /**
      * Nạp tiền vào ví
      */
     public function deposit($amount, $description = null, $referenceCode = null)
     {
-        // Bọc vào Transaction để đảm bảo tính toàn vẹn dữ liệu
         return DB::transaction(function () use ($amount, $description, $referenceCode) {
             return $this->addTransaction(WalletTransaction::TYPE_DEPOSIT, $amount, $description, WalletTransaction::STATUS_COMPLETED, $referenceCode);
         });
@@ -80,8 +76,6 @@ class Wallet extends Model
     public function withdraw($amount, $description = null)
     {
         return DB::transaction(function () use ($amount, $description) {
-            // Đẳng cấp ở đây: lockForUpdate() sẽ khóa hàng này trong DB lại.
-            // Không một request nào khác được phép đọc số dư cho đến khi transaction này kết thúc.
             $lockedWallet = self::where('id', $this->id)->lockForUpdate()->first();
 
             if ((float) $lockedWallet->balance < (float) $amount) {
@@ -101,21 +95,19 @@ class Wallet extends Model
             throw new \InvalidArgumentException('Số tiền giao dịch phải lớn hơn 0.');
         }
 
-        // Luôn lấy dữ liệu số dư mới nhất từ DB đã được lock
         $lockedWallet = self::where('id', $this->id)->lockForUpdate()->first();
 
         $balanceBefore = (float) $lockedWallet->balance;
         $amount = (float) $amount;
 
-        // Sửa lại logic toán học bị loạn ở file cũ bằng cấu trúc Switch-Case tường minh
         switch ($type) {
             case WalletTransaction::TYPE_PURCHASE:
                 $balanceAfter = $balanceBefore - $amount;
                 break;
 
             case WalletTransaction::TYPE_DEPOSIT:
-            case WalletTransaction::TYPE_REFUND: // Hoàn tiền thì phải CỘNG tiền lại cho user
-            case WalletTransaction::TYPE_COMMISSION: // Tiền hoa hồng tiếp thị liên kết
+            case WalletTransaction::TYPE_REFUND:
+            case WalletTransaction::TYPE_COMMISSION:
             case WalletTransaction::TYPE_VIP_PAYMENT:
                 $balanceAfter = $balanceBefore + $amount;
                 break;
@@ -124,10 +116,8 @@ class Wallet extends Model
                 throw new \InvalidArgumentException('Loại giao dịch không được hệ thống hỗ trợ: ' . $type);
         }
 
-        // Cập nhật số dư mới vào ví
         $lockedWallet->update(['balance' => $balanceAfter]);
 
-        // Ghi lại lịch sử biến động số dư (Audit Trail)
         return WalletTransaction::create([
             'wallet_id' => $lockedWallet->id,
             'user_id' => $lockedWallet->user_id,

@@ -91,9 +91,6 @@ class CourseEnrollment extends Model
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    // ==========================================
-    // LOCAL SCOPES (Hàm lọc nhanh cho Repository)
-    // ==========================================
 
     public function scopeBanned(Builder $query): Builder
     {

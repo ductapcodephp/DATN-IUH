@@ -42,7 +42,6 @@ class SellerCourseController extends Controller
         ]);
     }
 
-    // 🔥 Thay Request bằng StoreCourseRequest: Tự động validate trước khi vào hàm!
     public function store(StoreCourseRequest $request): RedirectResponse
     {
         $dto = CourseData::fromRequest($request);
@@ -62,7 +61,6 @@ class SellerCourseController extends Controller
         ]);
     }
 
-    // 🔥 Thay Request bằng UpdateCourseRequest: Tự động chặn nếu không chính chủ + tự validate!
     public function update(UpdateCourseRequest $request, Course $course): RedirectResponse
     {
         $dto = CourseData::fromRequest($request);
@@ -82,9 +80,6 @@ class SellerCourseController extends Controller
             ->with('success', 'Đã xóa khóa học!');
     }
 
-    /**
-     * Helper bảo mật dùng riêng cho hàm edit và destroy (do 2 hàm này dùng GET/DELETE không qua Form Request)
-     */
     protected function authorizeAccess(Course $course): void
     {
         if ((int) $course->seller_id !== (int) auth()->id()) {

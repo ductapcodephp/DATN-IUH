@@ -10,7 +10,6 @@ class UserRegistered
 {
     use Dispatchable, SerializesModels;
 
-    // Khai báo các thuộc tính để Listener có thể đọc được
     public User $user;
     public array $requestData;
 

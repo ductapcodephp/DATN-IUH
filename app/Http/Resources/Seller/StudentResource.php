@@ -22,7 +22,6 @@ class StudentResource extends JsonResource
             'progress'      => (float) $this->progress,
             'joined_at'     => $this->created_at->format('d/m/Y'),
             
-            // Trạng thái cấm học viên
             'is_banned'     => (bool) $this->is_banned,
             'ban_reason'    => $this->ban_reason,
             'banned_at'     => $this->banned_at?->format('d/m/Y H:i'),

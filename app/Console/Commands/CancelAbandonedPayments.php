@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\OnlinePayment;
 use App\Models\Coupon;
+use App\Models\CouponUsage;
 use Carbon\Carbon;
 
 class CancelAbandonedPayments extends Command
@@ -28,15 +29,18 @@ class CancelAbandonedPayments extends Command
 
         foreach ($expiredPayments as $payment) {
             $restoredCoupons = [];
-            foreach ($payment->orders as $order) {
-                // Hoàn trả lại lượt dùng mã giảm giá
-                if ($order->coupon_id && !in_array($order->coupon_id, $restoredCoupons)) {
-                    Coupon::where('id', $order->coupon_id)->decrement('used_count');
-                    $restoredCoupons[] = $order->coupon_id;
-                    $this->info("  → Hoàn trả mã giảm giá ID: {$order->coupon_id}");
-                }
+            $orderIds = $payment->orders->pluck('id')->toArray();
+            $couponUsages = CouponUsage::whereIn('order_id', $orderIds)->get();
 
-                // Xóa order bị bỏ hoang (bảng orders ENUM chỉ có: pending, completed, refunded)
+            foreach ($couponUsages as $usage) {
+                if (!in_array($usage->coupon_id, $restoredCoupons)) {
+                    Coupon::where('id', $usage->coupon_id)->decrement('used_count');
+                    $restoredCoupons[] = $usage->coupon_id;
+                    $this->info("  → Hoàn trả mã giảm giá ID: {$usage->coupon_id}");
+                }
+            }
+
+            foreach ($payment->orders as $order) {
                 $order->delete();
             }
 

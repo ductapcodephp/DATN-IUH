@@ -83,20 +83,18 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                   {cartItems && cartItems.length > 0 ? (
                       <div className="cart-items-wrapper custom-scrollbar" style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '8px' }}>
                           {Object.entries(cartItems.reduce((acc, item) => {
-                              // Tạm thời nhóm bằng JS để tạo UI, phần logic state sếp tự code nhé!
+
                               const sellerName = item.course?.instructor?.name || 'EduFlow Originals';
                               if (!acc[sellerName]) acc[sellerName] = [];
                               acc[sellerName].push(item);
                               return acc;
                           }, {})).map(([sellerName, items], gIndex) => (
                               <div key={gIndex} className="seller-group mb-3" style={{ background: '#fff', border: '1px solid var(--border, #E5E7EB)', borderRadius: '12px', overflow: 'hidden' }}>
-                                  {/* Tiêu đề nhóm giảng viên */}
                                   <div className="seller-header px-3 py-2" style={{ background: 'var(--bg-surface-alt, #F1F5F9)', borderBottom: '1px solid var(--border, #E5E7EB)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                       <i className="fa-solid fa-chalkboard-user text-muted"></i>
                                       <span className="fw-bold" style={{ fontSize: '14px', color: 'var(--text-main, #1F2937)' }}>Giảng viên: {sellerName}</span>
                                   </div>
                                   
-                                  {/* Danh sách khóa học của giảng viên */}
                                   <div className="seller-items p-2">
                                       {items.map((item, index) => (
                                           <div key={index} className="cart-item border-0 mb-0 shadow-none">
@@ -171,7 +169,7 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                     </div>
                   </div>
                 </div>
-                    {/* các khóa học được mua nhiều nhất */}
+
                 {popularCourses && popularCourses.length > 0 && (
                     <div className="cart-cross-sell">
                       <img 
@@ -193,7 +191,7 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                     </div>
                 )}
               </div>
-                    {/* các mã đã được applied */}
+
               <div className="cart-card" style={{position: 'sticky', top: '24px'}}>
                 <div className="cart-card-title">📋 Tổng đơn hàng</div>
 
