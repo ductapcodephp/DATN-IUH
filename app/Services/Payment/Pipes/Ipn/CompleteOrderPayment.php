@@ -5,22 +5,20 @@ namespace App\Services\Payment\Pipes\Ipn;
 use App\DTO\Payment\IpnData;
 use App\Services\Frontend\CartService;
 use App\Models\CourseEnrollment;
-use App\Models\CouponUsage;
 use App\Events\PaymentCompleted;
 use Closure;
 
-class CompletePayment
+class CompleteOrderPayment
 {
     public function __construct(protected CartService $cartService) {}
 
     /**
-     * Xử lý khi thanh toán thành công:
-     * cập nhật trạng thái payment/orders, xóa giỏ hàng,
-     * tạo enrollment, ghi nhận coupon usage, và phát sự kiện.
+     * Xử lý khi thanh toán đơn hàng/mua khóa học thành công
      */
     public function handle(IpnData $data, Closure $next)
     {
-        if ($data->callbackData['status'] !== 'success') {
+        // Bỏ qua nếu không phải giao dịch thành công hoặc LÀ giao dịch NẠP TIỀN
+        if ($data->callbackData['status'] !== 'success' || str_starts_with($data->transactionCode, 'DEP_')) {
             return $next($data);
         }
 
@@ -37,7 +35,7 @@ class CompletePayment
         // Xóa giỏ hàng
         $this->cartService->clearCart($payment->user_id);
 
-        // Cập nhật trạng thái từng order + tạo enrollment + ghi nhận coupon
+        // Cập nhật trạng thái từng order + tạo enrollment
         $enrollmentsToInsert = [];
         foreach ($payment->orders as $order) {
             $order->update(['status' => 'completed']);

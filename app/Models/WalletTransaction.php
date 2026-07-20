@@ -65,7 +65,6 @@ class WalletTransaction extends Model
     public const STATUS_FAILED = 'failed';
 
     protected $fillable = [
-        'uuid',
         'wallet_id',
         'user_id',
         'type',
@@ -88,12 +87,6 @@ class WalletTransaction extends Model
     protected static function boot()
     {
         parent::boot();
-
-        static::creating(function (self $transaction) {
-            if (empty($transaction->uuid)) {
-                $transaction->uuid = (string) Str::uuid();
-            }
-        });
 
         static::updating(function (self $transaction) {
             $originalStatus = $transaction->getOriginal('status');
@@ -154,24 +147,16 @@ class WalletTransaction extends Model
     }
 
 
-    /**
-     * Trả về số tiền được format đẹp theo đơn vị tiền tệ (Ví dụ: 500,000đ hoặc $500.00)
-     */
     public function getFormattedAmount(): string
     {
         return number_format((float) $this->amount, 0, ',', '.') . ' đ';
     }
-    /**
-     * Kiểm tra nhanh trạng thái giao dịch
-     */
+   
     public function isCompleted(): bool
     {
         return $this->status === self::STATUS_COMPLETED;
     }
 
-    /**
-     * Trích xuất nhanh dữ liệu từ cổng thanh toán trong Metadata (Ví dụ: mã giao dịch Momo/VNPAY)
-     */
     public function getGatewayTransactionId(): ?string
     {
         return $this->metadata['gateway_transaction_id'] ?? null;

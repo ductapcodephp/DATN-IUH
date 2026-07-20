@@ -6,6 +6,12 @@ export default function Header() {
     const { url } = usePage();
     const user = auth?.user;
 
+    const getAvatarUrl = (avatarPath) => {
+        if (!avatarPath) return '/assets/frontend/img/default-avatar.jpg';
+        if (avatarPath.startsWith('http')) return avatarPath;
+        return `/storage/${avatarPath}`;
+    };
+
     const isActive = (path) => {
         if (path === '/home') {
             return url === '/tech-education/home';
@@ -182,12 +188,12 @@ export default function Header() {
                             {user ? (
                                 <div className="nav-item dropdown">
                                     <a className="nav-link dropdown-toggle d-flex align-items-center gap-2 p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src={user.avatar || '/assets/frontend/img/default-avatar.jpg'} alt="Avatar" className="rounded-circle object-fit-cover" width="36" height="36" />
+                                        <img src={getAvatarUrl(user.avatar)} alt="Avatar" className="rounded-circle object-fit-cover" width="36" height="36" />
                                         <span className="fw-semibold text-dark d-none d-md-inline-block">{user.name}</span>
                                     </a>
                                     <ul className="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2 p-2" aria-labelledby="userDropdown">
-                                        <li><Link className="dropdown-item py-2 rounded font-sm" href={route('dashboard')}><i className="fa-solid fa-gauge me-2 text-secondary"></i> Bảng điều khiển</Link></li>
-                                        <li><Link className="dropdown-item py-2 rounded font-sm" href={route('profile.edit')}><i className="fa-solid fa-user me-2 text-primary"></i> Hồ sơ của tôi</Link></li>
+                                        <li><Link className="dropdown-item py-2 rounded font-sm" href={route('dashboard.index')}><i className="fa-solid fa-gauge me-2 text-secondary"></i> Bảng điều khiển</Link></li>
+                                        <li><Link className="dropdown-item py-2 rounded font-sm" href={route('dashboard.profile')}><i className="fa-solid fa-user me-2 text-primary"></i> Hồ sơ của tôi</Link></li>
                                         <li><Link className="dropdown-item py-2 rounded font-sm" href={route('frontend.wishlist.index')}><i className="fa-solid fa-heart me-2 text-danger"></i> Mục yêu thích</Link></li>
                                         <li><hr className="dropdown-divider" /></li>
                                         <li>

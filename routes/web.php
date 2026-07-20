@@ -9,6 +9,10 @@ use App\Http\Controllers\Frontend\CourseController;
 use App\Http\Controllers\Frontend\FaqController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\InstructorController;
+use App\Http\Controllers\Frontend\Dashboard\DashboardOverviewController;
+use App\Http\Controllers\Frontend\Dashboard\WalletController;
+use App\Http\Controllers\Frontend\Dashboard\OrderController;
+use App\Http\Controllers\Frontend\Dashboard\ProfileController as DashboardProfileController;
 use App\Http\Controllers\Frontend\LearningController;
 use App\Http\Controllers\Frontend\PaymentController;
 use App\Http\Controllers\Frontend\WishlistController;
@@ -41,6 +45,27 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
     Route::get('/profile', fn () => 'Profile edit page placeholder')->name('profile.edit');
+
+    // DASHBOARD ROUTES (Học viên)
+    Route::prefix('my-account')->name('dashboard.')->group(function () {
+        Route::get('/', [DashboardOverviewController::class, 'index'])->name('index');
+        Route::get('/my-courses', [DashboardOverviewController::class, 'myCourses'])->name('my-courses');
+        Route::get('/certificates', [DashboardOverviewController::class, 'certificates'])->name('certificates');
+
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+        Route::get('/orders/{orderId}', [OrderController::class, 'show'])->name('orders.detail');
+
+        Route::get('/wallet', [WalletController::class, 'index'])->name('wallet');
+        Route::get('/bank-accounts', [WalletController::class, 'bankAccounts'])->name('bank-accounts');
+        Route::post('/bank-accounts', [WalletController::class, 'addBankAccount'])->name('bank-accounts.store');
+        Route::put('/bank-accounts/{bankAccountId}', [WalletController::class, 'updateBankAccount'])->name('bank-accounts.update');
+        Route::delete('/bank-accounts/{bankAccountId}', [WalletController::class, 'deleteBankAccount'])->name('bank-accounts.destroy');
+        Route::patch('/bank-accounts/{bankAccountId}/set-default', [WalletController::class, 'setDefaultBankAccount'])->name('bank-accounts.set-default');
+
+        Route::get('/profile', [DashboardProfileController::class, 'index'])->name('profile');
+        Route::put('/profile', [DashboardProfileController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/profile/password', [DashboardProfileController::class, 'changePassword'])->name('profile.password');
+    });
 
     // SELLER ROUTES
     Route::prefix('seller')->name('seller.')->middleware('role:seller,admin,root')->group(function () {
@@ -124,6 +149,8 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
         Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
         Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
+        Route::post('/wallet/deposit', [PaymentController::class, 'deposit'])->name('wallet.deposit');
+        Route::post('/payment/retry/{id}', [PaymentController::class, 'retry'])->name('payment.retry');
         Route::get('/payment/{gateway}/return', [PaymentController::class, 'gatewayReturn'])->name('payment.return');
         Route::get('/cart/course/{course}/coupons', [CartController::class, 'getCouponForCourse'])
             ->name('cart.course.coupons');

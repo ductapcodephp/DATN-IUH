@@ -13,7 +13,6 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->comment('Student who purchased');
             $table->foreignId('course_id')->nullable()->constrained('courses')->onDelete('restrict');
             $table->foreignId('vip_package_id')->nullable()->constrained('vip_packages')->onDelete('restrict');
-            $table->foreignId('coupon_id')->nullable()->constrained('coupons')->onDelete('set null');
             $table->foreignId('online_payment_id')->nullable()->constrained('online_payments')->onDelete('set null');
             $table->decimal('amount_original', 10, 2)->comment('Original course price');
             $table->decimal('discount_amount', 10, 2)->default(0)->comment('Total discount from coupon');
@@ -30,7 +29,6 @@ return new class extends Migration {
             // Indexes
             $table->index('user_id');
             $table->index('course_id');
-            $table->index('coupon_id');
             $table->index('status');
             $table->index('payment_method');
             $table->unique(['user_id', 'course_id'])->comment('One purchase per course per user');

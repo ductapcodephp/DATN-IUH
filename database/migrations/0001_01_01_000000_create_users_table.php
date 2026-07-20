@@ -12,55 +12,39 @@ return new class extends Migration {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
 
-            // BASIC AUTH
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->rememberToken();
 
-            // SOCIAL LOGIN (GOOGLE)
             $table->string('google_id')->nullable()->unique()->index();
             $table->text('google_token')->nullable();
             $table->text('google_refresh_token')->nullable();
 
-            // PROFILE
             $table->string('avatar')->nullable();
             $table->string('phone')->nullable();
             $table->string('bio')->nullable();
 
-            // ==========================================
-            // ROLE SYSTEM (Đã sửa để lưu nhiều role)
-            // ==========================================
-            // Đổi từ enum sang JSON để lưu mảng, VD: ["user", "seller"]
+         
             $table->json('roles'); 
 
-            // Vai trò đang kích hoạt hiện tại
             $table->string('current_role')
                 ->default(UserRole::USER->value)
                 ->index();
 
-            // REFERRAL SYSTEM
             $table->string('referral_code')->unique()->nullable();
             $table->foreignId('referred_by')
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
 
-            // STATUS
             $table->boolean('is_active')->default(true);
 
-            // SECURITY / TRACKING
             $table->timestamp('last_login_at')->nullable();
             $table->string('last_login_ip', 45)->nullable();
             $table->string('last_login_country', 100)->nullable();
 
-            // FINANCIAL / BANK INFO
-            $table->string('bank_name')->nullable();
-            $table->string('bank_account_no')->nullable();
-            $table->string('bank_account_name')->nullable();
-
-            // STATISTICS
             $table->integer('total_students')->default(0);
 
             $table->timestamps();

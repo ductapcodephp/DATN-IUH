@@ -210,6 +210,11 @@ class User extends Authenticatable
         return $this->hasOne(Wallet::class);
     }
 
+    public function bankAccounts(): HasMany
+    {
+        return $this->hasMany(UserBankAccount::class);
+    }
+
     public function courses()
     {
         return $this->belongsToMany(Course::class, 'course_user')

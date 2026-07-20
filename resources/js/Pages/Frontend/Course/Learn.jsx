@@ -11,6 +11,7 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
     const { chapters } = course;
     const [activeLesson, setActiveLesson] = useState(null);
     const [localCompleted, setLocalCompleted] = useState(completedLessonIds); // nhận id khóa học đã mở khóa
+    const [localProgresses, setLocalProgresses] = useState(lessonProgresses || {});
     const [showCheatModal, setShowCheatModal] = useState(false);
     const [cheatMessage, setCheatMessage] = useState("");
 
@@ -43,6 +44,13 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
 
     // Progress state
     const [progress, setProgress] = useState(courseProgress);
+
+    const formatTime = (seconds) => {
+        if (!seconds) return '00:00';
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    };
 
     const handleOpenNoteForm = () => {
         let timeInSeconds = 0;
@@ -216,10 +224,10 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
             const isAlreadyCompleted = localCompleted.includes(activeLesson.id);
             let maxWatchedTime = isAlreadyCompleted 
                 ? 999999 
-                : (lessonProgresses[activeLesson.id]?.watched_seconds || 0);
+                : (localProgresses[activeLesson.id]?.watched_seconds || 0);
             
             // Lấy số giây đã tua từ DB
-            let totalSkipped = lessonProgresses[activeLesson.id]?.skipped_seconds || 0;
+            let totalSkipped = localProgresses[activeLesson.id]?.skipped_seconds || 0;
             const maxSkipPerSeek = 20; // Tối đa 20s/lần
             
             const updateInterval = 10; 
@@ -280,6 +288,14 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
                             // Backend trả về thời gian xem đã được xác thực qua lớp Anti-cheat
                             const confirmedWatched = response.data.watched_seconds;
                             
+                            setLocalProgresses(prev => ({
+                                ...prev,
+                                [activeLesson.id]: {
+                                    ...(prev[activeLesson.id] || {}),
+                                    watched_seconds: confirmedWatched
+                                }
+                            }));
+
                             // Chỉ mở khóa nếu thời gian XÁC THỰC đạt >= 70%
                             if (duration > 0 && (confirmedWatched / duration) >= 0.7) {
                                 setLocalCompleted(prev => {
@@ -599,7 +615,7 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
                                             <div className="d-flex flex-column text-start w-100">
                                                 <span>{index + 1}. {chapter.title}</span>
                                                 <span className="text-muted fw-normal mt-1" style={{ fontSize: '12px' }}>
-                                                    0/{chapter.lessons?.length || 0} | 00:00
+                                                    {chapter.lessons?.filter(l => localCompleted.includes(l.id)).length || 0}/{chapter.lessons?.length || 0} bài học
                                                 </span>
                                             </div>
                                         </button>
@@ -630,11 +646,10 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
                                                             </div>
                                                             <div className="d-flex align-items-center" style={{ fontSize: '12px', color: '#6b7280' }}>
                                                                 {isQuiz ? (
-                                                                    <i className="fa-solid fa-file-code me-2" style={{ color: isActive ? '#fd7e14' : '#6b7280' }}></i>
+                                                                    <><i className="fa-solid fa-file-code me-2" style={{ color: isActive ? '#fd7e14' : '#6b7280' }}></i> Bài tập</>
                                                                 ) : (
-                                                                    <i className="fa-solid fa-circle-play me-2" style={{ color: isActive ? '#fd7e14' : '#6b7280' }}></i>
+                                                                    <><i className="fa-solid fa-circle-play me-2" style={{ color: isActive ? '#fd7e14' : '#6b7280' }}></i> {formatTime(localProgresses[lesson.id]?.watched_seconds || 0)}</>
                                                                 )}
-                                                                00:00
                                                             </div>
                                                         </div>
                                                         <div className="d-flex align-items-center">

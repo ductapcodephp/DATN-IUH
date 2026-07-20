@@ -6,11 +6,9 @@ use App\Models\OnlinePayment;
 
 class IpnData
 {
-    // Dữ liệu đầu vào từ callback
     public readonly array $callbackData;
     public readonly string $transactionCode;
 
-    // Dữ liệu được gán qua từng Pipe
     public ?OnlinePayment $payment = null;
     public bool $isSuccess = false;
 

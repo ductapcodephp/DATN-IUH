@@ -1502,3 +1502,166 @@ h1, h2, h3, h4, h5, h6,
     font-size: 1.75rem !important;
 }
 
+
+/* ============ DASHBOARD STYLES ============ */
+.db-main-container {
+    background: #f8fafc;
+    min-height: 100vh;
+}
+.db-sidebar-wrapper {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    position: sticky;
+    top: 80px;
+}
+.db-user-info {
+    background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+    padding: 20px;
+    text-align: center;
+}
+.db-sidebar-link {
+    font-size: 0.875rem;
+    color: #4B5563 !important;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+.db-sidebar-link:hover, .db-sidebar-link.active {
+    color: #EA580C !important;
+    background: #fff7ed !important;
+}
+
+.db-stat-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.db-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.db-greeting-card {
+    background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+    border-radius: 20px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.db-quick-link {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+.db-quick-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.db-course-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.db-course-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+}
+
+.db-filter-bar {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+}
+
+.db-order-card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 16px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s ease;
+}
+.db-order-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.db-wallet-card {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(124,58,237,0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.db-box {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.db-bank-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    color: #1F2937;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.db-bank-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+.db-bank-card.is-default {
+    background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+    border: none;
+    box-shadow: 0 8px 24px rgba(234,88,12,0.25);
+    color: #fff;
+}
+.db-bank-card.is-default:hover {
+    transform: none;
+}
+
+.db-cert-banner {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: 16px;
+    border: 1px solid #fcd34d;
+}
+
+.db-cert-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.db-cert-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+}
+.db-cert-header {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-bottom: 1px solid #fcd34d;
+}
+
+.db-profile-box {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    padding: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}

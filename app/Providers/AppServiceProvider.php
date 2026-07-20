@@ -8,6 +8,14 @@ use App\Listeners\Auth\CreateUserWallet;
 use App\Listeners\Auth\GenerateFirstSession;
 use App\Listeners\Auth\IssueRefreshToken;
 use App\Listeners\Auth\LogSuccessfulLogin;
+use App\Repositories\Frontend\Dashboard\DashboardOverviewRepositoryInterface;
+use App\Repositories\Frontend\Dashboard\DashboardOverviewRepository;
+use App\Repositories\Frontend\Dashboard\WalletRepositoryInterface;
+use App\Repositories\Frontend\Dashboard\WalletRepository;
+use App\Repositories\Frontend\Dashboard\OrderRepositoryInterface;
+use App\Repositories\Frontend\Dashboard\OrderRepository;
+use App\Repositories\Frontend\Dashboard\ProfileRepositoryInterface;
+use App\Repositories\Frontend\Dashboard\ProfileRepository;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Repositories\User\UserRepository;
 use Illuminate\Support\Facades\Event;
@@ -20,6 +28,26 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UserRepositoryInterface::class,
             UserRepository::class
+        );
+
+        $this->app->bind(
+            DashboardOverviewRepositoryInterface::class,
+            DashboardOverviewRepository::class
+        );
+
+        $this->app->bind(
+            WalletRepositoryInterface::class,
+            WalletRepository::class
+        );
+
+        $this->app->bind(
+            OrderRepositoryInterface::class,
+            OrderRepository::class
+        );
+
+        $this->app->bind(
+            ProfileRepositoryInterface::class,
+            ProfileRepository::class
         );
     }
 

@@ -7,12 +7,10 @@ use App\Models\OnlinePayment;
 use Illuminate\Http\Request;
 class CheckoutData
 {
-    // Dữ liệu đầu vào (immutable)
     public readonly int $userId;
     public readonly string $gatewayName;
     public readonly array $couponIds;
 
-    // Dữ liệu được gán dần qua từng Pipe
     public ?Collection $cartItems = null;
     public float $totalAmount = 0;
     public float $discountAmount = 0;

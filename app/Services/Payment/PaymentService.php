@@ -8,7 +8,8 @@ use App\Services\Payment\Pipes\Checkout\CalculateTotal;
 use App\Services\Payment\Pipes\Checkout\CreateOnlinePayment;
 use App\Services\Payment\Pipes\Checkout\CreateOrders;
 use App\Services\Payment\Pipes\Ipn\ValidateIpnPayment;
-use App\Services\Payment\Pipes\Ipn\CompletePayment;
+use App\Services\Payment\Pipes\Ipn\CompleteDepositPayment;
+use App\Services\Payment\Pipes\Ipn\CompleteOrderPayment;
 use App\Services\Payment\Pipes\Ipn\HandleFailedPayment;
 use App\DTO\Payment\CheckoutData;
 use App\DTO\Payment\IpnData;
@@ -56,7 +57,8 @@ class PaymentService
                 ->send($data)
                 ->through([
                     ValidateIpnPayment::class,
-                    CompletePayment::class,
+                    CompleteDepositPayment::class,
+                    CompleteOrderPayment::class,
                     HandleFailedPayment::class,
                 ])
                 ->thenReturn();
@@ -89,7 +91,11 @@ class PaymentService
                 $ipnDto = IpnData::fromCallback($callbackData);
                 $this->handleGatewayIpn($gatewayName, $ipnDto);
             } catch (PaymentException $e) {
+                \Log::error('Payment Exception in Return: ' . $e->getMessage());
+                throw $e;
             } catch (Exception $e) {
+                \Log::error('Exception in Return: ' . $e->getMessage());
+                throw $e;
             }
         }
 

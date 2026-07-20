@@ -29,7 +29,6 @@ class CreateOrders
                 'user_id'            => $data->userId,
                 'course_id'          => $item->course_id,
                 'vip_package_id'     => null,
-                'coupon_id'          => null, // Bỏ qua cột này theo yêu cầu
                 'online_payment_id'  => $data->onlinePayment->id,
                 'amount_original'    => $item->price,
                 'discount_amount'    => $discount,
@@ -61,7 +60,6 @@ class CreateOrders
             ]
         );
 
-        // Lấy danh sách Order vừa insert/update để tạo CouponUsage
         $insertedOrders = Order::with('course')->where('online_payment_id', $data->onlinePayment->id)->get();
         $couponUsagesToInsert = [];
 
@@ -74,7 +72,6 @@ class CreateOrders
                     $discountPerCoupon = $order->discount_amount / count($matchedCoupons);
                     foreach ($matchedCoupons as $coupon) {
                         $couponUsagesToInsert[] = [
-                            'coupon_id'        => $coupon->id,
                             'user_id'          => $data->userId,
                             'order_id'         => $order->id,
                             'discount_applied' => $discountPerCoupon,
