@@ -218,6 +218,14 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
                                             <td>
                                                 <div className="action-btns">
                                                     <Link
+                                                        href={route('seller.courses.reviews.index', course.id)}
+                                                        className="action-btn"
+                                                        title="Đánh giá phản hồi"
+                                                        style={{ color: '#eab308' }}
+                                                    >
+                                                        <i className="fa-solid fa-star"></i>
+                                                    </Link>
+                                                    <Link
                                                         href={route('seller.courses.curriculum.index', course.id)}
                                                         className="action-btn"
                                                         title="Soạn giáo trình"

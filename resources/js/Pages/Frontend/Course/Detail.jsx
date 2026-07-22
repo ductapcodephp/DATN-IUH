@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import FrontendLayout from "@/Layouts/Frontend/FrontendLayout";
-import { Link, useForm } from "@inertiajs/react";
+import { Link, useForm, router } from "@inertiajs/react";
 import SweetAlert from '@/Components/SweetAlert';
 
 export default function Detail({ course, relatedCourses, isEnrolled, enrollment, reviews, userReview }) {
@@ -8,17 +8,40 @@ export default function Detail({ course, relatedCourses, isEnrolled, enrollment,
         course_id: course.id,
     });
 
+    const [isEditingReview, setIsEditingReview] = useState(false);
+
     const { data: reviewData, setData: setReviewData, post: postReview, processing: processingReview, reset: resetReview, errors: reviewErrors } = useForm({
-        rating: 5,
-        content: '',
+        rating: userReview ? userReview.rating : 5,
+        content: userReview ? userReview.content : '',
     });
 
     const submitReview = (e) => {
         e.preventDefault();
-        postReview(route('frontend.course.review', course.slug), {
-            preserveScroll: true,
-            onSuccess: () => resetReview('content')
-        });
+        if (isEditingReview) {
+            router.put(route('frontend.course.review.update', userReview.id), reviewData, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsEditingReview(false);
+                }
+            });
+        } else {
+            postReview(route('frontend.course.review', course.slug), {
+                preserveScroll: true,
+                onSuccess: () => resetReview('content')
+            });
+        }
+    };
+
+    const handleDeleteReview = () => {
+        if (window.confirm('Bạn có chắc chắn muốn xóa đánh giá của mình không?')) {
+            router.delete(route('frontend.course.review.delete', userReview.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    resetReview();
+                    setIsEditingReview(false);
+                }
+            });
+        }
     };
 
     const formatCurrency = (amount) => {
@@ -188,9 +211,19 @@ export default function Detail({ course, relatedCourses, isEnrolled, enrollment,
                                             <div className="alert alert-warning mb-0 border-0 font-sm">
                                                 <i className="fa-solid fa-circle-info me-2"></i> Bạn cần hoàn thành ít nhất <b>80% khóa học</b> để có thể gửi đánh giá. (Tiến độ hiện tại: {Number(enrollment.progress || 0).toFixed(0)}%)
                                             </div>
-                                        ) : userReview ? (
-                                            <div className="alert alert-success mb-0 border-0 font-sm">
-                                                <i className="fa-solid fa-check-circle me-2"></i> Bạn đã đánh giá khóa học này. Cảm ơn phản hồi của bạn!
+                                        ) : userReview && !isEditingReview ? (
+                                            <div className="alert alert-success mb-0 border-0 font-sm d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <i className="fa-solid fa-check-circle me-2"></i> Bạn đã đánh giá khóa học này. Cảm ơn phản hồi của bạn!
+                                                </div>
+                                                <div className="d-flex gap-2">
+                                                    <button className="btn btn-sm btn-outline-success border-0 text-success fw-semibold bg-success bg-opacity-10" onClick={() => setIsEditingReview(true)}>
+                                                        <i className="fa-solid fa-pen-to-square me-1"></i> Sửa
+                                                    </button>
+                                                    <button className="btn btn-sm btn-outline-danger border-0 text-danger fw-semibold bg-danger bg-opacity-10" onClick={handleDeleteReview}>
+                                                        <i className="fa-solid fa-trash me-1"></i> Xóa
+                                                    </button>
+                                                </div>
                                             </div>
                                         ) : (
                                             <form onSubmit={submitReview}>
@@ -218,9 +251,17 @@ export default function Detail({ course, relatedCourses, isEnrolled, enrollment,
                                                     ></textarea>
                                                     {reviewErrors.content && <div className="text-danger mt-1 font-sm">{reviewErrors.content}</div>}
                                                 </div>
-                                                <button type="submit" className="btn btn-fire" disabled={processingReview}>
-                                                    {processingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
-                                                </button>
+                                                <div className="d-flex gap-3">
+                                                    <button type="submit" className="btn btn-fire" disabled={processingReview}>
+                                                        {processingReview ? 'Đang gửi...' : isEditingReview ? 'Cập nhật đánh giá' : 'Gửi đánh giá'}
+                                                    </button>
+                                                    {isEditingReview && (
+                                                        <button type="button" className="btn btn-light" onClick={() => {
+                                                            setIsEditingReview(false);
+                                                            setReviewData({ rating: userReview.rating, content: userReview.content });
+                                                        }}>Hủy</button>
+                                                    )}
+                                                </div>
                                             </form>
                                         )}
                                     </div>

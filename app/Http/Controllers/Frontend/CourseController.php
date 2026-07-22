@@ -4,18 +4,23 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Services\Frontend\CourseService;
+use App\Services\Shared\ReviewService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Review;
 use App\Models\Order;
 use App\Models\CourseEnrollment;
+use App\Notifications\Seller\NewCourseEnrollmentNotification;
+
 class CourseController extends Controller
 {
     protected $courseService;
+    protected $reviewService;
 
-    public function __construct(CourseService $courseService)
+    public function __construct(CourseService $courseService, ReviewService $reviewService)
     {
         $this->courseService = $courseService;
+        $this->reviewService = $reviewService;
     }
 
     public function index(Request $request)
@@ -41,52 +46,10 @@ class CourseController extends Controller
         $enrollment = $this->courseService->getEnrollment(auth()->id(), $course->id);
         $isEnrolled = $enrollment ? true : false;
 
-        $reviews = $this->courseService->getCourseReviews($course->id);
-        $userReview = $this->courseService->getUserReviewForCourse(auth()->id(), $course->id);
+        $reviews = $this->reviewService->getCourseReviews($course->id);
+        $userReview = $this->reviewService->getUserReviewForCourse(auth()->id(), $course->id);
 
         return Inertia::render('Frontend/Course/Detail', compact('course', 'relatedCourses', 'isEnrolled', 'enrollment', 'reviews', 'userReview'));
-    }
-
-    public function submitReview(Request $request, $slug)
-    {
-        $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'content' => 'nullable|string|max:1000',
-        ]);
-
-        $course = $this->courseService->getCourseDetailBySlug($slug);
-        $enrollment = $this->courseService->getEnrollment(auth()->id(), $course->id);
-
-        if (!$enrollment) {
-            return back()->with('error', 'Bạn chưa tham gia khóa học này!');
-        }
-
-        if ($enrollment->progress < 80) {
-            return back()->with('error', 'Bạn cần hoàn thành ít nhất 80% khóa học để đánh giá!');
-        }
-
-        $existingReview = $this->courseService->getUserReviewForCourse(auth()->id(), $course->id);
-
-        if ($existingReview) {
-            return back()->with('error', 'Bạn đã đánh giá khóa học này rồi!');
-        }
-
-        $order = $this->courseService->getCompletedOrderForCourse(auth()->id(), $course->id);
-
-        if (!$order) {
-            return back()->with('error', 'Không tìm thấy hóa đơn của bạn cho khóa học này!');
-        }
-
-        $this->courseService->createReview([
-            'user_id' => auth()->id(),
-            'course_id' => $course->id,
-            'order_id' => $order->id,
-            'rating' => $request->input('rating'),
-            'content' => $request->input('content'),
-            'is_hidden' => false,
-        ]);
-
-        return back()->with('success', 'Đánh giá của bạn đã được gửi thành công!');
     }
 
     public function enrollFreeCourse($slug)
@@ -105,6 +68,14 @@ class CourseController extends Controller
         }
 
         $this->courseService->createFreeOrderAndEnrollment($userId, $course);
+
+        if ($course->seller) {
+            $course->seller->notify(new NewCourseEnrollmentNotification(
+                $course->title,
+                auth()->user()->name,
+                $course->id
+            ));
+        }
 
         return back()->with('success', 'Đã mở khóa khóa học miễn phí thành công!');
     }

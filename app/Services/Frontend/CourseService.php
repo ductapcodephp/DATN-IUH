@@ -76,6 +76,16 @@ class CourseService
         return $this->courseRepository->createReview($data);
     }
 
+    public function updateReview($reviewId, array $data)
+    {
+        return $this->courseRepository->updateReview($reviewId, $data);
+    }
+
+    public function deleteReview($reviewId)
+    {
+        return $this->courseRepository->deleteReview($reviewId);
+    }
+
     public function createFreeOrderAndEnrollment($userId, $course)
     {
         return $this->courseRepository->createFreeOrderAndEnrollment($userId, $course);

@@ -152,6 +152,20 @@ class CourseRepository implements CourseRepositoryInterface
         return \App\Models\Review::create($data);
     }
 
+    public function updateReview($reviewId, array $data)
+    {
+        $review = \App\Models\Review::find($reviewId);
+        if ($review) {
+            $review->update($data);
+        }
+        return $review;
+    }
+
+    public function deleteReview($reviewId)
+    {
+        return \App\Models\Review::destroy($reviewId);
+    }
+
     public function createFreeOrderAndEnrollment($userId, $course)
     {
         \Illuminate\Support\Facades\DB::transaction(function () use ($userId, $course) {

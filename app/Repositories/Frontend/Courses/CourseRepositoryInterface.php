@@ -18,5 +18,7 @@ interface CourseRepositoryInterface
     public function getUserReviewForCourse($userId, $courseId);
     public function getCompletedOrderForCourse($userId, $courseId);
     public function createReview(array $data);
+    public function updateReview($reviewId, array $data);
+    public function deleteReview($reviewId);
     public function createFreeOrderAndEnrollment($userId, $course);
 }
