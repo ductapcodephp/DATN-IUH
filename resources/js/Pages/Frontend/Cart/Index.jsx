@@ -1,16 +1,26 @@
 import React, { useState } from "react";
 import FrontendLayout from "@/Layouts/Frontend/FrontendLayout";
-import { Link, useForm, router, Head } from "@inertiajs/react";
+import { Link, useForm, router, Head, usePage } from "@inertiajs/react";
 import Swal from 'sweetalert2';
 import CouponModal from './CouponModal';
 
 export default function Index({ cart, cartItems = [], totalAmount, popularCourses = [] , courseCoupons = [], instructorCoupons = [], platformCoupons = [], discountAmount = 0, appliedCoupons = [] }) {
-    console.log(instructorCoupons)
-    console.log(courseCoupons)
-    console.log(platformCoupons)
+    const { auth } = usePage().props;
+    const hasWallet = auth?.wallet?.status === 'active';
+
     const [selectedGateway, setSelectedGateway] = useState('vnpay');
     const [processing, setProcessing] = useState(false);
     const [isLoadingCoupons, setIsLoadingCoupons] = useState(false);
+    const [showWalletPromoModal, setShowWalletPromoModal] = useState(false);
+
+    const handleSelectWallet = () => {
+        if (!hasWallet) {
+            setShowWalletPromoModal(true);
+        } else {
+            setSelectedGateway('wallet');
+        }
+    };
+
     const formatPrice = (amount) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     };
@@ -144,28 +154,68 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
 
                 <div className="cart-card">
                   <div className="cart-card-title">Phương thức thanh toán</div>
-                  <div className="cart-method-grid">
+                  <div className="cart-method-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                     <div 
-                        className={`cart-method ${selectedGateway === 'stripe' ? 'active' : ''}`}
-                        onClick={() => setSelectedGateway('stripe')}
+                        className={`cart-method ${selectedGateway === 'wallet' ? 'active' : ''}`}
+                        onClick={handleSelectWallet}
+                        style={{ position: 'relative', border: selectedGateway === 'wallet' ? '2px solid #7c3aed' : '1px solid #e2e8f0' }}
                     >
-                      <div className="badge">S</div>
-                      <div>
-                        <div className="name">Thanh toán quốc tế</div>
-                        <div className="desc">Visa, Mastercard qua Stripe</div>
+                      <span style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#dc3545', color: '#fff', fontSize: '0.65rem', fontWeight: 'bold', padding: '3px 8px', borderRadius: '12px', zIndex: 2, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+                          +5% THƯỞNG
+                      </span>
+                      <div className="badge" style={{background: '#7c3aed'}}>Ví</div>
+                      <div style={{ flex: 1 }}>
+                        <div className="name">Ví EduFlow</div>
+                        <div className="desc text-muted mt-1" style={{ fontSize: '0.8rem' }}>
+                            Thanh toán 1 chạm siêu tốc
+                        </div>
                       </div>
-                      {selectedGateway === 'stripe' && <div className="check">✓</div>}
+                      {selectedGateway === 'wallet' && <div className="check" style={{ color: '#7c3aed' }}>✓</div>}
                     </div>
+
+                    <div 
+                        className={`cart-method ${selectedGateway === 'momo' ? 'active' : ''}`}
+                        onClick={() => setSelectedGateway('momo')}
+                        style={{ position: 'relative', border: selectedGateway === 'momo' ? '2px solid #a50064' : '1px solid #e2e8f0' }}
+                    >
+                      <div className="badge" style={{background: '#a50064'}}>Mo</div>
+                      <div style={{ flex: 1 }}>
+                        <div className="name">Ví MoMo</div>
+                        <div className="desc text-muted mt-1" style={{ fontSize: '0.8rem' }}>
+                            Quét mã QR qua ứng dụng
+                        </div>
+                      </div>
+                      {selectedGateway === 'momo' && <div className="check" style={{ color: '#a50064' }}>✓</div>}
+                    </div>
+
                     <div 
                         className={`cart-method ${selectedGateway === 'vnpay' ? 'active' : ''}`}
                         onClick={() => setSelectedGateway('vnpay')}
+                        style={{ position: 'relative', border: selectedGateway === 'vnpay' ? '2px solid #005baa' : '1px solid #e2e8f0' }}
                     >
                       <div className="badge" style={{background: '#005baa'}}>VN</div>
-                      <div>
-                        <div className="name">Thanh toán nội địa</div>
-                        <div className="desc">Qua ứng dụng ngân hàng (VNPAY)</div>
+                      <div style={{ flex: 1 }}>
+                        <div className="name">VNPAY</div>
+                        <div className="desc text-muted mt-1" style={{ fontSize: '0.8rem' }}>
+                            Thẻ ATM / Ứng dụng ngân hàng
+                        </div>
                       </div>
-                      {selectedGateway === 'vnpay' && <div className="check">✓</div>}
+                      {selectedGateway === 'vnpay' && <div className="check" style={{ color: '#005baa' }}>✓</div>}
+                    </div>
+
+                    <div 
+                        className={`cart-method ${selectedGateway === 'stripe' ? 'active' : ''}`}
+                        onClick={() => setSelectedGateway('stripe')}
+                        style={{ position: 'relative', border: selectedGateway === 'stripe' ? '2px solid #6366f1' : '1px solid #e2e8f0' }}
+                    >
+                      <div className="badge" style={{background: '#6366f1'}}>S</div>
+                      <div style={{ flex: 1 }}>
+                        <div className="name">Thẻ Quốc Tế</div>
+                        <div className="desc text-muted mt-1" style={{ fontSize: '0.8rem' }}>
+                            Visa, Mastercard qua Stripe
+                        </div>
+                      </div>
+                      {selectedGateway === 'stripe' && <div className="check" style={{ color: '#6366f1' }}>✓</div>}
                     </div>
                   </div>
                 </div>
@@ -349,6 +399,66 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                 isLoadingCoupons={isLoadingCoupons}
                 appliedCoupons={appliedCoupons}
             />
+
+            {/* Wallet Promo Modal */}
+            {showWalletPromoModal && (
+                <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '16px', overflow: 'hidden' }}>
+                            <div className="modal-header border-0 pb-0 justify-content-center position-relative">
+                                <button type="button" className="btn-close position-absolute" style={{ top: '16px', right: '16px' }} onClick={() => setShowWalletPromoModal(false)}></button>
+                                <div className="text-center mt-3">
+                                    <div className="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: '80px', height: '80px' }}>
+                                        <i className="fa-solid fa-wallet fs-1 text-primary"></i>
+                                    </div>
+                                    <h4 className="fw-bold text-dark mb-1">Mở Ví EduFlow Ngay</h4>
+                                    <p className="text-muted mb-0">Thanh toán siêu tốc - Nhận siêu ưu đãi</p>
+                                </div>
+                            </div>
+                            <div className="modal-body px-4 pt-4 pb-2">
+                                <div className="p-3 bg-light rounded-3 mb-3 border border-primary border-opacity-25">
+                                    <h6 className="fw-bold text-primary mb-2"><i className="fa-solid fa-gift me-2"></i>Thưởng thêm khi nạp tiền:</h6>
+                                    <ul className="mb-0 text-dark" style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                                        {usePage().props.wallet_bonuses?.map(bonus => (
+                                            <li key={bonus.id}>
+                                                Tặng ngay <span className="fw-bold text-danger">{Number(bonus.bonus_percentage)}%</span> {bonus.max_bonus_amount ? `(tối đa ${new Intl.NumberFormat('vi-VN').format(bonus.max_bonus_amount)}đ)` : ''} khi nạp từ {new Intl.NumberFormat('vi-VN').format(bonus.min_amount)}đ
+                                            </li>
+                                        ))}
+                                        {(!usePage().props.wallet_bonuses || usePage().props.wallet_bonuses.length === 0) && (
+                                            <li>Đang cập nhật chương trình khuyến mãi...</li>
+                                        )}
+                                    </ul>
+                                </div>
+                                <ul className="list-unstyled mb-0" style={{ fontSize: '15px' }}>
+                                    <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Thanh toán khóa học chỉ với 1 chạm</li>
+                                    <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Không cần nhập lại thẻ hay mã OTP</li>
+                                    <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Lưu trữ lịch sử giao dịch minh bạch</li>
+                                </ul>
+                            </div>
+                            <div className="modal-footer border-0 p-4 pt-3">
+                                <button 
+                                    onClick={() => {
+                                        router.post(route('finance.wallet.activate'), {}, {
+                                            onSuccess: () => router.visit(route('finance.wallet.index'))
+                                        });
+                                    }}
+                                    className="btn btn-primary w-100 fw-bold py-2 fs-5"
+                                    style={{ borderRadius: '10px' }}
+                                >
+                                    Đồng ý Mở ví & Nạp tiền
+                                </button>
+                                <button 
+                                    className="btn btn-light w-100 mt-2" 
+                                    style={{ borderRadius: '10px' }} 
+                                    onClick={() => setShowWalletPromoModal(false)}
+                                >
+                                    Để sau
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </FrontendLayout>
     );
 }

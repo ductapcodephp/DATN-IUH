@@ -105,8 +105,8 @@ export default function Index({ instructors, filters }) {
                     </div>
 
                     {instructorList.length === 0 && (
-                        <div className="text-center py-12">
-                            <h3 className="text-lg font-medium text-gray-900">Không tìm thấy giảng viên</h3>
+                        <div className="text-center py-5">
+                            <h3 className="fs-4 fw-medium text-dark">Không tìm thấy giảng viên</h3>
                         </div>
                     )}
 
@@ -145,7 +145,7 @@ export default function Index({ instructors, filters }) {
             <section className="py-5" style={{background: '#111827', color: '#fff'}}>
                 <div className="container text-center py-4">
                 <h2 className="fw-bold mb-3">Bạn muốn gia nhập đội ngũ Giảng viên?</h2>
-                <p className="text-light opacity-75 mb-4 max-w-50 mx-auto" style={{maxWidth: '600px'}}>
+                <p className="text-light opacity-75 mb-4 mx-auto" style={{maxWidth: '600px'}}>
                     Chia sẻ kiến thức của bạn tới hàng triệu học viên và tạo ra nguồn thu nhập thụ động không giới hạn ngay hôm nay.
                 </p>
                 <Link href={route('register')} className="btn btn-warning fw-bold px-4 py-2">Đăng ký làm Giảng viên</Link>

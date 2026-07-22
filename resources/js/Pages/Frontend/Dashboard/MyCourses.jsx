@@ -42,12 +42,14 @@ function CourseCard({ enrollment }) {
                 <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginBottom: '4px' }}>
                     {course?.category?.name ?? 'Khóa học'}
                 </div>
-                <h6
-                    className="fw-bold mb-2"
-                    style={{ color: '#1F2937', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                >
-                    {course?.title ?? 'Không có tiêu đề'}
-                </h6>
+                <Link href={route('frontend.course.detail', { slug: course?.slug })} className="text-decoration-none">
+                    <h6
+                        className="fw-bold mb-2 text-dark"
+                        style={{ lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                    >
+                        {course?.title ?? 'Không có tiêu đề'}
+                    </h6>
+                </Link>
                 <div style={{ fontSize: '0.78rem', color: '#6B7280', marginBottom: '12px' }}>
                     <i className="fa-solid fa-chalkboard-user me-1" style={{ color: '#0284C7' }}></i>
                     {course?.seller?.name ?? 'Giảng viên'}

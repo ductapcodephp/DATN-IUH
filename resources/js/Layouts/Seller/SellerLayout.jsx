@@ -23,7 +23,7 @@ export default function SellerLayout({ children }) {
         <>
 
             <Head>
-                <link rel="stylesheet" href="/assets/seller/css/seller.css" />
+                <link rel="stylesheet" href="/assets/seller/css/seller.css?v=3" />
                 <link rel="stylesheet" href="/assets/seller/css/curriculum.css" />
                 <link rel="stylesheet" href="/assets/seller/css/courses.css" />
                 <link rel="stylesheet" href="/assets/seller/css/profile.css" />
@@ -38,24 +38,16 @@ export default function SellerLayout({ children }) {
             />
 
 
-            <SellerHeader />
-
-
-            <div className="body-wrap">
-
-                <SellerSidebar />
-
-
-                <div className="main">
-
+        <div className="seller-app-layout">
+            <SellerSidebar />
+            
+            <div className="seller-app-right">
+                <SellerHeader />
+                <div className="seller-app-main">
                     {children}
-
                 </div>
-
-
             </div>
-
-
+        </div>
         </>
     );
 }

@@ -678,7 +678,12 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
                 <i className="fa-solid fa-comment-dots fs-4" style={{ color: '#fd7e14' }}></i> Hỏi đáp
             </button>
 
-            <CommentsPanel isOpen={showCommentsPanel} onClose={() => setShowCommentsPanel(false)} />
+            <CommentsPanel 
+                isOpen={showCommentsPanel} 
+                onClose={() => setShowCommentsPanel(false)} 
+                lessonId={activeLesson?.id}
+                courseSlug={course.slug}
+            />
             <NotesPanel isOpen={showNotesPanel} onClose={() => setShowNotesPanel(false)} activeLesson={activeLesson} />
 
             {/* MODAL CẢNH BÁO TUA VIDEO */}

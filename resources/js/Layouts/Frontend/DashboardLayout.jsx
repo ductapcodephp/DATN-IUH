@@ -32,22 +32,22 @@ const menuItems = [
         route: 'dashboard.orders',
     },
     {
+        key: 'profile',
+        label: 'Hồ sơ cá nhân',
+        icon: 'fa-solid fa-user-pen',
+        route: 'dashboard.profile',
+    },
+    {
         key: 'wallet',
         label: 'Ví điện tử',
         icon: 'fa-solid fa-wallet',
-        route: 'dashboard.wallet',
+        route: 'finance.wallet.index',
     },
     {
         key: 'bank-accounts',
         label: 'Tài khoản ngân hàng',
         icon: 'fa-solid fa-building-columns',
-        route: 'dashboard.bank-accounts',
-    },
-    {
-        key: 'profile',
-        label: 'Hồ sơ cá nhân',
-        icon: 'fa-solid fa-user-pen',
-        route: 'dashboard.profile',
+        route: 'finance.bank-accounts.index',
     },
 ];
 

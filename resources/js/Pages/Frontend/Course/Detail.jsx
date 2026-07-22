@@ -3,10 +3,23 @@ import FrontendLayout from "@/Layouts/Frontend/FrontendLayout";
 import { Link, useForm } from "@inertiajs/react";
 import SweetAlert from '@/Components/SweetAlert';
 
-export default function Detail({ course, relatedCourses, isEnrolled }) {
+export default function Detail({ course, relatedCourses, isEnrolled, enrollment, reviews, userReview }) {
     const { data, setData, post, processing } = useForm({
         course_id: course.id,
     });
+
+    const { data: reviewData, setData: setReviewData, post: postReview, processing: processingReview, reset: resetReview, errors: reviewErrors } = useForm({
+        rating: 5,
+        content: '',
+    });
+
+    const submitReview = (e) => {
+        e.preventDefault();
+        postReview(route('frontend.course.review', course.slug), {
+            preserveScroll: true,
+            onSuccess: () => resetReview('content')
+        });
+    };
 
     const formatCurrency = (amount) => {
         if (!amount) return '0đ';
@@ -167,9 +180,73 @@ export default function Detail({ course, relatedCourses, isEnrolled }) {
 
                                     <div className="bg-surface border rounded-3 p-4 mb-5">
                                         <h6 className="fw-bold mb-2">Để lại đánh giá của bạn</h6>
-                                        <div className="alert alert-warning mb-0 border-0 font-sm">
-                                            <i className="fa-solid fa-circle-info me-2"></i> Bạn cần hoàn thành ít nhất <b>50% khóa học</b> để có thể gửi đánh giá.
-                                        </div>
+                                        {!isEnrolled ? (
+                                            <div className="alert alert-warning mb-0 border-0 font-sm">
+                                                <i className="fa-solid fa-circle-info me-2"></i> Bạn cần tham gia khóa học để có thể gửi đánh giá.
+                                            </div>
+                                        ) : enrollment?.progress < 80 ? (
+                                            <div className="alert alert-warning mb-0 border-0 font-sm">
+                                                <i className="fa-solid fa-circle-info me-2"></i> Bạn cần hoàn thành ít nhất <b>80% khóa học</b> để có thể gửi đánh giá. (Tiến độ hiện tại: {Number(enrollment.progress || 0).toFixed(0)}%)
+                                            </div>
+                                        ) : userReview ? (
+                                            <div className="alert alert-success mb-0 border-0 font-sm">
+                                                <i className="fa-solid fa-check-circle me-2"></i> Bạn đã đánh giá khóa học này. Cảm ơn phản hồi của bạn!
+                                            </div>
+                                        ) : (
+                                            <form onSubmit={submitReview}>
+                                                <div className="mb-3">
+                                                    <label className="form-label fw-semibold">Đánh giá sao</label>
+                                                    <div className="d-flex gap-2">
+                                                        {[1, 2, 3, 4, 5].map(star => (
+                                                            <i key={star} 
+                                                                className={`fa-solid fa-star fs-4 ${reviewData.rating >= star ? 'text-warning' : 'text-muted'}`} 
+                                                                style={{ cursor: 'pointer' }}
+                                                                onClick={() => setReviewData('rating', star)}
+                                                            ></i>
+                                                        ))}
+                                                    </div>
+                                                    {reviewErrors.rating && <div className="text-danger mt-1 font-sm">{reviewErrors.rating}</div>}
+                                                </div>
+                                                <div className="mb-3">
+                                                    <label className="form-label fw-semibold">Nội dung đánh giá</label>
+                                                    <textarea 
+                                                        className="form-control" 
+                                                        rows="3" 
+                                                        placeholder="Chia sẻ cảm nhận của bạn về khóa học..."
+                                                        value={reviewData.content}
+                                                        onChange={e => setReviewData('content', e.target.value)}
+                                                    ></textarea>
+                                                    {reviewErrors.content && <div className="text-danger mt-1 font-sm">{reviewErrors.content}</div>}
+                                                </div>
+                                                <button type="submit" className="btn btn-fire" disabled={processingReview}>
+                                                    {processingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
+                                                </button>
+                                            </form>
+                                        )}
+                                    </div>
+
+                                    <div className="reviews-list custom-scrollbar" style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '15px' }}>
+                                        {reviews && reviews.length > 0 ? reviews.map(review => (
+                                            <div key={review.id} className="review-item d-flex gap-3 mb-4 pb-4 border-bottom">
+                                                <img src={review.user?.avatar || "/assets/frontend/img/default-avatar.jpg"} alt={review.user?.name} className="rounded-circle object-fit-cover" width="48" height="48" />
+                                                <div>
+                                                    <div className="d-flex align-items-center gap-2 mb-1">
+                                                        <h6 className="fw-bold mb-0">{review.user?.name}</h6>
+                                                        <span className="text-muted font-sm ms-2">
+                                                            {new Date(review.created_at).toLocaleDateString('vi-VN')}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-warning mb-2 font-sm">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <i key={i} className={`fa-solid fa-star ${i < review.rating ? '' : 'text-muted opacity-50'}`}></i>
+                                                        ))}
+                                                    </div>
+                                                    {review.content && <p className="mb-0 text-dark">{review.content}</p>}
+                                                </div>
+                                            </div>
+                                        )) : (
+                                            <div className="text-muted text-center py-4">Chưa có đánh giá nào.</div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -198,6 +275,10 @@ export default function Detail({ course, relatedCourses, isEnrolled }) {
                                         {isEnrolled ? (
                                             <Link href={route('frontend.course.learn', course.slug)} className="btn btn-success py-3 fw-bold fs-5 w-100 mb-2">
                                                 <i className="fa-solid fa-circle-play me-2"></i> Vào học ngay
+                                            </Link>
+                                        ) : course.is_free ? (
+                                            <Link href={route('frontend.course.enroll-free', course.slug)} method="post" as="button" type="button" className="btn btn-primary py-3 fw-bold fs-5 w-100 mb-2">
+                                                <i className="fa-solid fa-unlock me-2"></i> Mở khóa miễn phí
                                             </Link>
                                         ) : (
                                             <form onSubmit={handleAddToCart}>

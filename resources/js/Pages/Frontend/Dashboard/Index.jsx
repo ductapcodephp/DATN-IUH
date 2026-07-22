@@ -78,7 +78,7 @@ export default function DashboardIndex({ stats, wallet }) {
 
             {/* Stats Grid */}
             <div className="row g-3 mb-4">
-                <div className="col-6 col-md-3">
+                <div className="col-12 col-md-4">
                     <StatCard
                         icon="fa-solid fa-book-open"
                         iconColor="#EA580C"
@@ -88,7 +88,7 @@ export default function DashboardIndex({ stats, wallet }) {
                         sub="khóa học"
                     />
                 </div>
-                <div className="col-6 col-md-3">
+                <div className="col-12 col-md-4">
                     <StatCard
                         icon="fa-solid fa-circle-check"
                         iconColor="#16a34a"
@@ -98,7 +98,7 @@ export default function DashboardIndex({ stats, wallet }) {
                         sub="khóa học"
                     />
                 </div>
-                <div className="col-6 col-md-3">
+                <div className="col-12 col-md-4">
                     <StatCard
                         icon="fa-solid fa-award"
                         iconColor="#d97706"
@@ -106,16 +106,6 @@ export default function DashboardIndex({ stats, wallet }) {
                         label="Chứng chỉ"
                         value={stats?.completed ?? 0}
                         sub="đã nhận"
-                    />
-                </div>
-                <div className="col-6 col-md-3">
-                    <StatCard
-                        icon="fa-solid fa-wallet"
-                        iconColor="#0284C7"
-                        iconBg="#e0f2fe"
-                        label="Số dư ví"
-                        value={formatCurrency(stats?.wallet_balance)}
-                        sub="VND"
                     />
                 </div>
             </div>
@@ -129,12 +119,10 @@ export default function DashboardIndex({ stats, wallet }) {
                 {[
                     { icon: 'fa-solid fa-graduation-cap', label: 'Khóa học của tôi', desc: `${(stats?.in_progress ?? 0) + (stats?.completed ?? 0)} khóa học`, color: '#EA580C', bg: '#fff7ed', route: 'dashboard.my-courses' },
                     { icon: 'fa-solid fa-receipt', label: 'Lịch sử đơn hàng', desc: `${stats?.total_orders ?? 0} đơn hàng`, color: '#0284C7', bg: '#e0f2fe', route: 'dashboard.orders' },
-                    { icon: 'fa-solid fa-wallet', label: 'Ví điện tử', desc: formatCurrency(stats?.wallet_balance), color: '#7c3aed', bg: '#ede9fe', route: 'dashboard.wallet' },
-                    { icon: 'fa-solid fa-building-columns', label: 'Tài khoản ngân hàng', desc: 'Quản lý rút tiền', color: '#059669', bg: '#d1fae5', route: 'dashboard.bank-accounts' },
                     { icon: 'fa-solid fa-award', label: 'Chứng chỉ của tôi', desc: `${stats?.completed ?? 0} chứng chỉ`, color: '#d97706', bg: '#fef3c7', route: 'dashboard.certificates' },
                     { icon: 'fa-solid fa-user-pen', label: 'Hồ sơ cá nhân', desc: 'Cập nhật thông tin', color: '#64748b', bg: '#f1f5f9', route: 'dashboard.profile' },
                 ].map((item, i) => (
-                    <div key={i} className="col-6 col-md-4">
+                    <div key={i} className="col-6 col-md-6">
                         <Link
                             href={route(item.route)}
                             className="d-flex align-items-center gap-3 p-3 text-decoration-none db-quick-link"

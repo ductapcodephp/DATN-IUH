@@ -23,7 +23,6 @@ export default function FrontendLayout({ children }) {
     return (
         <>
             <Head>
-                <link rel="stylesheet" href="/assets/frontend/css/frontend.css" />
                 <link rel="stylesheet" href="/frontend/css/style.css" />
             </Head>
 
