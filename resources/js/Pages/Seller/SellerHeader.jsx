@@ -120,10 +120,62 @@ export default function SellerHeader() {
                         <span>{formatCurrency(walletBalance)}</span>
                     </div>
 
-                    <button className="topbar-icon-btn me-2">
-                        <i className="fa-solid fa-bell"></i>
-                        <span className="notif-dot"></span>
-                    </button>
+                    {/* Notification Dropdown */}
+                    <div className="dropdown">
+                        <button 
+                            className="topbar-icon-btn me-2 dropdown-toggle" 
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            style={{ position: 'relative' }}
+                        >
+                            <i className="fa-solid fa-bell"></i>
+                            {auth?.unread_notifications_count > 0 && (
+                                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.6rem' }}>
+                                    {auth.unread_notifications_count}
+                                </span>
+                            )}
+                        </button>
+                        
+                        <div className="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-0" style={{ width: '320px', maxHeight: '400px', overflowY: 'auto' }}>
+                            <div className="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                                <h6 className="m-0 fw-bold">Thông báo</h6>
+                                {auth?.unread_notifications_count > 0 && (
+                                    <button 
+                                        className="btn btn-sm btn-link text-decoration-none p-0" 
+                                        onClick={() => router.post(route('notifications.mark-as-read'))}
+                                        style={{ fontSize: '0.8rem' }}
+                                    >
+                                        Đánh dấu đã đọc
+                                    </button>
+                                )}
+                            </div>
+                            <div className="list-group list-group-flush">
+                                {auth?.unread_notifications?.length > 0 ? (
+                                    auth.unread_notifications.map(notification => (
+                                        <div key={notification.id} className="list-group-item list-group-item-action py-3">
+                                            <div className="d-flex align-items-start gap-3">
+                                                <div className={`mt-1 ${notification.data.color}`}>
+                                                    <i className={notification.data.icon}></i>
+                                                </div>
+                                                <div>
+                                                    <div className="fw-bold mb-1" style={{ fontSize: '0.9rem' }}>{notification.data.title}</div>
+                                                    <div className="text-muted mb-1" style={{ fontSize: '0.8rem' }}>{notification.data.message}</div>
+                                                    <small className="text-muted" style={{ fontSize: '0.7rem' }}>
+                                                        {new Date(notification.created_at).toLocaleString('vi-VN')}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="p-4 text-center text-muted">
+                                        <i className="fa-regular fa-bell-slash fs-3 mb-2"></i>
+                                        <p className="mb-0" style={{ fontSize: '0.85rem' }}>Không có thông báo mới</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Avatar Dropdown */}
                     <div className="dropdown">

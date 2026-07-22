@@ -55,12 +55,6 @@ export default function SellerSidebar() {
                 <i className="fa-solid fa-ticket"></i> Mã giảm giá
             </Link>
 
-            <Link
-                className={`nav-item ${route().current('seller.reviews.index') ? 'active' : ''}`}
-                href={route('seller.reviews.index')}
-            >
-                <i className="fa-solid fa-star"></i> Đánh giá phản hồi
-            </Link>
 
             <div className="sidebar-section mt-4">Khu vực cài đặt</div>
 
