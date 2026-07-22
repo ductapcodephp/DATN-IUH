@@ -54,10 +54,13 @@ class Review extends Model
         'rating',
         'content',
         'is_hidden',
+        'is_reported',
+        'reply_content',
     ];
 
     protected $casts = [
         'is_hidden' => 'boolean',
+        'is_reported' => 'boolean',
     ];
 
     // ===== RELATIONSHIPS =====
