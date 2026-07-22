@@ -119,8 +119,62 @@ class CourseRepository implements CourseRepositoryInterface
         return CourseEnrollment::where('student_id', $userId)->pluck('course_id')->toArray();
     }
 
-    public function checkEnrollment($userId, $courseId)
+    public function getEnrollment($userId, $courseId)
     {
-        return CourseEnrollment::where('student_id', $userId)->where('course_id', $courseId)->exists();
+        return CourseEnrollment::where('student_id', $userId)->where('course_id', $courseId)->first();
+    }
+
+    public function getCourseReviews($courseId)
+    {
+        return \App\Models\Review::with('user:id,name,avatar')
+            ->where('course_id', $courseId)
+            ->where('is_hidden', false) // similar to visible()
+            ->latest()
+            ->get();
+    }
+
+    public function getUserReviewForCourse($userId, $courseId)
+    {
+        return \App\Models\Review::where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->first();
+    }
+
+    public function getCompletedOrderForCourse($userId, $courseId)
+    {
+        return \App\Models\Order::where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->first();
+    }
+
+    public function createReview(array $data)
+    {
+        return \App\Models\Review::create($data);
+    }
+
+    public function createFreeOrderAndEnrollment($userId, $course)
+    {
+        \Illuminate\Support\Facades\DB::transaction(function () use ($userId, $course) {
+            \App\Models\Order::create([
+                'user_id' => $userId,
+                'course_id' => $course->id,
+                'amount_original' => 0,
+                'discount_amount' => 0,
+                'amount_paid' => 0,
+                'commission_rate' => 0,
+                'commission_amount' => 0,
+                'seller_amount' => 0,
+                'status' => 'completed',
+                'payment_method' => 'free',
+            ]);
+
+            \App\Models\CourseEnrollment::create([
+                'course_id' => $course->id,
+                'student_id' => $userId,
+                'seller_id' => $course->seller_id,
+                'progress' => 0,
+                'is_banned' => false,
+            ]);
+        });
     }
 }

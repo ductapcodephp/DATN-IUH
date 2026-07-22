@@ -313,3 +313,35 @@ Trong hệ thống EduFlow, quy trình thanh toán (Checkout) và xử lý callb
 2. **Khả năng mở rộng (Extensibility - OCP):** Dễ dàng thêm, bớt hoặc thay đổi thứ tự các bước xử lý chỉ bằng cách thêm/xóa tên class trong mảng `through([])` mà không lo chạm hỏng các logic đang chạy ổn định.
 3. **Đảm bảo tính vẹn toàn dữ liệu (Data Integrity):** Toàn bộ pipeline vẫn chạy trong cùng một vòng đời DB Transaction. Nếu bất kỳ Pipe nào throw Exception, toàn bộ quá trình sẽ được Rollback.
 4. **Tăng cường khả năng kiểm thử (Testability):** Có thể viết Unit Test cho từng Pipe độc lập với mock data (DTO) riêng rẽ, thay vì phải setup môi trường khổng lồ để test toàn bộ God Method.
+
+---
+
+## 7. KIẾN TRÚC BẢO VỆ DOANH THU & CHÍNH SÁCH HOÀN TIỀN (REFUND POLICY) AN TOÀN
+
+### 7.1. Bài toán rủi ro kinh doanh (Business Risk) trong giáo dục trực tuyến
+Với đặc thù sản phẩm số (digital product) như khóa học video trực tuyến, một số nền tảng cho phép học viên hoàn tiền vô điều kiện trong vòng N ngày. Tuy nhiên, điều này sinh ra một rủi ro lạm dụng rất lớn: Học viên có thể mua khóa học, sử dụng phần mềm quay màn hình (screen record) hoặc cày cuốc liên tục ngày đêm để tải toàn bộ kiến thức, sau đó yêu cầu hoàn tiền.
+Nếu hệ thống tự động hoàn tiền mà không có cơ chế kiểm soát, Giảng viên (Seller) sẽ bị thiệt hại trắng trợn chất xám và nền tảng (Platform) cũng thất thoát doanh thu.
+
+### 7.2. Giải pháp Kiến trúc Logic Hoàn Tiền (Refund Anti-Abuse System)
+Để giải quyết bài toán trên, EduFlow áp dụng một thiết kế rào cản nhiều lớp (Multi-layer Defense) tại file `RefundService.php`:
+
+1. **Rào cản Thời gian (Time Barrier):**
+   - Rút ngắn chu kỳ chờ giải phóng doanh thu cho Giảng viên (từ 7 ngày xuống còn 3 ngày qua `ReleaseSellerEarnings`). Hệ thống quy định học viên chỉ được phép yêu cầu hoàn tiền trong đúng 3 ngày (72 giờ) sau khi thanh toán.
+
+2. **Rào cản Khối lượng tiêu thụ (Consumption Barrier - Best Practice):**
+   - Thay vì cấp quyền hoàn tiền mù quáng, hệ thống sẽ thực hiện đối chiếu chéo (Cross-reference) với hệ thống **Video Progress Tracking** (bảng `course_progress`).
+   - Tổng thời gian học viên đã xem (`watched_seconds`) được đem chia cho tổng thời lượng toàn bộ khóa học (`total_duration_seconds`).
+   - Nếu tiến độ học > **15%**, yêu cầu hoàn tiền sẽ bị từ chối tự động bằng logic cứng (Hard Block). Đảm bảo sự công bằng tuyệt đối cho Giảng viên.
+
+3. **Rào cản Hành vi Lạm dụng (Behavioral Barrier):**
+   - Giới hạn số lần Refund của một tài khoản: Tối đa 3 lần / 1 tháng. Nếu một user liên tục hoàn tiền, hệ thống sẽ từ chối và hiển thị cảnh báo cấm tài khoản vĩnh viễn (Permanent Ban Warning).
+
+4. **Rào cản Kỹ thuật (Technical Barrier) - Hoàn tiền vào Ví nội bộ (Wallet-based Refund):**
+   - Thay vì gọi API của Cổng thanh toán (VNPAY/Stripe) để hoàn tiền thẳng về thẻ/ngân hàng của người dùng (rất phức tạp, tốn phí giao dịch và mất từ 3-14 ngày làm việc), hệ thống được thiết kế để hoàn tiền ngay lập tức vào **Ví nội bộ (EduFlow Wallet)**.
+   - **Lợi ích kép:**
+     - **Về kỹ thuật:** Giao dịch hoàn tiền trở thành một Database Transaction nội bộ siêu nhanh (giảm độ trễ), không lệ thuộc vào độ ổn định của API bên thứ ba.
+     - **Về kinh doanh:** Giữ dòng tiền ở lại hệ thống (Retention). Học viên có xu hướng dùng số dư trong Ví để mua một khóa học khác thay vì làm lệnh Rút tiền về Ngân hàng, giúp tối ưu hóa doanh thu cho Platform.
+
+**👉 Kết luận cho Luận án:**
+Việc xử lý hoàn tiền không chỉ là một nghiệp vụ `CRUD` đơn thuần (đổi trạng thái `order` thành `refunded`), mà nó phản ánh **Business Logic** và **Domain Knowledge** sâu sắc của đội ngũ thiết kế. Sự kết hợp giữa giới hạn thời gian, đối soát tiến độ (`course_progress`), giới hạn tần suất hành vi, và kiến trúc **Ví nội bộ (Wallet)** đã tạo ra một hệ thống phòng thủ tự động toàn diện, chống thất thoát doanh thu và tối ưu hóa chi phí vận hành trong môi trường kinh doanh E-learning đầy tính rủi ro.
+  

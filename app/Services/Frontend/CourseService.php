@@ -49,9 +49,35 @@ class CourseService
         return $this->courseRepository->getEnrolledCourseIds($userId);
     }
 
-    public function checkEnrollment($userId, $courseId)
+    public function getEnrollment($userId, $courseId)
     {
-        if (!$userId) return false;
-        return $this->courseRepository->checkEnrollment($userId, $courseId);
+        if (!$userId) return null;
+        return $this->courseRepository->getEnrollment($userId, $courseId);
+    }
+    public function getCourseReviews($courseId)
+    {
+        return $this->courseRepository->getCourseReviews($courseId);
+    }
+
+    public function getUserReviewForCourse($userId, $courseId)
+    {
+        if (!$userId) return null;
+        return $this->courseRepository->getUserReviewForCourse($userId, $courseId);
+    }
+
+    public function getCompletedOrderForCourse($userId, $courseId)
+    {
+        if (!$userId) return null;
+        return $this->courseRepository->getCompletedOrderForCourse($userId, $courseId);
+    }
+
+    public function createReview(array $data)
+    {
+        return $this->courseRepository->createReview($data);
+    }
+
+    public function createFreeOrderAndEnrollment($userId, $course)
+    {
+        return $this->courseRepository->createFreeOrderAndEnrollment($userId, $course);
     }
 }

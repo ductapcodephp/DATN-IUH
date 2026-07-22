@@ -10,11 +10,11 @@ use App\Http\Controllers\Frontend\FaqController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\InstructorController;
 use App\Http\Controllers\Frontend\Dashboard\DashboardOverviewController;
-use App\Http\Controllers\Frontend\Dashboard\WalletController;
+use App\Http\Controllers\Finance\WalletController;
 use App\Http\Controllers\Frontend\Dashboard\OrderController;
 use App\Http\Controllers\Frontend\Dashboard\ProfileController as DashboardProfileController;
 use App\Http\Controllers\Frontend\LearningController;
-use App\Http\Controllers\Frontend\PaymentController;
+use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\Seller\CouponController;
 use App\Http\Controllers\Seller\Courses\ChapterController;
@@ -55,16 +55,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/orders', [OrderController::class, 'index'])->name('orders');
         Route::get('/orders/{orderId}', [OrderController::class, 'show'])->name('orders.detail');
 
-        Route::get('/wallet', [WalletController::class, 'index'])->name('wallet');
-        Route::get('/bank-accounts', [WalletController::class, 'bankAccounts'])->name('bank-accounts');
+        Route::get('/profile', [DashboardProfileController::class, 'index'])->name('profile');
+        Route::put('/profile', [DashboardProfileController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/profile/password', [DashboardProfileController::class, 'changePassword'])->name('profile.password');
+
+    });
+
+    // SHARED FINANCE ROUTES
+    Route::prefix('finance')->name('finance.')->middleware('auth')->group(function () {
+        Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
+        Route::get('/bank-accounts', [WalletController::class, 'bankAccounts'])->name('bank-accounts.index');
         Route::post('/bank-accounts', [WalletController::class, 'addBankAccount'])->name('bank-accounts.store');
         Route::put('/bank-accounts/{bankAccountId}', [WalletController::class, 'updateBankAccount'])->name('bank-accounts.update');
         Route::delete('/bank-accounts/{bankAccountId}', [WalletController::class, 'deleteBankAccount'])->name('bank-accounts.destroy');
         Route::patch('/bank-accounts/{bankAccountId}/set-default', [WalletController::class, 'setDefaultBankAccount'])->name('bank-accounts.set-default');
-
-        Route::get('/profile', [DashboardProfileController::class, 'index'])->name('profile');
-        Route::put('/profile', [DashboardProfileController::class, 'updateProfile'])->name('profile.update');
-        Route::put('/profile/password', [DashboardProfileController::class, 'changePassword'])->name('profile.password');
+        Route::post('/wallet/activate', [WalletController::class, 'activate'])->name('wallet.activate');
+        Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
     });
 
     // SELLER ROUTES
@@ -114,17 +120,22 @@ Route::middleware('auth')->group(function () {
         });
         // 5. QUẢN LÝ PROFILE SELLER
         Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::get('profile/notifications', [ProfileController::class, 'notifications'])->name('profile.notifications');
         Route::put('profile/info', [ProfileController::class, 'updateInfo'])->name('profile.updateInfo');
         Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
         Route::put('profile/payment', [ProfileController::class, 'updatePayment'])->name('profile.updatePayment');
 
         Route::get('/dashboard', fn () => Inertia::render('Seller/Dashboard'))->name('dashboard');
-        Route::get('revenues', function () {
-            return Inertia::render('Seller/Revenues');
-        })->name('revenues.index');
+        Route::get('revenues', [\App\Http\Controllers\Finance\RevenueController::class, 'index'])->name('revenues.index');
+        Route::post('revenues/withdraw', [\App\Http\Controllers\Finance\RevenueController::class, 'withdraw'])->name('revenues.withdraw');
         Route::get('reviews', function () {
             return Inertia::render('Seller/Reviews');
         })->name('reviews.index');
+
+        // VIP Packages
+        Route::get('vip-packages', [\App\Http\Controllers\Seller\VipPackageController::class, 'index'])->name('vip.index');
+        Route::post('vip-packages/buy', [\App\Http\Controllers\Seller\VipPackageController::class, 'buy'])->name('vip.buy');
+        Route::get('vip-packages/vnpay-return', [\App\Http\Controllers\Seller\VipPackageController::class, 'vnpayReturn'])->name('vip.vnpay.return');
 
     });
 
@@ -145,6 +156,8 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
 
     // Cart routes (Requires Authentication)
     Route::middleware('auth')->group(function () {
+        Route::post('/courses/{slug}/enroll-free', [CourseController::class, 'enrollFreeCourse'])->name('course.enroll-free');
+        Route::post('/courses/{slug}/review', [CourseController::class, 'submitReview'])->name('course.review');
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
@@ -164,5 +177,9 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
         Route::post('/courses/{slug}/learn/quiz/{quiz}', [LearningController::class, 'submitQuiz'])->name('course.learn.submit-quiz')->middleware('auth');
         Route::post('/courses/{slug}/learn/lesson/{lessonId}/progress', [LearningController::class, 'updateVideoProgress'])
             ->name('course.update_video_progress');
+
+        // Course Comments
+        Route::get('/courses/{slug}/learn/lesson/{lessonId}/comments', [\App\Http\Controllers\Frontend\CommentController::class, 'getComments'])->name('course.comments.get');
+        Route::post('/courses/{slug}/learn/lesson/{lessonId}/comments', [\App\Http\Controllers\Frontend\CommentController::class, 'addComment'])->name('course.comments.add');
     });
 });

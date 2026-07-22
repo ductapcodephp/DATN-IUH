@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
 use App\Services\Seller\ProfileService;
-use App\Http\Requests\Seller\UpdateProfileInfoRequest;
-use App\Http\Requests\Seller\UpdateProfilePasswordRequest;
-use App\Http\Requests\Seller\UpdateProfilePaymentRequest;
+use App\Http\Requests\Seller\Profile\UpdateProfileInfoRequest;
+use App\Http\Requests\Seller\Profile\UpdateProfilePasswordRequest;
+use App\Http\Requests\Seller\Profile\UpdateProfilePaymentRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -21,6 +21,11 @@ class ProfileController extends Controller
         return Inertia::render('Seller/Profile/Index', [
             'user' => $request->user(),
         ]);
+    }
+
+    public function notifications(Request $request)
+    {
+        return Inertia::render('Seller/Profile/Notifications');
     }
 
     public function updateInfo(UpdateProfileInfoRequest $request)

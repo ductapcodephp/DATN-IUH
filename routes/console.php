@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('payments:cancel-abandoned')->everyMinute();
+Schedule::command('seller:release-earnings')->dailyAt('01:00');

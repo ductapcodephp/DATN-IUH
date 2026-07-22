@@ -12,5 +12,11 @@ interface CourseRepositoryInterface
     
     public function getActiveCategories();
     public function getEnrolledCourseIds($userId);
-    public function checkEnrollment($userId, $courseId);
+    public function getEnrollment($userId, $courseId);
+    
+    public function getCourseReviews($courseId);
+    public function getUserReviewForCourse($userId, $courseId);
+    public function getCompletedOrderForCourse($userId, $courseId);
+    public function createReview(array $data);
+    public function createFreeOrderAndEnrollment($userId, $course);
 }

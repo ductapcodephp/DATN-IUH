@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace App\Services\Frontend\Dashboard;
 use App\Repositories\Frontend\Dashboard\DashboardOverviewRepositoryInterface;
-use App\Repositories\Frontend\Dashboard\WalletRepositoryInterface;
+use App\Repositories\Finance\WalletRepositoryInterface;
 use App\Repositories\Frontend\Dashboard\OrderRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;

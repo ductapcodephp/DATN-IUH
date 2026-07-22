@@ -54,18 +54,22 @@ class WalletTransaction extends Model
 {
     use HasFactory;
 
-    public const TYPE_DEPOSIT = 'deposit';
-    public const TYPE_PURCHASE = 'purchase';
-    public const TYPE_REFUND = 'refund';
+    public const TYPE_DEPOSIT    = 'deposit';
+    public const TYPE_PURCHASE   = 'purchase';
+    public const TYPE_REFUND     = 'refund';
     public const TYPE_COMMISSION = 'commission';
     public const TYPE_VIP_PAYMENT = 'vip_payment';
+    // Seller earnings
+    public const TYPE_EARNING    = 'earning';     // Tiền seller nhận khi khách mua (pending)
+    public const TYPE_WITHDRAWAL = 'withdrawal';  // Seller rút tiền
 
-    public const STATUS_PENDING = 'pending';
+    public const STATUS_PENDING   = 'pending';
     public const STATUS_COMPLETED = 'completed';
-    public const STATUS_FAILED = 'failed';
+    public const STATUS_FAILED    = 'failed';
 
     protected $fillable = [
         'wallet_id',
+        'order_id',
         'user_id',
         'type',
         'amount',
@@ -144,6 +148,21 @@ class WalletTransaction extends Model
     public function scopeRefunds($query)
     {
         return $query->where('type', self::TYPE_REFUND);
+    }
+
+    public function scopeEarnings($query)
+    {
+        return $query->where('type', self::TYPE_EARNING);
+    }
+
+    public function scopeWithdrawals($query)
+    {
+        return $query->where('type', self::TYPE_WITHDRAWAL);
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(\App\Models\Order::class);
     }
 
 

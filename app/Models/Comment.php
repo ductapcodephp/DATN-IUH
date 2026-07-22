@@ -92,6 +92,7 @@ class Comment extends Model
     protected $fillable = [
         'user_id',
         'lesson_id',
+        'parent_id',
         'content',
         'is_hidden',
     ];

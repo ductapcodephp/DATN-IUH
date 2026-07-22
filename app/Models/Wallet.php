@@ -36,10 +36,14 @@ class Wallet extends Model
     protected $fillable = [
         'user_id',
         'balance',
+        'balance_available',
+        'balance_pending',
     ];
 
     protected $casts = [
-        'balance' => 'decimal:2',
+        'balance'           => 'decimal:2',
+        'balance_available' => 'decimal:2',
+        'balance_pending'   => 'decimal:2',
     ];
 
 
@@ -73,16 +77,116 @@ class Wallet extends Model
     /**
      * Rút tiền / Thanh toán mua hàng (Bảo mật chống Race Condition)
      */
-    public function withdraw($amount, $description = null)
+    public function withdraw($amount, $description = null, $type = WalletTransaction::TYPE_PURCHASE)
     {
-        return DB::transaction(function () use ($amount, $description) {
+        return DB::transaction(function () use ($amount, $description, $type) {
             $lockedWallet = self::where('id', $this->id)->lockForUpdate()->first();
 
             if ((float) $lockedWallet->balance < (float) $amount) {
                 throw new \Exception('Số dư tài khoản không đủ để thực hiện giao dịch.');
             }
 
-            return $lockedWallet->addTransaction(WalletTransaction::TYPE_PURCHASE, $amount, $description, WalletTransaction::STATUS_COMPLETED);
+            return $lockedWallet->addTransaction($type, $amount, $description, WalletTransaction::STATUS_COMPLETED);
+        });
+    }
+
+    /**
+     * [SELLER] Ghi nhận tiền thu nhập đang chờ giải phóng (sau khi khách mua khóa học)
+     * Tiền vào balance_pending, chưa cộng vào balance chính.
+     */
+    public function addPendingEarning(float $amount, int $orderId, string $description = null): WalletTransaction
+    {
+        return DB::transaction(function () use ($amount, $orderId, $description) {
+            $lockedWallet = self::where('id', $this->id)->lockForUpdate()->first();
+
+            // Cộng vào balance_pending
+            $lockedWallet->increment('balance_pending', $amount);
+            $lockedWallet->refresh();
+
+            return WalletTransaction::create([
+                'wallet_id'      => $lockedWallet->id,
+                'order_id'       => $orderId,
+                'user_id'        => $lockedWallet->user_id,
+                'type'           => WalletTransaction::TYPE_EARNING,
+                'amount'         => $amount,
+                'balance_before' => (float) $lockedWallet->balance_pending - $amount,
+                'balance_after'  => (float) $lockedWallet->balance_pending,
+                'description'    => $description ?? 'Thu nhập từ bán khóa học (đang chờ giải phóng)',
+                'reference_code' => 'EARN_ORDER_' . $orderId,
+                'status'         => WalletTransaction::STATUS_PENDING,
+            ]);
+        });
+    }
+
+    /**
+     * [SELLER] Giải phóng tiền pending → available (sau 7 ngày, trừ hoa hồng)
+     * Được gọi bởi scheduled command ReleaseSellerEarnings.
+     *
+     * @param WalletTransaction $pendingTx  Giao dịch earning đang pending
+     * @param float             $commissionAmount Số tiền hoa hồng cần trừ (lấy từ orders.commission_amount)
+     * @param float             $sellerAmount     Số tiền thực seller nhận (orders.seller_amount)
+     */
+    public function releaseEarning(WalletTransaction $pendingTx, float $commissionAmount, float $sellerAmount): void
+    {
+        DB::transaction(function () use ($pendingTx, $commissionAmount, $sellerAmount) {
+            $lockedWallet = self::where('id', $this->id)->lockForUpdate()->first();
+
+            // Trừ khỏi balance_pending
+            $lockedWallet->decrement('balance_pending', (float) $pendingTx->amount);
+
+            // Cộng seller_amount vào balance_available và balance chính
+            $availableBefore = (float) $lockedWallet->fresh()->balance_available;
+            $lockedWallet->increment('balance_available', $sellerAmount);
+            $lockedWallet->increment('balance', $sellerAmount);
+
+            $walletAfterRelease = $lockedWallet->fresh();
+
+            // Đánh dấu giao dịch earning gốc là completed
+            // Lưu ý: WalletTransaction có guard chống update khi completed,
+            // nên ta dùng DB::table để bypass guard an toàn cho trường hợp này.
+            DB::table('wallet_transactions')
+                ->where('id', $pendingTx->id)
+                ->update([
+                    'status'     => WalletTransaction::STATUS_COMPLETED,
+                    'updated_at' => now(),
+                    'metadata'   => json_encode([
+                        'commission_amount' => $commissionAmount,
+                        'seller_amount'     => $sellerAmount,
+                        'released_at'       => now()->toISOString(),
+                    ]),
+                ]);
+        });
+    }
+
+    /**
+     * [SELLER] Rút tiền từ balance_available
+     */
+    public function withdrawAvailable(float $amount, string $description = null): WalletTransaction
+    {
+        return DB::transaction(function () use ($amount, $description) {
+            $lockedWallet = self::where('id', $this->id)->lockForUpdate()->first();
+
+            if ((float) $lockedWallet->balance_available < $amount) {
+                throw new \Exception('Số dư khả dụng không đủ để thực hiện yêu cầu rút tiền.');
+            }
+
+            $balanceBefore = (float) $lockedWallet->balance;
+
+            $lockedWallet->decrement('balance_available', $amount);
+            $lockedWallet->decrement('balance', $amount);
+
+            $lockedWallet->refresh();
+
+            return WalletTransaction::create([
+                'wallet_id'      => $lockedWallet->id,
+                'user_id'        => $lockedWallet->user_id,
+                'type'           => WalletTransaction::TYPE_WITHDRAWAL,
+                'amount'         => $amount,
+                'balance_before' => $balanceBefore,
+                'balance_after'  => (float) $lockedWallet->balance,
+                'description'    => $description ?? 'Rút tiền về tài khoản ngân hàng',
+                'status'         => WalletTransaction::STATUS_COMPLETED,
+            ]);
         });
     }
 
@@ -102,13 +206,18 @@ class Wallet extends Model
 
         switch ($type) {
             case WalletTransaction::TYPE_PURCHASE:
+            case WalletTransaction::TYPE_VIP_PAYMENT:
                 $balanceAfter = $balanceBefore - $amount;
+                $lockedWallet->decrement('balance_available', $amount);
                 break;
 
             case WalletTransaction::TYPE_DEPOSIT:
             case WalletTransaction::TYPE_REFUND:
+                $balanceAfter = $balanceBefore + $amount;
+                $lockedWallet->increment('balance_available', $amount);
+                break;
+                
             case WalletTransaction::TYPE_COMMISSION:
-            case WalletTransaction::TYPE_VIP_PAYMENT:
                 $balanceAfter = $balanceBefore + $amount;
                 break;
 

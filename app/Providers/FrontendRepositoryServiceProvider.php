@@ -26,5 +26,9 @@ class FrontendRepositoryServiceProvider extends ServiceProvider
         $this->app->bind(WishlistRepositoryInterface::class, WishlistRepository::class);
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
         $this->app->bind(LearningRepositoryInterface::class, LearningRepository::class);
+        $this->app->bind(
+            \App\Repositories\Frontend\Comments\CommentRepositoryInterface::class, 
+            \App\Repositories\Frontend\Comments\CommentRepository::class
+        );
     }
 }
