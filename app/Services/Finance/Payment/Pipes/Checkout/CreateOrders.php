@@ -72,6 +72,7 @@ class CreateOrders
                     $discountPerCoupon = $order->discount_amount / count($matchedCoupons);
                     foreach ($matchedCoupons as $coupon) {
                         $couponUsagesToInsert[] = [
+                            'coupon_id'        => $coupon->id,
                             'user_id'          => $data->userId,
                             'order_id'         => $order->id,
                             'discount_applied' => $discountPerCoupon,

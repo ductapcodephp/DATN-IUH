@@ -10,6 +10,7 @@ use App\Models\Wallet;
 use App\Models\VipPackage;
 use App\Models\VipSubscription;
 use App\Events\PaymentCompleted;
+use App\Notifications\Seller\NewCourseEnrollmentNotification;
 use Closure;
 
 class CompleteOrderPayment
@@ -61,6 +62,19 @@ class CompleteOrderPayment
                     $order->id,
                     'Thu nhập chờ giải phóng từ đơn hàng #' . $order->id
                 );
+
+                // Update Daily Statistic
+                \App\Models\DailyStatistic::updateOrCreate(
+                    [
+                        'seller_id' => $sellerId,
+                        'date' => now()->toDateString(),
+                    ],
+                    [] // The values are handled by increment/decrement below, but we need to ensure the record exists first.
+                )->increment('total_revenue', (float) $order->seller_amount);
+                
+                \App\Models\DailyStatistic::where('seller_id', $sellerId)
+                    ->where('date', now()->toDateString())
+                    ->increment('total_orders');
             }
 
             // Chuẩn bị dữ liệu enrollment
@@ -74,6 +88,15 @@ class CompleteOrderPayment
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
+                
+                // Gửi thông báo cho seller
+                if ($order->course && $order->course->seller) {
+                    $order->course->seller->notify(new NewCourseEnrollmentNotification(
+                        $order->course->title,
+                        $order->user->name,
+                        $order->course->id
+                    ));
+                }
             }
 
             // Tạo VIP Subscription nếu là mua gói VIP

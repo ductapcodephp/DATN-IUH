@@ -96,15 +96,22 @@ export default function Revenues({ wallet, totalWithdrawn, transactions, bankAcc
                             </thead>
                             <tbody>
                                 {transactions.data && transactions.data.length > 0 ? (
-                                    transactions.data.map(tx => (
-                                        <tr key={tx.id}>
-                                            <td className="px-4 py-3 text-fire fw-semibold">#{tx.reference_code || `TX-${tx.id}`}</td>
-                                            <td className="px-4 py-3">
-                                                {tx.type === 'earning' ? 'Nhận doanh thu' : (tx.type === 'withdrawal' ? 'Rút tiền' : tx.type)}
+                                    transactions.data.map((tx, index) => (
+                                        <tr key={`${tx.source}-${tx.id}`}>
+                                            <td className="px-4 py-3 text-fire fw-semibold">
+                                                #{tx.source === 'online' ? 'PAY-' : 'WL-'}{tx.id}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <strong className={tx.type === 'earning' ? 'text-success' : 'text-danger'}>
-                                                    {tx.type === 'earning' ? '+' : '-'}{formatCurrency(tx.amount)}
+                                                <div>
+                                                    <span className={`badge ${tx.source === 'online' ? 'bg-primary' : (tx.type === 'earning' ? 'bg-success' : 'bg-secondary')}`}>
+                                                        {tx.source === 'online' ? 'Thanh toán' : (tx.type === 'earning' ? 'Doanh thu' : 'Rút tiền')}
+                                                    </span>
+                                                </div>
+                                                <small className="text-muted d-block mt-1">{tx.description}</small>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <strong className={tx.source === 'online' || tx.type === 'earning' ? 'text-success' : 'text-danger'}>
+                                                    {tx.source === 'online' || tx.type === 'earning' ? '+' : '-'}{formatCurrency(tx.amount)}
                                                 </strong>
                                             </td>
                                             <td className="px-4 py-3">{formatDate(tx.created_at)}</td>

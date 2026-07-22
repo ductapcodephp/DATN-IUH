@@ -24,7 +24,7 @@ const txStatusConfig = {
     failed:    { label: 'Thất bại',   color: '#dc2626', bg: '#fee2e2' },
 };
 
-export default function Wallet({ wallet, transactions, onlinePayments, filters }) {
+export default function Wallet({ wallet, transactions, filters }) {
     const [activeTab, setActiveTab] = useState(filters?.activeTab ?? 'wallet_history');
 
     const [type, setType]         = useState(filters?.type ?? '');
@@ -238,21 +238,6 @@ export default function Wallet({ wallet, transactions, onlinePayments, filters }
                         <i className="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử ví
                     </button>
                 </li>
-                <li className="nav-item">
-                    <button 
-                        className={`nav-link fw-semibold px-4 py-2`}
-                        onClick={() => handleTabChange('online_history')}
-                        style={{
-                            borderRadius: '12px', 
-                            background: activeTab === 'online_history' ? '#f5f3ff' : 'transparent',
-                            color: activeTab === 'online_history' ? '#7c3aed' : '#6B7280',
-                            border: activeTab === 'online_history' ? '1px solid #ddd6fe' : '1px solid transparent',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <i className="fa-solid fa-credit-card me-2"></i>Giao dịch Online
-                    </button>
-                </li>
             </ul>
 
             {/* Transactions */}
@@ -262,26 +247,17 @@ export default function Wallet({ wallet, transactions, onlinePayments, filters }
                     <form onSubmit={handleFilter}>
                         <div className="d-flex flex-wrap gap-2 align-items-center">
                             <h6 className="fw-bold mb-0 me-3" style={{ color: '#1F2937' }}>
-                                {activeTab === 'wallet_history' ? 'Lịch sử Ví' : 'Giao dịch Online'}
+                                Lịch sử Ví
                             </h6>
                             <select className="form-select form-select-sm" value={type} onChange={(e) => setType(e.target.value)} style={{ width: 'auto', borderRadius: '8px', fontSize: '0.8rem' }}>
                                 <option value="">Tất cả loại</option>
-                                {activeTab === 'wallet_history' ? (
-                                    <>
-                                        <option value="deposit">Nạp tiền</option>
-                                        <option value="purchase">Mua khóa học</option>
-                                        <option value="refund">Hoàn tiền</option>
-                                        <option value="commission">Hoa hồng</option>
-                                        <option value="vip_payment">Mua VIP</option>
-                                        <option value="withdrawal">Rút tiền</option>
-                                        <option value="earning">Doanh thu</option>
-                                    </>
-                                ) : (
-                                    <>
-                                        <option value="vnpay">Thanh toán VNPAY</option>
-                                        <option value="stripe">Thanh toán Stripe</option>
-                                    </>
-                                )}
+                                <option value="deposit">Nạp tiền</option>
+                                <option value="purchase">Mua khóa học</option>
+                                <option value="refund">Hoàn tiền</option>
+                                <option value="commission">Hoa hồng</option>
+                                <option value="vip_payment">Mua VIP</option>
+                                <option value="withdrawal">Rút tiền</option>
+                                <option value="earning">Doanh thu</option>
                             </select>
                             <select className="form-select form-select-sm" value={status} onChange={(e) => setStatus(e.target.value)} style={{ width: 'auto', borderRadius: '8px', fontSize: '0.8rem' }}>
                                 <option value="">Tất cả trạng thái</option>
@@ -384,93 +360,7 @@ export default function Wallet({ wallet, transactions, onlinePayments, filters }
                     </>
                 )}
 
-                {activeTab === 'online_history' && (
-                    <>
-                        {(onlinePayments?.data ?? []).length === 0 ? (
-                            <div className="text-center py-5">
-                                <i className="fa-solid fa-credit-card" style={{ fontSize: '2.5rem', color: '#e2e8f0', marginBottom: '12px', display: 'block' }}></i>
-                                <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Chưa có giao dịch online nào</p>
-                            </div>
-                        ) : (
-                            <>
-                                {(onlinePayments?.data ?? []).map((tx, i) => {
-                                    const txInfo    = txTypeConfig[tx.payment_gateway] ?? txTypeConfig.vnpay;
-                                    const statusInfo = txStatusConfig[tx.status] ?? txStatusConfig.pending;
-                                    
-                                    return (
-                                        <div
-                                            key={`online_${tx.id}`}
-                                            className="d-flex align-items-center justify-content-between px-4 py-3"
-                                            style={{ borderBottom: i < (onlinePayments.data.length - 1) ? '1px solid #f8fafc' : 'none' }}
-                                        >
-                                            <div className="d-flex align-items-center gap-3">
-                                                <div style={{
-                                                    width: '42px', height: '42px', borderRadius: '12px',
-                                                    background: txInfo.bg, display: 'flex', alignItems: 'center',
-                                                    justifyContent: 'center', flexShrink: 0,
-                                                }}>
-                                                    <i className={txInfo.icon} style={{ color: txInfo.color }}></i>
-                                                </div>
-                                                <div>
-                                                    <div style={{ fontWeight: 600, color: '#1F2937', fontSize: '0.875rem' }}>Thanh toán {txInfo.label}</div>
-                                                    <div style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>
-                                                        {new Date(tx.created_at).toLocaleString('vi-VN')}
-                                                        {tx.transaction_code && <span className="ms-2 text-muted">• {tx.transaction_code}</span>}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="text-end">
-                                                <div style={{ fontWeight: 800, fontSize: '1rem', color: '#16a34a' }}>
-                                                    +{formatCurrency(tx.amount)}
-                                                </div>
-                                                <div style={{
-                                                    display: 'inline-block', padding: '2px 8px', borderRadius: '20px',
-                                                    background: statusInfo.bg, color: statusInfo.color,
-                                                    fontSize: '0.7rem', fontWeight: 600,
-                                                }}>
-                                                    {statusInfo.label}
-                                                </div>
-                                                
-                                                {(tx.status === 'failed' || tx.status === 'pending') && (
-                                                    <div className="mt-2">
-                                                        <button 
-                                                            onClick={() => router.post(route('frontend.payment.retry', { id: tx.id }))}
-                                                            className="btn btn-sm btn-outline-danger" 
-                                                            style={{ fontSize: '0.75rem', borderRadius: '8px', padding: '4px 12px', fontWeight: 'bold' }}
-                                                        >
-                                                            <i className="fa-solid fa-rotate-right me-1"></i>Thử lại
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
 
-                                {/* Pagination */}
-                                {onlinePayments?.last_page > 1 && (
-                                    <div className="d-flex justify-content-center gap-2 p-3">
-                                        {Array.from({ length: onlinePayments.last_page }, (_, i) => i + 1).map((page) => (
-                                            <button
-                                                key={page}
-                                                onClick={() => router.get(route('finance.wallet.index'), { online_page: page, type, status, activeTab })}
-                                                className="btn btn-sm fw-semibold"
-                                                style={{
-                                                    borderRadius: '8px', minWidth: '36px',
-                                                    background: page === onlinePayments.current_page ? '#7c3aed' : '#fff',
-                                                    color: page === onlinePayments.current_page ? '#fff' : '#4B5563',
-                                                    border: `1px solid ${page === onlinePayments.current_page ? '#7c3aed' : '#e2e8f0'}`,
-                                                }}
-                                            >
-                                                {page}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </>
-                )}
             </div>
 
             {/* Deposit Modal */}

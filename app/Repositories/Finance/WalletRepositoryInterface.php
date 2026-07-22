@@ -14,4 +14,8 @@ interface WalletRepositoryInterface
     public function updateBankAccount(int $userId, int $bankAccountId, array $data): \App\Models\UserBankAccount;
     public function deleteBankAccount(int $userId, int $bankAccountId): bool;
     public function setDefaultBankAccount(int $userId, int $bankAccountId): bool;
+    public function getTotalWithdrawn(int $userId): float;
+    public function getRevenueTransactions(int $userId): LengthAwarePaginator;
+    public function getUnifiedRevenueTransactions(int $userId, array $filters = []): LengthAwarePaginator;
+    public function processWithdrawal(\App\DTO\Finance\WithdrawalData $data): \App\Models\WalletTransaction;
 }

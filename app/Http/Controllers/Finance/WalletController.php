@@ -24,13 +24,12 @@ class WalletController extends Controller
         $walletInfo   = $this->walletService->getWalletInfo($userId);
         $filters      = $request->only(['type', 'status', 'date_from', 'date_to', 'activeTab']);
         $transactions = $this->walletService->getWalletTransactions($userId, $filters);
-        $onlinePayments = $this->walletService->getOnlinePayments($userId, $filters);
+        
         $viewPrefix = Auth::user()->isSeller() ? 'Seller' : 'Frontend/Dashboard';
         
         return Inertia::render("$viewPrefix/Wallet/Index", [
             'wallet'       => $walletInfo,
             'transactions' => $transactions,
-            'onlinePayments' => $onlinePayments,
             'filters'      => $filters,
         ]);
     }
@@ -44,7 +43,7 @@ class WalletController extends Controller
         $wallet->status = 'active';
         $wallet->save();
 
-        return back()->with('success', 'ÄÃ£ kÃ­ch hoáº¡t vÃ­ thÃ nh cÃ´ng!');
+        return back()->with('success', 'Đã kích hoạt ví thành công!');
     }
 
     public function bankAccounts(Request $request): Response
@@ -67,7 +66,7 @@ class WalletController extends Controller
 
         $this->walletService->addBankAccount(Auth::id(), $validated);
 
-        return back()->with('success', 'ÄÃ£ thÃªm tÃ i khoáº£n ngÃ¢n hÃ ng thÃ nh cÃ´ng!');
+        return back()->with('success', 'Đã thêm tài khoản ngân hàng thành công!');
     }
 
     
@@ -77,21 +76,21 @@ class WalletController extends Controller
 
         $this->walletService->updateBankAccount(Auth::id(), $bankAccountId, $validated);
 
-        return back()->with('success', 'ÄÃ£ cáº­p nháº­t tÃ i khoáº£n ngÃ¢n hÃ ng thÃ nh cÃ´ng!');
+        return back()->with('success', 'Cập nhật tài khoản ngân hàng thành công!');
     }
 
  
     public function deleteBankAccount(int $bankAccountId)
     {
         $this->walletService->deleteBankAccount(Auth::id(), $bankAccountId);
-        return back()->with('success', 'ÄÃ£ xÃ³a tÃ i khoáº£n ngÃ¢n hÃ ng.');
+        return back()->with('success', 'Đã xóa tài khoản ngân hàng.');
     }
 
 
     public function setDefaultBankAccount(int $bankAccountId)
     {
         $this->walletService->setDefaultBankAccount(Auth::id(), $bankAccountId);
-        return back()->with('success', 'ÄÃ£ Ä‘áº·t lÃ m tÃ i khoáº£n máº·c Ä‘á»‹nh!');
+        return back()->with('success', 'Đã đặt tài khoản ngân hàng này làm mặc định!');
     }
 
     public function withdraw(Request $request)
@@ -102,12 +101,24 @@ class WalletController extends Controller
         
         $user = Auth::user();
         if (!$user->wallet) {
-            return back()->withErrors(['amount' => 'Báº¡n chÆ°a cÃ³ vÃ­ Ä‘á»ƒ rÃºt tiá»n.']);
+            return back()->withErrors(['amount' => 'Bạn chưa có ví để rút tiền.']);
         }
         
+        $bankAccounts = $this->walletService->getBankAccounts($user->id);
+        $defaultBank = $bankAccounts->where('is_default', 1)->first() ?? $bankAccounts->first();
+        
+        if (!$defaultBank) {
+            return back()->withErrors(['amount' => 'Vui lòng thêm tài khoản ngân hàng trước khi rút tiền.']);
+        }
+
         try {
-            $user->wallet->withdrawAvailable((float)$request->input('amount'), 'RÃºt tiá»n vá» tÃ i khoáº£n ngÃ¢n hÃ ng');
-            return back()->with('success', 'YÃªu cáº§u rÃºt tiá»n Ä‘Ã£ Ä‘Æ°á»£c táº¡o thÃ nh cÃ´ng vÃ  Ä‘ang chá» duyá»‡t.');
+            $withdrawalData = new \App\DTO\Finance\WithdrawalData(
+                $user->id,
+                (float)$request->input('amount'),
+                $defaultBank->id
+            );
+            $this->walletService->processWithdrawal($withdrawalData);
+            return back()->with('success', 'Yêu cầu rút tiền đã được tạo thành công và đang chờ duyệt.');
         } catch (\Exception $e) {
             return back()->withErrors(['amount' => $e->getMessage()]);
         }

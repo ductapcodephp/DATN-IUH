@@ -42,4 +42,24 @@ class WalletService
     {
         return $this->walletRepository->setDefaultBankAccount($userId, $bankAccountId);
     }
+
+    public function getTotalWithdrawn(int $userId): float
+    {
+        return $this->walletRepository->getTotalWithdrawn($userId);
+    }
+
+    public function getRevenueTransactions(int $userId): LengthAwarePaginator
+    {
+        return $this->walletRepository->getRevenueTransactions($userId);
+    }
+
+    public function getUnifiedRevenueTransactions(int $userId, array $filters = []): LengthAwarePaginator
+    {
+        return $this->walletRepository->getUnifiedRevenueTransactions($userId, $filters);
+    }
+
+    public function processWithdrawal(\App\DTO\Finance\WithdrawalData $data): \App\Models\WalletTransaction
+    {
+        return $this->walletRepository->processWithdrawal($data);
+    }
 }

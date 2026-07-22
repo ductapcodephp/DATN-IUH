@@ -4,6 +4,7 @@ namespace App\Services\Finance\Payment\Pipes\Checkout;
 
 use App\DTO\Payment\CheckoutData;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Closure;
 use Exception;
 
@@ -14,6 +15,11 @@ class CalculateTotal
      */
     public function handle(CheckoutData $data, Closure $next)
     {
+        Log::info('CheckoutData before CalculateTotal', [
+            'totalAmount' => $data->totalAmount,
+            'discountAmount' => $data->discountAmount,
+            'couponIds' => $data->couponIds,
+        ]);
         $data->finalAmount = $data->totalAmount - $data->discountAmount;
 
         if ($data->finalAmount <= 0) {

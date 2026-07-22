@@ -88,4 +88,106 @@ class WalletRepository implements WalletRepositoryInterface
         UserBankAccount::where('user_id', $userId)->update(['is_default' => false]);
         return (bool) UserBankAccount::where('user_id', $userId)->where('id', $bankAccountId)->update(['is_default' => true]);
     }
+
+    public function getTotalWithdrawn(int $userId): float
+    {
+        return (float) WalletTransaction::where('user_id', $userId)
+            ->where('type', WalletTransaction::TYPE_WITHDRAWAL)
+            ->where('status', WalletTransaction::STATUS_COMPLETED)
+            ->sum('amount');
+    }
+
+    public function getRevenueTransactions(int $userId): LengthAwarePaginator
+    {
+        return WalletTransaction::where('user_id', $userId)
+            ->whereIn('type', [WalletTransaction::TYPE_WITHDRAWAL, WalletTransaction::TYPE_EARNING])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+    }
+
+    public function getUnifiedRevenueTransactions(int $userId, array $filters = []): LengthAwarePaginator
+    {
+        // Query 1: Wallet Transactions (Earnings & Withdrawals)
+        $walletQuery = \Illuminate\Support\Facades\DB::table('wallet_transactions')
+            ->select(
+                'id',
+                'type',
+                'amount',
+                'status',
+                'description',
+                'created_at',
+                \Illuminate\Support\Facades\DB::raw("'wallet' as source")
+            )
+            ->where('user_id', $userId)
+            ->whereIn('type', [WalletTransaction::TYPE_WITHDRAWAL, WalletTransaction::TYPE_EARNING]);
+
+        // Query 2: Online Payments
+        $onlineQuery = \Illuminate\Support\Facades\DB::table('online_payments')
+            ->select(
+                'id',
+                'payment_gateway as type',
+                'amount',
+                'status',
+                \Illuminate\Support\Facades\DB::raw("CONCAT('Thanh toán qua cổng ', payment_gateway) as description"),
+                'created_at',
+                \Illuminate\Support\Facades\DB::raw("'online' as source")
+            )
+            ->where('user_id', $userId);
+
+        if (!empty($filters['date_from'])) {
+            $walletQuery->whereDate('created_at', '>=', $filters['date_from']);
+            $onlineQuery->whereDate('created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $walletQuery->whereDate('created_at', '<=', $filters['date_to']);
+            $onlineQuery->whereDate('created_at', '<=', $filters['date_to']);
+        }
+        
+        $unifiedQuery = $walletQuery->union($onlineQuery)->orderBy('created_at', 'desc');
+        
+        // Paginate using query builder
+        return $unifiedQuery->paginate(10);
+    }
+
+    public function processWithdrawal(\App\DTO\Finance\WithdrawalData $data): \App\Models\WalletTransaction
+    {
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
+            $wallet = Wallet::where('user_id', $data->userId)->lockForUpdate()->first();
+            
+            if (!$wallet || $wallet->balance_available < $data->amount) {
+                throw new \Exception('Số dư khả dụng không đủ để rút tiền.');
+            }
+
+            $bankAccount = UserBankAccount::where('id', $data->bankAccountId)
+                ->where('user_id', $data->userId)
+                ->first();
+                
+            if (!$bankAccount) {
+                throw new \Exception('Tài khoản ngân hàng không hợp lệ.');
+            }
+
+            $balanceBefore = $wallet->balance_available;
+            
+            $wallet->balance_available -= $data->amount;
+            $wallet->balance -= $data->amount;
+            $wallet->save();
+
+            return WalletTransaction::create([
+                'user_id' => $data->userId,
+                'wallet_id' => $wallet->id,
+                'type' => WalletTransaction::TYPE_WITHDRAWAL,
+                'amount' => $data->amount,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $wallet->balance_available,
+                'status' => WalletTransaction::STATUS_PENDING,
+                'description' => 'Yêu cầu rút tiền về ' . $bankAccount->bank_name . ' (' . $bankAccount->account_number . ')',
+                'metadata' => [
+                    'bank_name' => $bankAccount->bank_name,
+                    'account_name' => $bankAccount->account_name,
+                    'account_number' => $bankAccount->account_number,
+                    'branch' => $bankAccount->branch,
+                ]
+            ]);
+        });
+    }
 }
