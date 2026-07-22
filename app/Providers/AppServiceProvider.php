@@ -18,6 +18,8 @@ use App\Repositories\Frontend\Dashboard\ProfileRepositoryInterface;
 use App\Repositories\Frontend\Dashboard\ProfileRepository;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Repositories\User\UserRepository;
+use App\Repositories\Shared\ReviewRepositoryInterface;
+use App\Repositories\Shared\ReviewRepository;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -28,6 +30,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UserRepositoryInterface::class,
             UserRepository::class
+        );
+
+        $this->app->bind(
+            ReviewRepositoryInterface::class,
+            ReviewRepository::class
         );
 
         $this->app->bind(
@@ -48,6 +55,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ProfileRepositoryInterface::class,
             ProfileRepository::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\Seller\Dashboard\DashboardRepositoryInterface::class,
+            \App\Repositories\Seller\Dashboard\DashboardRepository::class
         );
     }
 

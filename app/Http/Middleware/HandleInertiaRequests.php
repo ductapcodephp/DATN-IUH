@@ -24,6 +24,8 @@ class HandleInertiaRequests extends Middleware
                 'wishlisted_course_ids' => $request->user() 
                     ? \App\Models\Wishlist::where('user_id', $request->user()->id)->pluck('course_id')->toArray() 
                     : [],
+                'unread_notifications' => $request->user() ? $request->user()->unreadNotifications()->limit(5)->get() : [],
+                'unread_notifications_count' => $request->user() ? $request->user()->unreadNotifications()->count() : 0,
             ],
             'vip_packages' => \App\Models\VipPackage::active()->ordered()->get(),
             'wallet_bonuses' => \App\Models\WalletBonus::where('is_active', true)->orderBy('min_amount')->get(),

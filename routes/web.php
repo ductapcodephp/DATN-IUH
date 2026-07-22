@@ -16,6 +16,7 @@ use App\Http\Controllers\Frontend\Dashboard\ProfileController as DashboardProfil
 use App\Http\Controllers\Frontend\LearningController;
 use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Frontend\WishlistController;
+use App\Http\Controllers\Shared\ReviewController;
 use App\Http\Controllers\Seller\CouponController;
 use App\Http\Controllers\Seller\Courses\ChapterController;
 use App\Http\Controllers\Seller\Courses\CurriculumController;
@@ -25,6 +26,11 @@ use App\Http\Controllers\Seller\Courses\QuizController;
 use App\Http\Controllers\Seller\Courses\SellerCourseController;
 use App\Http\Controllers\Seller\ProfileController;
 use App\Http\Controllers\Seller\StudentController;
+use App\Http\Controllers\Seller\SellerDashboardController;
+use App\Http\Controllers\Shared\NotificationController;
+use App\Http\Controllers\Finance\RevenueController;
+use App\Http\Controllers\Seller\VipPackageController;
+use App\Http\Controllers\Frontend\CommentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -59,6 +65,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/profile', [DashboardProfileController::class, 'updateProfile'])->name('profile.update');
         Route::put('/profile/password', [DashboardProfileController::class, 'changePassword'])->name('profile.password');
 
+        Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
     });
 
     // SHARED FINANCE ROUTES
@@ -125,17 +132,17 @@ Route::middleware('auth')->group(function () {
         Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
         Route::put('profile/payment', [ProfileController::class, 'updatePayment'])->name('profile.updatePayment');
 
-        Route::get('/dashboard', fn () => Inertia::render('Seller/Dashboard'))->name('dashboard');
-        Route::get('revenues', [\App\Http\Controllers\Finance\RevenueController::class, 'index'])->name('revenues.index');
-        Route::post('revenues/withdraw', [\App\Http\Controllers\Finance\RevenueController::class, 'withdraw'])->name('revenues.withdraw');
-        Route::get('reviews', function () {
-            return Inertia::render('Seller/Reviews');
-        })->name('reviews.index');
+        Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('revenues', [RevenueController::class, 'index'])->name('revenues.index');
+        Route::post('revenues/withdraw', [RevenueController::class, 'withdraw'])->name('revenues.withdraw');
+        Route::get('courses/{course}/reviews', [ReviewController::class, 'index'])->name('courses.reviews.index');
+        Route::patch('reviews/{review}/report', [ReviewController::class, 'report'])->name('reviews.report');
+        Route::post('reviews/{review}/reply', [ReviewController::class, 'reply'])->name('reviews.reply');
 
         // VIP Packages
-        Route::get('vip-packages', [\App\Http\Controllers\Seller\VipPackageController::class, 'index'])->name('vip.index');
-        Route::post('vip-packages/buy', [\App\Http\Controllers\Seller\VipPackageController::class, 'buy'])->name('vip.buy');
-        Route::get('vip-packages/vnpay-return', [\App\Http\Controllers\Seller\VipPackageController::class, 'vnpayReturn'])->name('vip.vnpay.return');
+        Route::get('vip-packages', [VipPackageController::class, 'index'])->name('vip.index');
+        Route::post('vip-packages/buy', [VipPackageController::class, 'buy'])->name('vip.buy');
+        Route::get('vip-packages/vnpay-return', [VipPackageController::class, 'vnpayReturn'])->name('vip.vnpay.return');
 
     });
 
@@ -157,7 +164,9 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
     // Cart routes (Requires Authentication)
     Route::middleware('auth')->group(function () {
         Route::post('/courses/{slug}/enroll-free', [CourseController::class, 'enrollFreeCourse'])->name('course.enroll-free');
-        Route::post('/courses/{slug}/review', [CourseController::class, 'submitReview'])->name('course.review');
+        Route::post('/courses/{slug}/review', [ReviewController::class, 'submitReview'])->name('course.review');
+        Route::put('/courses/reviews/{review}', [ReviewController::class, 'updateReview'])->name('course.review.update');
+        Route::delete('/courses/reviews/{review}', [ReviewController::class, 'deleteReview'])->name('course.review.delete');
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
@@ -179,7 +188,7 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
             ->name('course.update_video_progress');
 
         // Course Comments
-        Route::get('/courses/{slug}/learn/lesson/{lessonId}/comments', [\App\Http\Controllers\Frontend\CommentController::class, 'getComments'])->name('course.comments.get');
-        Route::post('/courses/{slug}/learn/lesson/{lessonId}/comments', [\App\Http\Controllers\Frontend\CommentController::class, 'addComment'])->name('course.comments.add');
-    });
+        Route::get('/courses/{slug}/learn/lesson/{lessonId}/comments', [CommentController::class, 'getComments'])->name('course.comments.get');
+        Route::post('/courses/{slug}/learn/lesson/{lessonId}/comments', [CommentController::class, 'addComment'])->name('course.comments.add');
+ });
 });

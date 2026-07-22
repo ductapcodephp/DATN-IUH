@@ -11,3 +11,4 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('payments:cancel-abandoned')->everyMinute();
 Schedule::command('seller:release-earnings')->dailyAt('01:00');
+Schedule::command('vip:check-expiring')->dailyAt('02:00');
