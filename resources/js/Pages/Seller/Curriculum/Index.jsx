@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Head, useForm, router } from '@inertiajs/react';
+import { Head, useForm, router, Link } from '@inertiajs/react';
 import SweetAlert from '@/Components/SweetAlert';
 import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
@@ -152,6 +152,9 @@ export default function Curriculum({ course, chapters: initialChapters }) {
             <div className="page">
                 <div className="page-header">
                     <div>
+                        <Link href={route('seller.courses.index')} className="ef-backlink" style={{ textDecoration: 'none', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: '500' }}>
+                            <i className="fas fa-arrow-left"></i> Quay lại
+                        </Link>
                         <div className="page-title">Giáo trình: {course.title}</div>
                         <div className="page-sub">Xây dựng cấu trúc chương mục, kéo thả sắp xếp và tải lên nội dung bài giảng</div>
                     </div>

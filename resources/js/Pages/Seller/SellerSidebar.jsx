@@ -35,10 +35,17 @@ export default function SellerSidebar() {
 
 
             <Link
+                className={`nav-item ${route().current('seller.vip.index') ? 'active' : ''}`}
+                href={route('seller.vip.index')}
+            >
+                <i className="fa-solid fa-crown text-warning"></i> Nâng cấp VIP
+            </Link>
+
+            <Link
                 className={`nav-item ${route().current('seller.revenues.index') ? 'active' : ''}`}
                 href={route('seller.revenues.index')}
             >
-                <i className="fa-solid fa-wallet"></i> Doanh thu & Rút tiền
+                <i className="fa-solid fa-money-bill-transfer"></i> Doanh thu & Rút tiền
             </Link>
 
             <Link
@@ -53,6 +60,36 @@ export default function SellerSidebar() {
                 href={route('seller.reviews.index')}
             >
                 <i className="fa-solid fa-star"></i> Đánh giá phản hồi
+            </Link>
+
+            <div className="sidebar-section mt-4">Khu vực cài đặt</div>
+
+            <Link
+                className={`nav-item ${route().current('finance.wallet.index') ? 'active' : ''}`}
+                href={route('finance.wallet.index')}
+            >
+                <i className="fa-solid fa-wallet"></i> Ví điện tử
+            </Link>
+
+            <Link
+                className={`nav-item ${route().current('finance.bank-accounts.index') ? 'active' : ''}`}
+                href={route('finance.bank-accounts.index')}
+            >
+                <i className="fa-solid fa-building-columns"></i> Tài khoản ngân hàng
+            </Link>
+
+            <Link
+                className={`nav-item ${route().current('seller.profile.edit') ? 'active' : ''}`}
+                href={route('seller.profile.edit')}
+            >
+                <i className="fa-regular fa-user"></i> Hồ sơ & Bảo mật
+            </Link>
+
+            <Link
+                className={`nav-item ${route().current('seller.profile.notifications') ? 'active' : ''}`}
+                href={route('seller.profile.notifications')}
+            >
+                <i className="fa-regular fa-bell"></i> Cài đặt thông báo
             </Link>
 
             {/* 👇 THAY ĐỔI Ở ĐÂY: Thêm class dropup vào container dưới đáy */}
@@ -73,11 +110,7 @@ export default function SellerSidebar() {
 
                 {/* Menu xổ ngược lên trên */}
                 <ul className="dropdown-menu w-100 shadow border-0 mb-2">
-                    <li>
-                        <Link className="dropdown-item d-flex align-items-center gap-2 py-2" href={route('profile.edit')}>
-                            <i className="fa-regular fa-user text-muted"></i> Hồ sơ của tôi
-                        </Link>
-                    </li>
+                    <li><Link className="dropdown-item" href={route('seller.profile.edit')}><i className="ri-user-settings-line me-2"></i> Hồ sơ</Link></li>
                     <li><hr className="dropdown-divider opacity-50" /></li>
                     <li>
                         <Link

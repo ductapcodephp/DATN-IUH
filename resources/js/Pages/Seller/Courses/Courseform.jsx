@@ -44,8 +44,7 @@ export default function CourseForm({ course }) {
     const [preview, setPreview] = useState(null);
     const currentThumbnailUrl = course?.thumbnail_url || course?.thumbnail || null;
 
-    const submit = (e) => {
-        e.preventDefault();
+const handleConfirm = () => {
         const url = isEdit
             ? route('seller.courses.update', course.id)
             : route('seller.courses.store');
@@ -78,125 +77,7 @@ export default function CourseForm({ course }) {
         <>
             <Head title={isEdit ? `Chỉnh sửa: ${course.title}` : 'Tạo khóa học mới'} />
             
-            <style>{`
-                .wizard-container {
-                    background: #fff;
-                    border-radius: 16px;
-                    box-shadow: 0 6px 20px rgba(0,0,0,0.04);
-                    border: 1px solid var(--border);
-                    padding: 40px;
-                    margin-top: 24px;
-                }
-                .wizard-header {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 40px;
-                    position: relative;
-                    max-width: 800px;
-                    margin-left: auto;
-                    margin-right: auto;
-                }
-                .wizard-header::before {
-                    content: '';
-                    position: absolute;
-                    top: 24px;
-                    left: 60px;
-                    right: 60px;
-                    height: 2px;
-                    background: var(--border);
-                    z-index: 1;
-                }
-                .wizard-step {
-                    position: relative;
-                    z-index: 2;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 12px;
-                    background: #fff;
-                    padding: 0 16px;
-                    cursor: pointer;
-                    color: var(--muted2);
-                    transition: all 0.3s;
-                }
-                .wizard-step.active {
-                    color: var(--fire);
-                }
-                .wizard-step-icon {
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 50%;
-                    background: var(--bg3);
-                    border: 2px solid var(--border);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 1.2rem;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                }
-                .wizard-step.active .wizard-step-icon {
-                    background: var(--fire);
-                    border-color: var(--fire);
-                    color: #fff;
-                    box-shadow: 0 0 0 6px var(--fire-d), 0 4px 10px rgba(249,115,22,0.2);
-                    transform: scale(1.1);
-                }
-                .wizard-step-text {
-                    font-weight: 600;
-                    font-size: 0.95rem;
-                }
-                .step-content {
-                    animation: slideUpFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    max-width: 900px;
-                    margin: 0 auto;
-                }
-                @keyframes slideUpFade {
-                    from { opacity: 0; transform: translateY(15px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .step-actions {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-top: 40px;
-                    padding-top: 24px;
-                    border-top: 1px solid var(--border);
-                    max-width: 900px;
-                    margin-left: auto;
-                    margin-right: auto;
-                }
-                .form-grid-2 {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 24px;
-                }
-                .form-grid-1 {
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    gap: 24px;
-                }
-                .compact-dropzone {
-                    height: 140px;
-                    border: 2px dashed var(--border2);
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    background: var(--bg3);
-                    position: relative;
-                    overflow: hidden;
-                }
-                .compact-dropzone:hover {
-                    border-color: var(--fire);
-                    background: var(--fire-d);
-                }
-                .compact-dropzone img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-            `}</style>
+
 
             <div className="page">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -230,7 +111,12 @@ export default function CourseForm({ course }) {
                         ))}
                     </div>
 
-                    <form onSubmit={submit}>
+                    <div onKeyDown={(e) => { 
+                        if (e.key === 'Enter') {
+                            e.preventDefault(); 
+                            if (step < 3) nextStep();
+                        }
+                    }}>
                         {step === 1 && (
                             <div className="step-content">
                                 <h3 style={{ marginTop: 0, marginBottom: '24px', color: 'var(--text)', fontSize: '1.2rem' }}>1. Thiết lập cơ bản</h3>
@@ -443,12 +329,12 @@ export default function CourseForm({ course }) {
                                     Tiếp tục <i className="fas fa-arrow-right" style={{ marginLeft: '8px' }}></i>
                                 </button>
                             ) : (
-                                <button type="submit" disabled={processing} className="btn-primary" style={{ padding: '12px 32px', borderRadius: '10px', background: 'var(--fire)', fontSize: '1rem', boxShadow: '0 4px 12px rgba(249,115,22,0.25)' }}>
-                                    {processing ? <><i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i> Đang lưu</> : <><i className="fas fa-check" style={{ marginRight: '8px' }}></i> {isEdit ? 'Cập nhật' : 'Hoàn tất'}</>}
+                                <button type="button" onClick={handleConfirm} disabled={processing} className="btn-primary" style={{ padding: '12px 32px', borderRadius: '10px', background: 'var(--fire)', fontSize: '1rem', boxShadow: '0 4px 12px rgba(249,115,22,0.25)' }}>
+                                    {processing ? <><i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i> Đang lưu</> : <><i className="fas fa-check" style={{ marginRight: '8px' }}></i> Xác nhận</>}
                                 </button>
                             )}
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </>

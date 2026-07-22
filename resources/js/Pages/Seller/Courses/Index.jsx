@@ -167,7 +167,7 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
                                                     <div className="course-thumb" style={{ background: '#f5f8fa', border: '1px solid #e4e6ef', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '40px', borderRadius: '4px' }}>
                                                         {course.thumbnail ? (
                                                             <img
-                                                                src={`/storage/${course.thumbnail}`}
+                                                                src={course.thumbnail.startsWith('http') || course.thumbnail.startsWith('/') ? course.thumbnail : `/storage/${course.thumbnail}`}
                                                                 alt={course.title}
                                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                             />

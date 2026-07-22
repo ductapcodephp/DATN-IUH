@@ -6,7 +6,6 @@ export default function Dashboard() {
     return (
         <>
             <Head title="Tổng quan - Kênh Người Bán" />
-            <link rel="stylesheet" href="/assets/seller/css/seller.css" />
 
             <div className="page">
                 <div className="page-header">
