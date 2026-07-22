@@ -1,10 +1,14 @@
 <?php
 
-namespace App\Services\Payment\Pipes\Ipn;
+namespace App\Services\Finance\Payment\Pipes\Ipn;
 
 use App\DTO\Payment\IpnData;
 use App\Services\Frontend\CartService;
 use App\Models\CourseEnrollment;
+use App\Models\SystemWallet;
+use App\Models\Wallet;
+use App\Models\VipPackage;
+use App\Models\VipSubscription;
 use App\Events\PaymentCompleted;
 use Closure;
 
@@ -40,6 +44,25 @@ class CompleteOrderPayment
         foreach ($payment->orders as $order) {
             $order->update(['status' => 'completed']);
 
+            // (SIMULATION) Mô phỏng tài khoản Vietcombank của công ty nhận được 100% tiền khách trả
+            SystemWallet::getInstance()->addTransaction((float) $order->amount_paid, 'in', 'Order', $order->id, 'Tiền khách mua khóa học #' . $order->id);
+
+            // Cộng tiền vào ví pending của seller (đã trừ hoa hồng platform)
+            if ($order->course_id && $order->course->seller_id) {
+                $sellerId = $order->course->seller_id;
+                
+                $sellerWallet = Wallet::firstOrCreate(
+                    ['user_id' => $sellerId],
+                    ['balance' => 0, 'balance_available' => 0, 'balance_pending' => 0]
+                );
+                
+                $sellerWallet->addPendingEarning(
+                    (float) $order->seller_amount,
+                    $order->id,
+                    'Thu nhập chờ giải phóng từ đơn hàng #' . $order->id
+                );
+            }
+
             // Chuẩn bị dữ liệu enrollment
             if ($order->course_id) {
                 $enrollmentsToInsert[] = [
@@ -51,6 +74,21 @@ class CompleteOrderPayment
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
+            }
+
+            // Tạo VIP Subscription nếu là mua gói VIP
+            if ($order->vip_package_id) {
+                $package = VipPackage::find($order->vip_package_id);
+                if ($package) {
+                    VipSubscription::create([
+                        'user_id' => $order->user_id,
+                        'vip_package_id' => $package->id,
+                        'order_id' => $order->id,
+                        'starts_at' => now(),
+                        'expires_at' => now()->addDays($package->duration_days),
+                        'status' => 'active',
+                    ]);
+                }
             }
         }
 
@@ -67,3 +105,4 @@ class CompleteOrderPayment
         return $next($data);
     }
 }
+

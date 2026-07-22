@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Payment\Pipes\Checkout;
+namespace App\Services\Finance\Payment\Pipes\Checkout;
 
 use App\DTO\Payment\CheckoutData;
 use App\Models\OnlinePayment;

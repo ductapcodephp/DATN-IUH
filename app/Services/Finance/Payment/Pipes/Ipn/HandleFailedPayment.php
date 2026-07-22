@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Payment\Pipes\Ipn;
+namespace App\Services\Finance\Payment\Pipes\Ipn;
 
 use App\DTO\Payment\IpnData;
 use App\Models\Coupon;

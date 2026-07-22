@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Payment\Pipes\Ipn;
+namespace App\Services\Finance\Payment\Pipes\Ipn;
 
 use App\DTO\Payment\IpnData;
 use App\Models\Wallet;
@@ -30,28 +30,37 @@ class CompleteDepositPayment
             'paid_at' => now(),
         ]);
 
+        // Tính tiền thưởng nạp (Bonus Top-up) từ database
+        $amount = (float) $payment->amount;
+        $bonus = 0;
+        
+        $applicableBonus = \App\Models\WalletBonus::where('is_active', true)
+            ->where('min_amount', '<=', $amount)
+            ->orderByDesc('min_amount')
+            ->first();
+
+        if ($applicableBonus) {
+            $bonus = $amount * ($applicableBonus->bonus_percentage / 100);
+            
+            if (!is_null($applicableBonus->max_bonus_amount) && $bonus > $applicableBonus->max_bonus_amount) {
+                $bonus = (float) $applicableBonus->max_bonus_amount;
+            }
+        }
+        
+        $totalAmount = $amount + $bonus;
+
         // Xử lý nạp tiền vào ví
         $wallet = Wallet::firstOrCreate(
             ['user_id' => $payment->user_id],
-            ['balance' => 0]
+            ['balance' => 0, 'balance_available' => 0, 'balance_pending' => 0]
         );
 
-        $balanceBefore = $wallet->balance;
-        
-        $wallet->balance += $payment->amount;
-        $wallet->save();
+        $description = 'Nạp tiền vào ví qua ' . strtoupper($payment->payment_gateway);
+        if ($bonus > 0) {
+            $description .= ' (Bao gồm ' . number_format($bonus, 0, ',', '.') . 'đ tiền thưởng nạp)';
+        }
 
-        WalletTransaction::create([
-            'user_id' => $payment->user_id,
-            'wallet_id' => $wallet->id,
-            'type' => 'deposit',
-            'amount' => $payment->amount,
-            'balance_before' => $balanceBefore,
-            'balance_after' => $wallet->balance,
-            'status' => 'completed',
-            'reference_code' => $payment->transaction_code,
-            'description' => 'Nạp tiền vào ví qua ' . strtoupper($payment->payment_gateway),
-        ]);
+        $wallet->deposit($totalAmount, $description, $payment->transaction_code);
 
         // Phát sự kiện thanh toán hoàn tất
         event(new PaymentCompleted($payment->user_id, $data->transactionCode));

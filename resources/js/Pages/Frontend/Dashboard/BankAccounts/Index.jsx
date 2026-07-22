@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { router, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/Frontend/DashboardLayout';
 
 const BANKS = [
@@ -183,7 +183,7 @@ function BankAccountModal({ isOpen, onClose, editingAccount, onSubmit }) {
     );
 }
 
-export default function BankAccounts({ bankAccounts }) {
+export default function BankAccounts({ bankAccounts, wallet }) {
     const [modalOpen, setModalOpen]       = useState(false);
     const [editingAccount, setEditingAccount] = useState(null);
 
@@ -193,11 +193,11 @@ export default function BankAccounts({ bankAccounts }) {
 
     const handleSubmit = (data, id) => {
         if (id) {
-            router.put(route('dashboard.bank-accounts.update', { bankAccountId: id }), data, {
+            router.put(route('finance.bank-accounts.update', id), data, {
                 onSuccess: closeModal,
             });
         } else {
-            router.post(route('dashboard.bank-accounts.store'), data, {
+            router.post(route('finance.bank-accounts.store'), data, {
                 onSuccess: closeModal,
             });
         }
@@ -205,17 +205,39 @@ export default function BankAccounts({ bankAccounts }) {
 
     const handleDelete = (id) => {
         if (confirm('Bạn có chắc chắn muốn xóa tài khoản ngân hàng này?')) {
-            router.delete(route('dashboard.bank-accounts.destroy', { bankAccountId: id }));
+            router.delete(route('finance.bank-accounts.destroy', id), {
+                preserveScroll: true,
+            });
         }
     };
 
     const handleSetDefault = (id) => {
-        router.patch(route('dashboard.bank-accounts.set-default', { bankAccountId: id }));
+        router.patch(route('finance.bank-accounts.set-default', id), {}, {
+            preserveScroll: true,
+        });
     };
 
     return (
         <DashboardLayout title="Tài khoản ngân hàng" activeKey="bank-accounts">
-
+            {wallet?.status !== 'active' ? (
+                <div className="text-center py-5" style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', marginTop: '20px' }}>
+                    <div className="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style={{ width: '100px', height: '100px' }}>
+                        <i className="fa-solid fa-lock fs-1 text-primary"></i>
+                    </div>
+                    <h3 className="fw-bold mb-3">Ví Điện Tử Đang Khóa</h3>
+                    <p className="text-muted mb-4" style={{ maxWidth: '500px', margin: '0 auto', fontSize: '15px' }}>
+                        Tính năng quản lý Ngân hàng yêu cầu Ví EduFlow phải được kích hoạt. Khởi tạo ngay để liên kết tài khoản và rút tiền.
+                    </p>
+                    <button 
+                        onClick={() => router.post(route('finance.wallet.activate'))} 
+                        className="btn btn-primary px-5 py-3 fw-bold fs-5 shadow-sm" 
+                        style={{ borderRadius: '12px' }}
+                    >
+                        <i className="fa-solid fa-unlock-keyhole me-2"></i> Kích Hoạt Ví Ngay
+                    </button>
+                </div>
+            ) : (
+                <>
             {/* Header */}
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                 <div>
@@ -271,13 +293,15 @@ export default function BankAccounts({ bankAccounts }) {
                 </div>
             )}
 
-            {/* Modal */}
+            {/* Modal Sửa Ngân Hàng */}
             <BankAccountModal
                 isOpen={modalOpen}
                 onClose={closeModal}
                 editingAccount={editingAccount}
                 onSubmit={handleSubmit}
             />
+                </>
+            )}
         </DashboardLayout>
     );
 }

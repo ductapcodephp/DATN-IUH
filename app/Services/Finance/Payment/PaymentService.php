@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Services\Payment;
+namespace App\Services\Finance\Payment;
 
-use App\Services\Payment\Pipes\Checkout\ValidateCart;
-use App\Services\Payment\Pipes\Checkout\ApplyCoupons;
-use App\Services\Payment\Pipes\Checkout\CalculateTotal;
-use App\Services\Payment\Pipes\Checkout\CreateOnlinePayment;
-use App\Services\Payment\Pipes\Checkout\CreateOrders;
-use App\Services\Payment\Pipes\Ipn\ValidateIpnPayment;
-use App\Services\Payment\Pipes\Ipn\CompleteDepositPayment;
-use App\Services\Payment\Pipes\Ipn\CompleteOrderPayment;
-use App\Services\Payment\Pipes\Ipn\HandleFailedPayment;
+use App\Services\Finance\Payment\Pipes\Checkout\ValidateCart;
+use App\Services\Finance\Payment\Pipes\Checkout\ApplyCoupons;
+use App\Services\Finance\Payment\Pipes\Checkout\CalculateTotal;
+use App\Services\Finance\Payment\Pipes\Checkout\CreateOnlinePayment;
+use App\Services\Finance\Payment\Pipes\Checkout\CreateOrders;
+use App\Services\Finance\Payment\Pipes\Ipn\ValidateIpnPayment;
+use App\Services\Finance\Payment\Pipes\Ipn\CompleteDepositPayment;
+use App\Services\Finance\Payment\Pipes\Ipn\CompleteOrderPayment;
+use App\Services\Finance\Payment\Pipes\Ipn\HandleFailedPayment;
 use App\DTO\Payment\CheckoutData;
 use App\DTO\Payment\IpnData;
 use App\Exceptions\PaymentException;
@@ -38,10 +38,33 @@ class PaymentService
                 ])
                 ->thenReturn();
 
+            if ($data->gatewayName === 'wallet') {
+                $wallet = \App\Models\Wallet::where('user_id', $data->userId)->lockForUpdate()->first();
+                if (!$wallet || $wallet->balance_available < $data->finalAmount) {
+                    throw new Exception('Số dư ví không đủ. Vui lòng nạp thêm tiền!');
+                }
+                
+                // Deduct from wallet
+                $wallet->withdraw($data->finalAmount, 'Thanh toán đơn hàng ' . $data->transactionCode);
+            }
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            throw new Exception('Đã xảy ra lỗi khi tạo đơn hàng: ' . $e->getMessage());
+            throw new Exception($e->getMessage());
+        }
+
+        if ($data->gatewayName === 'wallet') {
+            // Run IPN pipeline manually to complete the order and split revenue
+            $ipnData = new IpnData($data->onlinePayment, [
+                'status' => 'success',
+                'gateway_transaction_id' => 'WALLET_' . time(),
+                'raw_response' => 'Wallet internal payment'
+            ]);
+            $this->handleGatewayIpn('wallet', $ipnData);
+            
+            // Redirect to success page or cart with success flag (let frontend handle the redirect or we can redirect to a specific success route)
+            return url('/?payment=success'); 
         }
 
         $gateway = PaymentGatewayFactory::create($data->gatewayName);
