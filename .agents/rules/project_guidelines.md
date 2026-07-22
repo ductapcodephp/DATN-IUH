@@ -26,7 +26,8 @@ Dự án EduFlow là một ứng dụng Web tích hợp kiểu **Monolith hiện
 * **`app/Services/`**: Chứa tầng logic nghiệp vụ chính (Business Logic). Controller gọi đến Service, và Service sẽ sử dụng các Repository tương ứng để thao tác với DB.
 * **`routes/`**:
   * `web.php`: Khai báo toàn bộ định tuyến giao diện người dùng và Admin/Seller. Nhóm Front-end (khách) nằm trong prefix `/tech-education`, nhóm Seller nằm trong prefix `/seller` (bảo vệ bởi `role:seller,admin,root`).
-
+* **`quy tắc đặt đường dẫn`**:
+* cái gì use được ở đầu thì use không được kiểu App\... trong function
 ### 1.2. Cấu trúc Frontend (`resources/js/`)
 Toàn bộ mã nguồn Frontend nằm trực tiếp trong thư mục `resources/js/` của dự án Laravel:
 * **`Pages/`**: Chứa các trang React chính được render qua InertiaJS.
