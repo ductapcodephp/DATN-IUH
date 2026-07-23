@@ -8,18 +8,20 @@ use App\Listeners\Auth\CreateUserWallet;
 use App\Listeners\Auth\GenerateFirstSession;
 use App\Listeners\Auth\IssueRefreshToken;
 use App\Listeners\Auth\LogSuccessfulLogin;
-use App\Repositories\Frontend\Dashboard\DashboardOverviewRepositoryInterface;
-use App\Repositories\Frontend\Dashboard\DashboardOverviewRepository;
-use App\Repositories\Finance\WalletRepositoryInterface;
 use App\Repositories\Finance\WalletRepository;
-use App\Repositories\Frontend\Dashboard\OrderRepositoryInterface;
+use App\Repositories\Finance\WalletRepositoryInterface;
+use App\Repositories\Frontend\Dashboard\DashboardOverviewRepository;
+use App\Repositories\Frontend\Dashboard\DashboardOverviewRepositoryInterface;
 use App\Repositories\Frontend\Dashboard\OrderRepository;
-use App\Repositories\Frontend\Dashboard\ProfileRepositoryInterface;
+use App\Repositories\Frontend\Dashboard\OrderRepositoryInterface;
 use App\Repositories\Frontend\Dashboard\ProfileRepository;
-use App\Repositories\User\UserRepositoryInterface;
-use App\Repositories\User\UserRepository;
-use App\Repositories\Shared\ReviewRepositoryInterface;
+use App\Repositories\Frontend\Dashboard\ProfileRepositoryInterface;
+use App\Repositories\Seller\Dashboard\DashboardRepository;
+use App\Repositories\Seller\Dashboard\DashboardRepositoryInterface;
 use App\Repositories\Shared\ReviewRepository;
+use App\Repositories\Shared\ReviewRepositoryInterface;
+use App\Repositories\User\UserRepository;
+use App\Repositories\User\UserRepositoryInterface;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -58,8 +60,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            \App\Repositories\Seller\Dashboard\DashboardRepositoryInterface::class,
-            \App\Repositories\Seller\Dashboard\DashboardRepository::class
+            DashboardRepositoryInterface::class,
+            DashboardRepository::class
         );
     }
 

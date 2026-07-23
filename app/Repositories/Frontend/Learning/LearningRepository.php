@@ -4,10 +4,10 @@ namespace App\Repositories\Frontend\Learning;
 
 use App\Models\Course;
 use App\Models\CourseEnrollment;
-use App\Models\QuizResult;
 use App\Models\CourseProgress;
-use App\Models\Quiz;
 use App\Models\Lesson;
+use App\Models\Quiz;
+use App\Models\QuizResult;
 
 class LearningRepository implements LearningRepositoryInterface
 {
@@ -22,7 +22,7 @@ class LearningRepository implements LearningRepositoryInterface
                     $query->orderBy('sort_order', 'asc');
                 },
                 'chapters.lessons.video',
-                'chapters.lessons.quizzes.questions.answers'
+                'chapters.lessons.quizzes.questions.answers',
             ])
             ->where('slug', $slug)
             ->firstOrFail();
@@ -80,16 +80,16 @@ class LearningRepository implements LearningRepositoryInterface
             'course_id' => $courseId,
             'lesson_id' => $lessonId,
         ]);
-        
-        if (!$progress->exists) {
+
+        if (! $progress->exists) {
             $progress->watched_seconds = 0;
             $progress->skipped_seconds = 0;
             $progress->duration_seconds = 0;
         }
-        
+
         $progress->fill($data);
         $progress->save();
-        
+
         return $progress;
     }
 

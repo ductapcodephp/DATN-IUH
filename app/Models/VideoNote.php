@@ -1,10 +1,13 @@
 <?php
+
 // === FILE: app/Models/VideoNote.php ===
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -12,10 +15,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $lesson_id
  * @property int $timestamp_seconds Timestamp in the video where note was taken
  * @property string $content Note content
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Lesson|null $lesson
- * @property-read \App\Models\User|null $user
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Lesson|null $lesson
+ * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote byLesson($lessonId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote byUser($userId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote newModelQuery()
@@ -29,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereTimestampSeconds($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VideoNote whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class VideoNote extends Model
@@ -88,6 +93,7 @@ class VideoNote extends Model
         if ($hours > 0) {
             return sprintf('%02d:%02d:%02d', $hours, $minutes, $secs);
         }
+
         return sprintf('%02d:%02d', $minutes, $secs);
     }
 }

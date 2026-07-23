@@ -11,6 +11,7 @@ class UserRegistered
     use Dispatchable, SerializesModels;
 
     public User $user;
+
     public array $requestData;
 
     public function __construct(User $user, array $requestData)

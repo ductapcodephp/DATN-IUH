@@ -2,10 +2,12 @@
 
 namespace App\Services\Finance\Payment;
 
-use App\Models\Order;
-use App\Models\User;
-use App\Models\CourseProgress;
 use App\Models\CourseEnrollment;
+use App\Models\CourseProgress;
+use App\Models\Order;
+use App\Models\SystemWallet;
+use App\Models\User;
+use App\Models\WalletTransaction;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -28,13 +30,11 @@ class RefundService
 
     /**
      * Kiểm tra xem học viên có đủ điều kiện yêu cầu hoàn tiền cho đơn hàng này hay không.
-     * Áp dụng 3 quy tắc: 
+     * Áp dụng 3 quy tắc:
      * 1. Thời hạn hoàn tiền (3 ngày)
      * 2. Tiến độ học < 15%
      * 3. Chống lạm dụng (tối đa 3 lần / tháng)
      *
-     * @param Order $order
-     * @param User $user
      * @return array [ 'status' => bool, 'message' => string ]
      */
     public function checkRefundEligibility(Order $order, User $user): array
@@ -54,7 +54,7 @@ class RefundService
 
         // 2. Kiểm tra thời hạn 3 ngày
         if ($order->created_at->diffInDays(now()) > self::MAX_REFUND_DAYS) {
-            return ['status' => false, 'message' => 'Đơn hàng đã vượt quá thời hạn hoàn tiền (' . self::MAX_REFUND_DAYS . ' ngày).'];
+            return ['status' => false, 'message' => 'Đơn hàng đã vượt quá thời hạn hoàn tiền ('.self::MAX_REFUND_DAYS.' ngày).'];
         }
 
         // 3. Kiểm tra tiến độ học tập dựa vào bảng course_progress
@@ -63,13 +63,13 @@ class RefundService
             $totalWatchedSeconds = CourseProgress::where('course_id', $course->id)
                 ->where('user_id', $user->id)
                 ->sum('watched_seconds');
-            
+
             $progressPercentage = $totalWatchedSeconds / $course->total_duration_seconds;
 
             if ($progressPercentage > self::MAX_PROGRESS_PERCENTAGE_FOR_REFUND) {
                 return [
-                    'status' => false, 
-                    'message' => 'Bạn đã học quá ' . (self::MAX_PROGRESS_PERCENTAGE_FOR_REFUND * 100) . '% nội dung khóa học. Yêu cầu hoàn tiền bị từ chối.'
+                    'status' => false,
+                    'message' => 'Bạn đã học quá '.(self::MAX_PROGRESS_PERCENTAGE_FOR_REFUND * 100).'% nội dung khóa học. Yêu cầu hoàn tiền bị từ chối.',
                 ];
             }
         }
@@ -79,11 +79,11 @@ class RefundService
             ->where('status', 'refunded')
             ->where('updated_at', '>=', Carbon::now()->startOfMonth())
             ->count();
-        
+
         if ($refundsThisMonth >= self::MAX_REFUNDS_PER_MONTH) {
             return [
-                'status' => false, 
-                'message' => 'Bạn đã đạt giới hạn yêu cầu hoàn tiền trong tháng này (' . self::MAX_REFUNDS_PER_MONTH . ' lần). Lạm dụng chính sách hoàn tiền có thể dẫn đến khóa tài khoản vĩnh viễn.'
+                'status' => false,
+                'message' => 'Bạn đã đạt giới hạn yêu cầu hoàn tiền trong tháng này ('.self::MAX_REFUNDS_PER_MONTH.' lần). Lạm dụng chính sách hoàn tiền có thể dẫn đến khóa tài khoản vĩnh viễn.',
             ];
         }
 
@@ -97,7 +97,7 @@ class RefundService
     public function processRefund(Order $order, User $user)
     {
         $eligibility = $this->checkRefundEligibility($order, $user);
-        if (!$eligibility['status']) {
+        if (! $eligibility['status']) {
             throw new \Exception($eligibility['message']);
         }
 
@@ -117,23 +117,23 @@ class RefundService
             // Hoặc cộng lại tiền vào ví cho Student:
             if ($user->wallet) {
                 $user->wallet->addTransaction(
-                    \App\Models\WalletTransaction::TYPE_REFUND, 
-                    $order->amount_paid, 
-                    'Hoàn tiền khóa học ' . ($order->course->title ?? ('#' . $order->course_id)),
-                    \App\Models\WalletTransaction::STATUS_COMPLETED,
-                    'REFUND_' . $order->id
+                    WalletTransaction::TYPE_REFUND,
+                    $order->amount_paid,
+                    'Hoàn tiền khóa học '.($order->course->title ?? ('#'.$order->course_id)),
+                    WalletTransaction::STATUS_COMPLETED,
+                    'REFUND_'.$order->id
                 );
             } else {
                 throw new \Exception('Không tìm thấy ví của học viên để hoàn tiền.');
             }
 
             // Trừ tiền khỏi ví hệ thống (do đã hoàn lại cho khách)
-            \App\Models\SystemWallet::getInstance()->addTransaction(
-                (float) $order->amount_paid, 
-                'out', 
-                'Order', 
-                $order->id, 
-                'Hoàn tiền cho khách hàng khóa học #' . $order->id
+            SystemWallet::getInstance()->addTransaction(
+                (float) $order->amount_paid,
+                'out',
+                'Order',
+                $order->id,
+                'Hoàn tiền cho khách hàng khóa học #'.$order->id
             );
 
             return true;

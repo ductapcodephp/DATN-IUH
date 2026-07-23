@@ -14,7 +14,7 @@ class ReorderQuizQuestionsRequest extends FormRequest
         $routeParam = $this->route('lesson');
         $lesson = $routeParam instanceof Lesson ? $routeParam : Lesson::with('course')->find((int) $routeParam);
 
-        if (!$lesson) {
+        if (! $lesson) {
             return false;
         }
 
@@ -26,7 +26,7 @@ class ReorderQuizQuestionsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'question_ids'   => ['required', 'array', 'min:1'],
+            'question_ids' => ['required', 'array', 'min:1'],
             'question_ids.*' => ['required', 'integer', 'exists:quiz_questions,id'],
         ];
     }

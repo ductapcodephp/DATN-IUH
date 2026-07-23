@@ -26,9 +26,9 @@ readonly class StudentFilterData
     public function toArray(): array
     {
         return [
-            'search'    => $this->search,
+            'search' => $this->search,
             'course_id' => $this->courseId,
-            'per_page'  => $this->perPage,
+            'per_page' => $this->perPage,
         ];
     }
 }

@@ -3,29 +3,33 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
+use App\Models\OnlinePayment;
+use App\Models\Order;
 use App\Models\VipPackage;
 use App\Models\VipSubscription;
-use App\Models\Order;
-use App\Services\Finance\Payment\VNPayService;
+use App\Models\Wallet;
+use App\Models\WalletTransaction;
+use App\Services\Finance\Payment\PaymentGatewayFactory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class VipPackageController extends Controller
 {
     public function index()
     {
-        $packages = VipPackage::active()->ordered()->get();
-        
+        $packages = VipPackage::active()->forRole('seller')->ordered()->get();
+
         $user = Auth::user();
-        $currentSubscription = VipSubscription::with('vipPackage')
+        $activeSubscriptions = VipSubscription::with('vipPackage')
             ->where('user_id', $user->id)
             ->active()
-            ->first();
+            ->get();
 
         return Inertia::render('Seller/VipPackages/Index', [
             'packages' => $packages,
-            'currentSubscription' => $currentSubscription,
+            'activeSubscriptions' => $activeSubscriptions,
         ]);
     }
 
@@ -33,7 +37,7 @@ class VipPackageController extends Controller
     {
         $request->validate([
             'package_id' => 'required|exists:vip_packages,id',
-            'payment_method' => 'required|in:vnpay,stripe,wallet'
+            'payment_method' => 'required|in:vnpay,stripe,wallet',
         ]);
 
         $package = VipPackage::findOrFail($request->package_id);
@@ -41,17 +45,17 @@ class VipPackageController extends Controller
 
         // Thanh toán bằng ví điện tử
         if ($request->payment_method === 'wallet') {
-            $wallet = \App\Models\Wallet::where('user_id', $user->id)->first();
-            if (!$wallet || $wallet->balance_available < $package->price) {
+            $wallet = Wallet::where('user_id', $user->id)->first();
+            if (! $wallet || $wallet->balance_available < $package->price) {
                 return back()->with('error', 'Số dư ví không đủ để mua gói VIP này.');
             }
-            
+
             // Trừ tiền ví
-            $wallet->withdraw($package->price, 'Mua gói VIP ' . $package->name, \App\Models\WalletTransaction::TYPE_VIP_PAYMENT);
-            
+            $wallet->withdraw($package->price, 'Mua gói VIP '.$package->name, WalletTransaction::TYPE_VIP_PAYMENT);
+
             // Kích hoạt VIP ngay lập tức
             $this->activateVip($user->id, $package);
-            
+
             return back()->with('success', 'Thanh toán thành công! Gói VIP đã được kích hoạt.');
         }
 
@@ -66,23 +70,23 @@ class VipPackageController extends Controller
             'commission_amount' => $package->price,
             'seller_amount' => 0,
             'status' => 'pending',
-            'payment_method' => $request->payment_method
+            'payment_method' => $request->payment_method,
         ]);
 
-        $transactionCode = 'VIP_' . strtoupper($request->payment_method) . '_' . time() . '_' . \Illuminate\Support\Str::random(5);
-        
-        $onlinePayment = \App\Models\OnlinePayment::create([
+        $transactionCode = 'VIP_'.strtoupper($request->payment_method).'_'.time().'_'.Str::random(5);
+
+        $onlinePayment = OnlinePayment::create([
             'user_id' => $user->id,
             'payment_gateway' => $request->payment_method,
             'transaction_code' => $transactionCode,
             'amount' => $package->price,
             'status' => 'pending',
         ]);
-        
+
         // Liên kết order với online payment
         $order->update(['online_payment_id' => $onlinePayment->id]);
 
-        $gateway = \App\Services\Finance\Payment\PaymentGatewayFactory::create($request->payment_method);
+        $gateway = PaymentGatewayFactory::create($request->payment_method);
         $paymentUrl = $gateway->getPaymentUrl($package->price, $transactionCode);
 
         // Lưu return_route để IPN hoặc gatewayReturn biết đường về (dùng cho VNPAY/Stripe)
@@ -90,12 +94,15 @@ class VipPackageController extends Controller
 
         return Inertia::location($paymentUrl);
     }
-    
+
     private function activateVip($userId, $package, $orderId = null)
     {
-        // Deactivate old active subscriptions
-        VipSubscription::where('user_id', $userId)->active()->update(['status' => 'cancelled']);
-        
+        // Deactivate old active subscriptions of same role_type and package_type
+        VipSubscription::where('user_id', $userId)
+            ->whereHas('vipPackage', fn ($q) => $q->where('role_type', $package->role_type)->where('package_type', $package->package_type))
+            ->active()
+            ->update(['status' => 'cancelled']);
+
         VipSubscription::create([
             'user_id' => $userId,
             'vip_package_id' => $package->id,

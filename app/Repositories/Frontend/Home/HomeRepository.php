@@ -3,6 +3,7 @@
 namespace App\Repositories\Frontend\Home;
 
 use App\Models\Course;
+use App\Models\User;
 
 class HomeRepository implements HomeRepositoryInterface
 {
@@ -19,7 +20,7 @@ class HomeRepository implements HomeRepositoryInterface
 
     public function getTopInstructors()
     {
-        return \App\Models\User::query()
+        return User::query()
             ->sellers()
             ->withCount('sellerEnrollments as students_count')
             ->withAvg('receivedReviews', 'rating')

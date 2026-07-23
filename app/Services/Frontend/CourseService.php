@@ -28,6 +28,11 @@ class CourseService
         return $this->courseRepository->getPopularCourses($limit);
     }
 
+    public function searchSuggestions($keyword, $limit = 5)
+    {
+        return $this->courseRepository->searchSuggestions($keyword, $limit);
+    }
+
     public function getAllPublishedCourses($filters = [], $perPage = 12)
     {
         return $this->courseRepository->getAllPublishedCourses($filters, $perPage);
@@ -45,15 +50,22 @@ class CourseService
 
     public function getEnrolledCourseIds($userId)
     {
-        if (!$userId) return [];
+        if (! $userId) {
+            return [];
+        }
+
         return $this->courseRepository->getEnrolledCourseIds($userId);
     }
 
     public function getEnrollment($userId, $courseId)
     {
-        if (!$userId) return null;
+        if (! $userId) {
+            return null;
+        }
+
         return $this->courseRepository->getEnrollment($userId, $courseId);
     }
+
     public function getCourseReviews($courseId)
     {
         return $this->courseRepository->getCourseReviews($courseId);
@@ -61,13 +73,19 @@ class CourseService
 
     public function getUserReviewForCourse($userId, $courseId)
     {
-        if (!$userId) return null;
+        if (! $userId) {
+            return null;
+        }
+
         return $this->courseRepository->getUserReviewForCourse($userId, $courseId);
     }
 
     public function getCompletedOrderForCourse($userId, $courseId)
     {
-        if (!$userId) return null;
+        if (! $userId) {
+            return null;
+        }
+
         return $this->courseRepository->getCompletedOrderForCourse($userId, $courseId);
     }
 

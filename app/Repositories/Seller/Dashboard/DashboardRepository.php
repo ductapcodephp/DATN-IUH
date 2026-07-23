@@ -14,9 +14,9 @@ class DashboardRepository implements DashboardRepositoryInterface
 {
     public function getCurrentMonthRevenue(int $sellerId): float
     {
-        return (float) WalletTransaction::whereHas('wallet', function($q) use ($sellerId) {
-                $q->where('user_id', $sellerId);
-            })
+        return (float) WalletTransaction::whereHas('wallet', function ($q) use ($sellerId) {
+            $q->where('user_id', $sellerId);
+        })
             ->where('type', 'in')
             ->where('description', 'like', '%Thu nhập%')
             ->whereMonth('created_at', now()->month)
@@ -26,16 +26,16 @@ class DashboardRepository implements DashboardRepositoryInterface
 
     public function getTotalStudents(int $sellerId): int
     {
-        return CourseEnrollment::whereHas('course', function($q) use ($sellerId) {
-                $q->where('seller_id', $sellerId);
-            })->count();
+        return CourseEnrollment::whereHas('course', function ($q) use ($sellerId) {
+            $q->where('seller_id', $sellerId);
+        })->count();
     }
 
     public function getNewStudentsToday(int $sellerId): int
     {
-        return CourseEnrollment::whereHas('course', function($q) use ($sellerId) {
-                $q->where('seller_id', $sellerId);
-            })->whereDate('created_at', now()->toDateString())->count();
+        return CourseEnrollment::whereHas('course', function ($q) use ($sellerId) {
+            $q->where('seller_id', $sellerId);
+        })->whereDate('created_at', now()->toDateString())->count();
     }
 
     public function getActiveCoursesCount(int $sellerId): int
@@ -45,29 +45,29 @@ class DashboardRepository implements DashboardRepositoryInterface
 
     public function getAverageRating(int $sellerId): float
     {
-        return (float) Review::whereHas('course', function($q) use ($sellerId) {
-                $q->where('seller_id', $sellerId);
-            })->avg('rating');
+        return (float) Review::whereHas('course', function ($q) use ($sellerId) {
+            $q->where('seller_id', $sellerId);
+        })->avg('rating');
     }
 
     public function getTotalReviews(int $sellerId): int
     {
-        return Review::whereHas('course', function($q) use ($sellerId) {
-                $q->where('seller_id', $sellerId);
-            })->count();
+        return Review::whereHas('course', function ($q) use ($sellerId) {
+            $q->where('seller_id', $sellerId);
+        })->count();
     }
 
     public function getRecentEnrollments(int $sellerId, int $limit = 5): Collection
     {
         return CourseEnrollment::with(['student:id,name', 'course:id,title,price'])
-            ->whereHas('course', function($q) use ($sellerId) {
+            ->whereHas('course', function ($q) use ($sellerId) {
                 $q->where('seller_id', $sellerId);
             })
             ->orderByDesc('created_at')
             ->limit($limit)
             ->get();
     }
-    
+
     public function getOrderForEnrollment(int $userId, int $courseId)
     {
         return Order::where('user_id', $userId)

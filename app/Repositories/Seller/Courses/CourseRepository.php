@@ -15,10 +15,10 @@ class CourseRepository implements CourseRepositoryInterface
         return Course::query()
             ->where('seller_id', $sellerId)
             ->withCount('lessons')
-            ->when(!empty($filters['search']), function ($query) use ($filters) {
+            ->when(! empty($filters['search']), function ($query) use ($filters) {
                 $query->where('title', 'like', "%{$filters['search']}%");
             })
-            ->when(!empty($filters['status']) && $filters['status'] !== 'all', function ($query) use ($filters) {
+            ->when(! empty($filters['status']) && $filters['status'] !== 'all', function ($query) use ($filters) {
                 $query->where('status', $filters['status']);
             })
             ->latest()

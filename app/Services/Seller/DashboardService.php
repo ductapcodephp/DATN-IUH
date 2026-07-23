@@ -3,6 +3,7 @@
 namespace App\Services\Seller;
 
 use App\Repositories\Seller\Dashboard\DashboardRepositoryInterface;
+use Carbon\Carbon;
 
 class DashboardService
 {
@@ -37,7 +38,7 @@ class DashboardService
                 'student_name' => $enrollment->student->name ?? 'Người dùng Ẩn',
                 'course_title' => $enrollment->course->title,
                 'price' => $price,
-                'time' => $enrollment->created_at->diffForHumans()
+                'time' => $enrollment->created_at->diffForHumans(),
             ];
         })->toArray();
     }
@@ -50,7 +51,7 @@ class DashboardService
             $data = $this->dashboardRepository->getDailyStatisticsByDays($sellerId, 7);
             for ($i = 6; $i >= 0; $i--) {
                 $dateStr = now()->subDays($i)->format('d/m');
-                $existing = $data->firstWhere(fn($item) => \Carbon\Carbon::parse($item->date)->format('d/m') === $dateStr);
+                $existing = $data->firstWhere(fn ($item) => Carbon::parse($item->date)->format('d/m') === $dateStr);
                 $filledChartData[] = [
                     'name' => $dateStr,
                     'revenue' => $existing ? (float) $existing->total_revenue : 0,
@@ -61,7 +62,7 @@ class DashboardService
             $data = $this->dashboardRepository->getDailyStatisticsByDays($sellerId, 30);
             for ($i = 29; $i >= 0; $i--) {
                 $dateStr = now()->subDays($i)->format('d/m');
-                $existing = $data->firstWhere(fn($item) => \Carbon\Carbon::parse($item->date)->format('d/m') === $dateStr);
+                $existing = $data->firstWhere(fn ($item) => Carbon::parse($item->date)->format('d/m') === $dateStr);
                 $filledChartData[] = [
                     'name' => $dateStr,
                     'revenue' => $existing ? (float) $existing->total_revenue : 0,
@@ -72,7 +73,7 @@ class DashboardService
             $data = $this->dashboardRepository->getDailyStatisticsByMonths($sellerId, 3);
             for ($i = 2; $i >= 0; $i--) {
                 $monthObj = now()->subMonths($i);
-                $nameStr = 'Tháng ' . $monthObj->format('m');
+                $nameStr = 'Tháng '.$monthObj->format('m');
                 $existing = $data->where('year', $monthObj->year)->where('month', $monthObj->month)->first();
                 $filledChartData[] = [
                     'name' => $nameStr,
@@ -84,7 +85,7 @@ class DashboardService
             $data = $this->dashboardRepository->getDailyStatisticsByMonths($sellerId, 12);
             for ($i = 11; $i >= 0; $i--) {
                 $monthObj = now()->subMonths($i);
-                $nameStr = 'T' . $monthObj->format('m/y');
+                $nameStr = 'T'.$monthObj->format('m/y');
                 $existing = $data->where('year', $monthObj->year)->where('month', $monthObj->month)->first();
                 $filledChartData[] = [
                     'name' => $nameStr,
@@ -103,13 +104,14 @@ class DashboardService
         $weeklyChartData = [];
         for ($i = 6; $i >= 0; $i--) {
             $dateStr = now()->subDays($i)->format('d/m');
-            $existing = $data->firstWhere(fn($item) => \Carbon\Carbon::parse($item->date)->format('d/m') === $dateStr);
+            $existing = $data->firstWhere(fn ($item) => Carbon::parse($item->date)->format('d/m') === $dateStr);
             $weeklyChartData[] = [
                 'name' => $dateStr,
                 'revenue' => $existing ? (float) $existing->total_revenue : 0,
                 'orders' => $existing ? $existing->total_orders : 0,
             ];
         }
+
         return $weeklyChartData;
     }
 }

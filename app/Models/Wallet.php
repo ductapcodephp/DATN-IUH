@@ -2,22 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-
 
 /**
  * @property int $id
  * @property int $user_id
  * @property numeric $balance Wallet balance in VND
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\WalletTransaction> $transactions
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, WalletTransaction> $transactions
  * @property-read int|null $transactions_count
- * @property-read \App\Models\User|null $user
+ * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Wallet newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Wallet newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Wallet query()
@@ -27,6 +29,7 @@ use Illuminate\Support\Facades\DB;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Wallet whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Wallet whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Wallet withBalance($minBalance)
+ *
  * @mixin \Eloquent
  */
 class Wallet extends Model
@@ -41,11 +44,10 @@ class Wallet extends Model
     ];
 
     protected $casts = [
-        'balance'           => 'decimal:2',
+        'balance' => 'decimal:2',
         'balance_available' => 'decimal:2',
-        'balance_pending'   => 'decimal:2',
+        'balance_pending' => 'decimal:2',
     ];
-
 
     public function user(): BelongsTo
     {
@@ -57,12 +59,10 @@ class Wallet extends Model
         return $this->hasMany(WalletTransaction::class);
     }
 
-
     public function scopeWithBalance($query, $minBalance)
     {
         return $query->where('balance', '>=', $minBalance);
     }
-
 
     /**
      * Nạp tiền vào ví
@@ -94,7 +94,7 @@ class Wallet extends Model
      * [SELLER] Ghi nhận tiền thu nhập đang chờ giải phóng (sau khi khách mua khóa học)
      * Tiền vào balance_pending, chưa cộng vào balance chính.
      */
-    public function addPendingEarning(float $amount, int $orderId, string $description = null): WalletTransaction
+    public function addPendingEarning(float $amount, int $orderId, ?string $description = null): WalletTransaction
     {
         return DB::transaction(function () use ($amount, $orderId, $description) {
             $lockedWallet = self::where('id', $this->id)->lockForUpdate()->first();
@@ -104,16 +104,16 @@ class Wallet extends Model
             $lockedWallet->refresh();
 
             return WalletTransaction::create([
-                'wallet_id'      => $lockedWallet->id,
-                'order_id'       => $orderId,
-                'user_id'        => $lockedWallet->user_id,
-                'type'           => WalletTransaction::TYPE_EARNING,
-                'amount'         => $amount,
+                'wallet_id' => $lockedWallet->id,
+                'order_id' => $orderId,
+                'user_id' => $lockedWallet->user_id,
+                'type' => WalletTransaction::TYPE_EARNING,
+                'amount' => $amount,
                 'balance_before' => (float) $lockedWallet->balance_pending - $amount,
-                'balance_after'  => (float) $lockedWallet->balance_pending,
-                'description'    => $description ?? 'Thu nhập từ bán khóa học (đang chờ giải phóng)',
-                'reference_code' => 'EARN_ORDER_' . $orderId,
-                'status'         => WalletTransaction::STATUS_PENDING,
+                'balance_after' => (float) $lockedWallet->balance_pending,
+                'description' => $description ?? 'Thu nhập từ bán khóa học (đang chờ giải phóng)',
+                'reference_code' => 'EARN_ORDER_'.$orderId,
+                'status' => WalletTransaction::STATUS_PENDING,
             ]);
         });
     }
@@ -122,9 +122,9 @@ class Wallet extends Model
      * [SELLER] Giải phóng tiền pending → available (sau 7 ngày, trừ hoa hồng)
      * Được gọi bởi scheduled command ReleaseSellerEarnings.
      *
-     * @param WalletTransaction $pendingTx  Giao dịch earning đang pending
-     * @param float             $commissionAmount Số tiền hoa hồng cần trừ (lấy từ orders.commission_amount)
-     * @param float             $sellerAmount     Số tiền thực seller nhận (orders.seller_amount)
+     * @param  WalletTransaction  $pendingTx  Giao dịch earning đang pending
+     * @param  float  $commissionAmount  Số tiền hoa hồng cần trừ (lấy từ orders.commission_amount)
+     * @param  float  $sellerAmount  Số tiền thực seller nhận (orders.seller_amount)
      */
     public function releaseEarning(WalletTransaction $pendingTx, float $commissionAmount, float $sellerAmount): void
     {
@@ -147,12 +147,12 @@ class Wallet extends Model
             DB::table('wallet_transactions')
                 ->where('id', $pendingTx->id)
                 ->update([
-                    'status'     => WalletTransaction::STATUS_COMPLETED,
+                    'status' => WalletTransaction::STATUS_COMPLETED,
                     'updated_at' => now(),
-                    'metadata'   => json_encode([
+                    'metadata' => json_encode([
                         'commission_amount' => $commissionAmount,
-                        'seller_amount'     => $sellerAmount,
-                        'released_at'       => now()->toISOString(),
+                        'seller_amount' => $sellerAmount,
+                        'released_at' => now()->toISOString(),
                     ]),
                 ]);
         });
@@ -161,7 +161,7 @@ class Wallet extends Model
     /**
      * [SELLER] Rút tiền từ balance_available
      */
-    public function withdrawAvailable(float $amount, string $description = null): WalletTransaction
+    public function withdrawAvailable(float $amount, ?string $description = null): WalletTransaction
     {
         return DB::transaction(function () use ($amount, $description) {
             $lockedWallet = self::where('id', $this->id)->lockForUpdate()->first();
@@ -178,14 +178,14 @@ class Wallet extends Model
             $lockedWallet->refresh();
 
             return WalletTransaction::create([
-                'wallet_id'      => $lockedWallet->id,
-                'user_id'        => $lockedWallet->user_id,
-                'type'           => WalletTransaction::TYPE_WITHDRAWAL,
-                'amount'         => $amount,
+                'wallet_id' => $lockedWallet->id,
+                'user_id' => $lockedWallet->user_id,
+                'type' => WalletTransaction::TYPE_WITHDRAWAL,
+                'amount' => $amount,
                 'balance_before' => $balanceBefore,
-                'balance_after'  => (float) $lockedWallet->balance,
-                'description'    => $description ?? 'Rút tiền về tài khoản ngân hàng',
-                'status'         => WalletTransaction::STATUS_COMPLETED,
+                'balance_after' => (float) $lockedWallet->balance,
+                'description' => $description ?? 'Rút tiền về tài khoản ngân hàng',
+                'status' => WalletTransaction::STATUS_COMPLETED,
             ]);
         });
     }
@@ -216,13 +216,13 @@ class Wallet extends Model
                 $balanceAfter = $balanceBefore + $amount;
                 $lockedWallet->increment('balance_available', $amount);
                 break;
-                
+
             case WalletTransaction::TYPE_COMMISSION:
                 $balanceAfter = $balanceBefore + $amount;
                 break;
 
             default:
-                throw new \InvalidArgumentException('Loại giao dịch không được hệ thống hỗ trợ: ' . $type);
+                throw new \InvalidArgumentException('Loại giao dịch không được hệ thống hỗ trợ: '.$type);
         }
 
         $lockedWallet->update(['balance' => $balanceAfter]);

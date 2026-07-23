@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -18,13 +19,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $progress
  * @property bool $is_banned
  * @property string|null $ban_reason
- * @property \Illuminate\Support\Carbon|null $banned_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Course|null $course
- * @property-read \App\Models\User|null $seller
- * @property-read \App\Models\User|null $student
+ * @property Carbon|null $banned_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Course|null $course
+ * @property-read User|null $seller
+ * @property-read User|null $student
+ *
  * @method static Builder<static>|CourseEnrollment active()
  * @method static Builder<static>|CourseEnrollment banned()
  * @method static Builder<static>|CourseEnrollment forSeller(int $sellerId)
@@ -45,6 +47,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder<static>|CourseEnrollment whereUpdatedAt($value)
  * @method static Builder<static>|CourseEnrollment withTrashed(bool $withTrashed = true)
  * @method static Builder<static>|CourseEnrollment withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class CourseEnrollment extends Model
@@ -90,7 +93,6 @@ class CourseEnrollment extends Model
     {
         return $this->belongsTo(User::class, 'student_id');
     }
-
 
     public function scopeBanned(Builder $query): Builder
     {

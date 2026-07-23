@@ -2,23 +2,24 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\UserRole;
+use App\Services\Auth\Strategies\LoginStrategyFactory;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\Auth\Strategies\LoginStrategyFactory;
-use App\Enums\UserRole;
+
 class CheckRole
 {
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 
         $user = Auth::user();
-        
-        $currentRole = $user->current_role instanceof UserRole 
-            ? $user->current_role->value 
+
+        $currentRole = $user->current_role instanceof UserRole
+            ? $user->current_role->value
             : $user->current_role;
 
         if (in_array($currentRole, $roles)) {
@@ -29,7 +30,7 @@ class CheckRole
         $redirectUrl = $strategy->handlePostLogin($user);
 
         return redirect($redirectUrl)->withErrors([
-            'system' => 'Bạn không có quyền truy cập trang này.'
+            'system' => 'Bạn không có quyền truy cập trang này.',
         ]);
     }
 }

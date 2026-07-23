@@ -9,7 +9,6 @@ use Closure;
 
 class HandleFailedPayment
 {
-
     public function handle(IpnData $data, Closure $next)
     {
         if ($data->isSuccess) {
@@ -27,7 +26,7 @@ class HandleFailedPayment
         $couponUsages = CouponUsage::whereIn('order_id', $orderIds)->get();
 
         foreach ($couponUsages as $usage) {
-            if (!in_array($usage->coupon_id, $restoredCoupons)) {
+            if (! in_array($usage->coupon_id, $restoredCoupons)) {
                 Coupon::where('id', $usage->coupon_id)->decrement('used_count');
                 $restoredCoupons[] = $usage->coupon_id;
             }

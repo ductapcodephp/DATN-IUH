@@ -3,8 +3,6 @@
 namespace App\Services\Frontend;
 
 use App\Repositories\Frontend\Home\HomeRepositoryInterface;
-use App\Models\User;
-use App\Enums\UserRole;
 
 class HomeService
 {

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Services\Seller\Courses;
@@ -7,8 +8,10 @@ use App\DTO\Seller\Course\Lesson\ConfirmVideoUploadData;
 use App\DTO\Seller\Course\Lesson\PresignedUrlData;
 use App\Models\Lesson;
 use App\Repositories\Seller\Courses\LessonVideoRepository;
+use Illuminate\Filesystem\AwsS3V3Adapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class VideoService
 {
@@ -18,13 +21,23 @@ class VideoService
 
     public function generatePresignedUrl(Lesson $lesson, PresignedUrlData $dto): array
     {
-        $filename = 'lessons/lesson-' . $lesson->id . '-' . Str::random(10) . '.' . $dto->extension;
+        $user = auth()->user();
+        $usedBytes = $user->getSellerStorageUsedBytes();
+        $limitBytes = $user->getSellerStorageLimitBytes();
 
-        /** @var \Illuminate\Filesystem\AwsS3V3Adapter $disk */
+        if (($usedBytes + $dto->sizeBytes) > $limitBytes) {
+            throw ValidationException::withMessages([
+                'video' => 'Bạn đã vượt quá dung lượng lưu trữ của gói VIP. Vui lòng nâng cấp gói để tiếp tục tải lên.',
+            ]);
+        }
+
+        $filename = 'lessons/lesson-'.$lesson->id.'-'.Str::random(10).'.'.$dto->extension;
+
+        /** @var AwsS3V3Adapter $disk */
         $disk = Storage::disk('r2');
 
         $tempUrl = $disk->temporaryUploadUrl(
-            $filename, 
+            $filename,
             now()->addMinutes(30)
         );
 
@@ -39,16 +52,16 @@ class VideoService
     public function confirmDirectUpload(Lesson $lesson, ConfirmVideoUploadData $dto): void
     {
         $existingVideo = $this->videoRepository->getByLesson($lesson);
-        
+
         if ($existingVideo && $existingVideo->r2_key) {
             Storage::disk('r2')->delete($existingVideo->r2_key);
         }
 
         $this->videoRepository->updateOrCreateStatus($lesson, 'ready', [
-            'r2_key'           => $dto->r2Key,
+            'r2_key' => $dto->r2Key,
             'duration_seconds' => $dto->durationSeconds,
-            'size_bytes'       => $dto->sizeBytes,
-            'mime_type'        => $dto->mimeType,
+            'size_bytes' => $dto->sizeBytes,
+            'mime_type' => $dto->mimeType,
         ]);
     }
 }

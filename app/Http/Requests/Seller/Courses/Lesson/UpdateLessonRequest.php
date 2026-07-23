@@ -22,9 +22,9 @@ class UpdateLessonRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'        => ['sometimes', 'required', 'string', 'max:255'],
-            'description'  => ['nullable', 'string'],
-            'is_preview'   => ['sometimes', 'required', 'boolean'],
+            'title' => ['sometimes', 'required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'is_preview' => ['sometimes', 'required', 'boolean'],
             'is_published' => ['sometimes', 'required', 'boolean'],
         ];
     }

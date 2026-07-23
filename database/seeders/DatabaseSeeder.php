@@ -42,6 +42,7 @@ class DatabaseSeeder extends Seeder
                 UserRole::USER->value
             ],
             'current_role' => UserRole::ROOT->value,
+            'avatar'=>'/assets/frontend/img/default-avatar.jpg',
             'is_active' => true,
         ]);
 
@@ -53,6 +54,7 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('123'),
                 'roles' => [UserRole::USER->value],
                 'current_role' => UserRole::USER->value,
+                'avatar'=>'/assets/frontend/img/default-avatar.jpg',
                 'is_active' => true,
             ]);
         }

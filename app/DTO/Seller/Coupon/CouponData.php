@@ -36,15 +36,15 @@ readonly class CouponData
     public function toArray(int $sellerId): array
     {
         return [
-            'seller_id'  => $sellerId,
-            'code'       => $this->code,
-            'type'       => $this->type,
-            'value'      => $this->value,
-            'max_uses'   => $this->maxUses,
-            'starts_at'  => $this->startsAt,
+            'seller_id' => $sellerId,
+            'code' => $this->code,
+            'type' => $this->type,
+            'value' => $this->value,
+            'max_uses' => $this->maxUses,
+            'starts_at' => $this->startsAt,
             'expires_at' => $this->expiresAt,
-            'course_id'  => $this->courseId,
-            'is_active'  => $this->isActive,
+            'course_id' => $this->courseId,
+            'is_active' => $this->isActive,
         ];
     }
 }

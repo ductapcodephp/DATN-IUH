@@ -1,4 +1,5 @@
 <?php
+
 // === FILE: app/Models/QuizResult.php ===
 
 namespace App\Models;
@@ -6,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -15,13 +16,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $score User score
  * @property int $total_questions
  * @property int $correct_answers
- * @property string|null $user_answers  
- * @property \Illuminate\Support\Carbon|null $completed_at
+ * @property string|null $user_answers
+ * @property Carbon|null $completed_at
  * @property string|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Quiz $quiz
- * @property-read \App\Models\User|null $user
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Quiz $quiz
+ * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult byQuiz($quizId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult byUser($userId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult completed()
@@ -40,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereUserAnswers($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizResult whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class QuizResult extends Model
@@ -101,7 +104,10 @@ class QuizResult extends Model
 
     public function getPercentageScore(): float
     {
-        if ($this->total_questions == 0) return 0;
+        if ($this->total_questions == 0) {
+            return 0;
+        }
+
         return round(($this->correct_answers / $this->total_questions) * 100, 2);
     }
 
@@ -120,4 +126,3 @@ class QuizResult extends Model
         return "{$this->correct_answers}/{$this->total_questions}";
     }
 }
-

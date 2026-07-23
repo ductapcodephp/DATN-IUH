@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -20,11 +20,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $explanation Giải thích sau khi chọn
  * @property int $sort_order
  * @property string|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Collection<int, \App\Models\QuizAnswer> $answers
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, QuizAnswer> $answers
  * @property-read int|null $answers_count
- * @property-read \App\Models\Quiz $quiz
+ * @property-read Quiz $quiz
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizQuestion byQuiz($quizId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizQuestion newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizQuestion newQuery()
@@ -40,6 +41,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizQuestion whereSortOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizQuestion whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizQuestion whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class QuizQuestion extends Model
@@ -51,9 +53,9 @@ class QuizQuestion extends Model
     protected $fillable = [
         'quiz_id',
         'question',
-        'type',            
-        'points',          
-        'explanation',     
+        'type',
+        'points',
+        'explanation',
         'sort_order',
     ];
 

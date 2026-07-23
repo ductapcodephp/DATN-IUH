@@ -6,8 +6,9 @@ use App\Events\Auth\UserRegistered;
 use App\Models\LoginAttempt;
 use App\Models\RefreshToken;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
+
 class GenerateFirstSession
 {
     public function handle(UserRegistered $event): void
@@ -39,7 +40,7 @@ class GenerateFirstSession
             'last_used_at' => now(),
             'is_revoked' => false,
         ]);
-        Redis::del("user_session:" . $user->id);
+        Redis::del('user_session:'.$user->id);
 
         Cookie::queue('refresh_token', $plainToken, 43200, null, null, true, true, false, 'Lax');
     }

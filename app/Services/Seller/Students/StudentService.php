@@ -18,7 +18,7 @@ class StudentService
     public function getStudentsIndexData(int $sellerId, StudentFilterData $filters): array
     {
         return [
-            'students'    => $this->studentRepository->getStudentsForSellerPaginated($sellerId, $filters),
+            'students' => $this->studentRepository->getStudentsForSellerPaginated($sellerId, $filters),
             'coursesList' => $this->studentRepository->getCoursesBySeller($sellerId),
         ];
     }

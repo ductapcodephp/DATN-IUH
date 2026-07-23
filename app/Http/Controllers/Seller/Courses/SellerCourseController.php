@@ -56,7 +56,7 @@ class SellerCourseController extends Controller
         $this->authorizeAccess($course);
 
         return Inertia::render('Seller/Courses/Edit', [
-            'course'        => $course,
+            'course' => $course,
             'parentCourses' => $this->courseService->getParentCourses((int) $course->id),
         ]);
     }

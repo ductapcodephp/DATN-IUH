@@ -24,13 +24,13 @@ class StudentController extends Controller
     public function index(StudentIndexRequest $request): Response
     {
         $filterDto = StudentFilterData::fromRequest($request);
-        
+
         $data = $this->studentService->getStudentsIndexData((int) auth()->id(), $filterDto);
 
         return Inertia::render('Seller/Students/Index', [
-            'students'    => StudentResource::collection($data['students']),
+            'students' => StudentResource::collection($data['students']),
             'coursesList' => $data['coursesList'],
-            'filters'     => $filterDto->toArray(),
+            'filters' => $filterDto->toArray(),
         ]);
     }
 

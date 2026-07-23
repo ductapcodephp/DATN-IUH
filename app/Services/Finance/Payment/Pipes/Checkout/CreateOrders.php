@@ -3,13 +3,12 @@
 namespace App\Services\Finance\Payment\Pipes\Checkout;
 
 use App\DTO\Payment\CheckoutData;
-use App\Models\Order;
 use App\Models\CouponUsage;
+use App\Models\Order;
 use Closure;
 
 class CreateOrders
 {
-
     public function handle(CheckoutData $data, Closure $next)
     {
         $ordersToInsert = [];
@@ -26,20 +25,20 @@ class CreateOrders
             $sellerAmount = $amountPaid - $commissionAmount;
 
             $ordersToInsert[] = [
-                'user_id'            => $data->userId,
-                'course_id'          => $item->course_id,
-                'vip_package_id'     => null,
-                'online_payment_id'  => $data->onlinePayment->id,
-                'amount_original'    => $item->price,
-                'discount_amount'    => $discount,
-                'amount_paid'        => $amountPaid,
-                'commission_rate'    => $commissionRate,
-                'commission_amount'  => $commissionAmount,
-                'seller_amount'      => $sellerAmount,
-                'status'             => 'pending',
-                'payment_method'     => $data->gatewayName,
-                'created_at'         => now(),
-                'updated_at'         => now(),
+                'user_id' => $data->userId,
+                'course_id' => $item->course_id,
+                'vip_package_id' => null,
+                'online_payment_id' => $data->onlinePayment->id,
+                'amount_original' => $item->price,
+                'discount_amount' => $discount,
+                'amount_paid' => $amountPaid,
+                'commission_rate' => $commissionRate,
+                'commission_amount' => $commissionAmount,
+                'seller_amount' => $sellerAmount,
+                'status' => 'pending',
+                'payment_method' => $data->gatewayName,
+                'created_at' => now(),
+                'updated_at' => now(),
             ];
         }
 
@@ -67,59 +66,54 @@ class CreateOrders
             if ($order->discount_amount > 0) {
                 $sellerId = $order->course->seller_id ?? null;
                 $matchedCoupons = $this->matchCoupons($data->validCoupons, $order->course_id, $sellerId);
-                
+
                 if (count($matchedCoupons) > 0) {
                     $discountPerCoupon = $order->discount_amount / count($matchedCoupons);
                     foreach ($matchedCoupons as $coupon) {
                         $couponUsagesToInsert[] = [
-                            'coupon_id'        => $coupon->id,
-                            'user_id'          => $data->userId,
-                            'order_id'         => $order->id,
+                            'coupon_id' => $coupon->id,
+                            'user_id' => $data->userId,
+                            'order_id' => $order->id,
                             'discount_applied' => $discountPerCoupon,
-                            'created_at'       => now(),
-                            'updated_at'       => now(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
                         ];
                     }
                 }
             }
         }
 
-        if (!empty($couponUsagesToInsert)) {
+        if (! empty($couponUsagesToInsert)) {
             CouponUsage::insert($couponUsagesToInsert);
         }
 
         return $next($data);
     }
 
-    
     private function resolveCommissionRate($item): float
     {
-        $commissionRate = 15;
+        $commissionRate = 20;
         $seller = $item->course->seller ?? null;
 
-        if (!$seller) {
+        if (! $seller) {
             return $commissionRate;
         }
 
         $activeVip = $seller->vipSubscriptions()
             ->where('status', 'active')
             ->where('expires_at', '>', now())
+            ->whereHas('vipPackage', fn ($q) => $q->where('package_type', 'commission'))
             ->with('vipPackage')
+            ->orderBy('expires_at', 'desc')
             ->first();
 
-        if ($activeVip && $activeVip->vipPackage) {
-            $packageName = strtolower($activeVip->vipPackage->name);
-            if (str_contains($packageName, 'business')) {
-                $commissionRate = 7;
-            } elseif (str_contains($packageName, 'pro')) {
-                $commissionRate = 10;
-            }
+        if ($activeVip && $activeVip->vipPackage && $activeVip->vipPackage->commission_rate !== null) {
+            $commissionRate = (float) $activeVip->vipPackage->commission_rate;
         }
 
         return $commissionRate;
     }
 
-    
     private function matchCoupons($validCoupons, $courseId, $sellerId): array
     {
         $matched = [];
@@ -127,7 +121,7 @@ class CreateOrders
             if (
                 $coupon->course_id == $courseId ||
                 $coupon->seller_id == $sellerId ||
-                (!$coupon->course_id && !$coupon->seller_id)
+                (! $coupon->course_id && ! $coupon->seller_id)
             ) {
                 $matched[] = $coupon;
             }

@@ -25,7 +25,7 @@ class AuthService
         return DB::transaction(function () use ($data) {
             $referrerId = null;
 
-            if (!empty($data['referred_by_code'])) {
+            if (! empty($data['referred_by_code'])) {
                 $referrerId = User::query()
                     ->where('referral_code', $data['referred_by_code'])
                     ->value('id');
@@ -53,12 +53,12 @@ class AuthService
     {
         $user = User::query()->where('email', $credentials['email'])->first();
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             $this->recordLoginAttempt($credentials['email'], $context, false, 'invalid_credentials');
             throw new Exception('Thông tin đăng nhập không chính xác.');
         }
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             $this->recordLoginAttempt($credentials['email'], $context, false, 'account_disabled');
             throw new Exception('Tài khoản của bạn đã bị khóa.');
         }

@@ -7,9 +7,11 @@ use App\Models\OnlinePayment;
 class IpnData
 {
     public readonly array $callbackData;
+
     public readonly string $transactionCode;
 
     public ?OnlinePayment $payment = null;
+
     public bool $isSuccess = false;
 
     public function __construct(array $callbackData)

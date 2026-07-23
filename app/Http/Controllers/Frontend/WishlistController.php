@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Frontend\Wishlist\ToggleWishlistRequest;
 use App\Services\Frontend\WishlistService;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class WishlistController extends Controller
 {
@@ -30,8 +31,8 @@ class WishlistController extends Controller
     {
         $courses = $this->wishlistService->getWishlistCourses(Auth::id());
 
-        return \Inertia\Inertia::render('Frontend/Wishlist/Index', [
-            'wishlistCourses' => $courses
+        return Inertia::render('Frontend/Wishlist/Index', [
+            'wishlistCourses' => $courses,
         ]);
     }
 }

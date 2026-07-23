@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -16,11 +16,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $content
  * @property bool $is_hidden
  * @property string|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Course|null $course
- * @property-read \App\Models\Order $order
- * @property-read \App\Models\User|null $user
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Course|null $course
+ * @property-read Order $order
+ * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review byCourse($courseId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review byUser($userId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review hidden()
@@ -41,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review withRating($rating)
+ *
  * @mixin \Eloquent
  */
 class Review extends Model
@@ -121,11 +123,11 @@ class Review extends Model
 
     public function getRatingStars(): string
     {
-        return str_repeat('★', $this->rating) . str_repeat('☆', 5 - $this->rating);
+        return str_repeat('★', $this->rating).str_repeat('☆', 5 - $this->rating);
     }
 
     public function hasContent(): bool
     {
-        return !empty($this->content);
+        return ! empty($this->content);
     }
 }

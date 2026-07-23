@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -8,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -19,13 +19,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $is_required Must complete to continue
  * @property int $sort_order Sắp xếp quiz trong lesson
  * @property string|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Lesson|null $lesson
- * @property-read Collection<int, \App\Models\QuizQuestion> $questions
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Lesson|null $lesson
+ * @property-read Collection<int, QuizQuestion> $questions
  * @property-read int|null $questions_count
- * @property-read Collection<int, \App\Models\QuizResult> $results
+ * @property-read Collection<int, QuizResult> $results
  * @property-read int|null $results_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz byLesson($lessonId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz newQuery()
@@ -44,6 +45,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereTriggerSeconds($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Quiz whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Quiz extends Model
@@ -53,8 +55,8 @@ class Quiz extends Model
     protected $fillable = [
         'lesson_id',
         'title',
-        'description',      
-        'passing_score',    
+        'description',
+        'passing_score',
         'trigger_seconds',
         'is_required',
         'sort_order',

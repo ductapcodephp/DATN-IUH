@@ -3,8 +3,6 @@
 namespace App\Notifications\Seller;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class NewReviewNotification extends Notification
@@ -44,7 +42,7 @@ class NewReviewNotification extends Notification
             'message' => "Học viên {$this->studentName} vừa đánh giá {$this->rating} sao cho khóa học '{$this->courseName}'.",
             'course_id' => $this->courseId,
             'icon' => 'fa-solid fa-star',
-            'color' => 'text-warning'
+            'color' => 'text-warning',
         ];
     }
 }

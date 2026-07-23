@@ -16,9 +16,9 @@ class StudentIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'search'    => ['nullable', 'string', 'max:255'],
+            'search' => ['nullable', 'string', 'max:255'],
             'course_id' => ['nullable'],
-            'per_page'  => ['nullable', 'integer', 'min:1', 'max:100'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ];
     }
 }

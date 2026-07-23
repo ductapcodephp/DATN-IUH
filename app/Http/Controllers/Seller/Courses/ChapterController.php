@@ -62,7 +62,7 @@ class ChapterController extends Controller
         $isSellerCourse = (int) $course->seller_id === (int) auth()->id();
         $isChapterInCourse = (int) $chapter->course_id === (int) $course->id;
 
-        if (!$isSellerCourse || !$isChapterInCourse) {
+        if (! $isSellerCourse || ! $isChapterInCourse) {
             abort(403, 'Bạn không có quyền thao tác trên chương học này!');
         }
     }

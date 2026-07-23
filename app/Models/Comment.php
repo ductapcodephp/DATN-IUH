@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Kalnoy\Nestedset\Collection;
 use Kalnoy\Nestedset\NodeTrait;
-
 
 /**
  * @property int $id
@@ -16,13 +17,14 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property int|null $parent_id
  * @property string $content
  * @property bool $is_hidden Hidden by instructor
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Kalnoy\Nestedset\Collection<int, Comment> $children
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Comment> $children
  * @property-read int|null $children_count
- * @property-read \App\Models\Lesson|null $lesson
+ * @property-read Lesson|null $lesson
  * @property-read Comment|null $parent
- * @property-read \App\Models\User|null $user
+ * @property-read User|null $user
+ *
  * @method static \Kalnoy\Nestedset\Collection<int, static> all($columns = ['*'])
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment ancestorsAndSelf($id, array $columns = [])
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment ancestorsOf($id, array $columns = [])
@@ -83,11 +85,12 @@ use Kalnoy\Nestedset\NodeTrait;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment withTrashed(bool $withTrashed = true)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment withoutRoot()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Comment extends Model
 {
-    use HasFactory, SoftDeletes, NodeTrait;
+    use HasFactory, NodeTrait, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -100,7 +103,6 @@ class Comment extends Model
     protected $casts = [
         'is_hidden' => 'boolean',
     ];
-
 
     public function user(): BelongsTo
     {
@@ -137,17 +139,16 @@ class Comment extends Model
         return $query->where('lesson_id', $lessonId);
     }
 
-
     public function isReply(): bool
     {
-        return !$this->isRoot();
+        return ! $this->isRoot();
     }
 
     public function countReplies(): int
     {
         return $this->children()->count();
     }
-    
+
     /**
      * 🚀 ĐẾM TỔNG CỘNG TẤT CẢ PHẢN HỒI (Gồm cả con, cháu, chắt...)
      * Cái này cực kỳ hữu ích để hiển thị dạng: "35 bình luận" ở phía ngoài UI

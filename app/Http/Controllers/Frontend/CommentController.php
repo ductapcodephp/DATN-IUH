@@ -38,7 +38,7 @@ class CommentController extends Controller
             $request->input('content'),
             $request->input('parent_id')
         );
-        
+
         $comment->load('user:id,name,avatar');
 
         return response()->json([

@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 readonly class StoreQuestionData
 {
     /**
-     * @param QuestionAnswerData[] $answers
+     * @param  QuestionAnswerData[]  $answers
      */
     public function __construct(
         public string $questionText,

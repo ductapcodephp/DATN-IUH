@@ -3,18 +3,16 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Notifications\Seller\NewCourseEnrollmentNotification;
 use App\Services\Frontend\CourseService;
 use App\Services\Shared\ReviewService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Review;
-use App\Models\Order;
-use App\Models\CourseEnrollment;
-use App\Notifications\Seller\NewCourseEnrollmentNotification;
 
 class CourseController extends Controller
 {
     protected $courseService;
+
     protected $reviewService;
 
     public function __construct(CourseService $courseService, ReviewService $reviewService)
@@ -23,10 +21,21 @@ class CourseController extends Controller
         $this->reviewService = $reviewService;
     }
 
+    public function searchSuggestions(Request $request)
+    {
+        $keyword = $request->query('keyword', '');
+        $courses = $this->courseService->searchSuggestions($keyword, 5);
+
+        return response()->json([
+            'success' => true,
+            'data' => $courses,
+        ]);
+    }
+
     public function index(Request $request)
     {
         $filters = $request->only(['search', 'category', 'price', 'rating', 'sort']);
-        
+
         $courses = $this->courseService->getAllPublishedCourses($filters, 12);
         $categories = $this->courseService->getActiveCategories();
         $enrolledCourseIds = $this->courseService->getEnrolledCourseIds(auth()->id());
@@ -56,7 +65,7 @@ class CourseController extends Controller
     {
         $course = $this->courseService->getCourseDetailBySlug($slug);
 
-        if (!$course->is_free && $course->price > 0) {
+        if (! $course->is_free && $course->price > 0) {
             return back()->with('error', 'Khóa học này không miễn phí!');
         }
 

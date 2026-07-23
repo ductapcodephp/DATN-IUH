@@ -20,17 +20,17 @@ class DashboardOverviewController extends Controller
     public function index(): Response
     {
         $userId = Auth::id();
-        $data   = $this->dashboardOverviewService->getDashboardOverview($userId);
+        $data = $this->dashboardOverviewService->getDashboardOverview($userId);
 
         return Inertia::render('Frontend/Dashboard/Index', [
-            'stats'  => $data['stats'],
+            'stats' => $data['stats'],
             'wallet' => $data['wallet'],
         ]);
     }
 
     public function myCourses(Request $request): Response
     {
-        $userId  = Auth::id();
+        $userId = Auth::id();
         $filters = $request->only(['status', 'search']);
 
         $courses = $this->dashboardOverviewService->getEnrolledCourses($userId, $filters);
@@ -43,7 +43,7 @@ class DashboardOverviewController extends Controller
 
     public function certificates(): Response
     {
-        $userId       = Auth::id();
+        $userId = Auth::id();
         $certificates = $this->dashboardOverviewService->getCertificates($userId);
 
         return Inertia::render('Frontend/Dashboard/Certificates', [

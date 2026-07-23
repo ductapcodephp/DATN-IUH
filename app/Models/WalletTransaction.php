@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -21,10 +21,11 @@ use Illuminate\Support\Str;
  * @property string|null $reference_code Reference code (VNPay, order ID, etc)
  * @property string $status
  * @property array<array-key, mixed>|null $metadata Additional data like VNPay response
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\User|null $user
- * @property-read \App\Models\Wallet $wallet
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $user
+ * @property-read Wallet $wallet
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WalletTransaction byType(string $type)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WalletTransaction commissions()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WalletTransaction completed()
@@ -48,24 +49,33 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WalletTransaction whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WalletTransaction whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WalletTransaction whereWalletId($value)
+ *
  * @mixin \Eloquent
  */
 class WalletTransaction extends Model
 {
     use HasFactory;
 
-    public const TYPE_DEPOSIT    = 'deposit';
-    public const TYPE_PURCHASE   = 'purchase';
-    public const TYPE_REFUND     = 'refund';
+    public const TYPE_DEPOSIT = 'deposit';
+
+    public const TYPE_PURCHASE = 'purchase';
+
+    public const TYPE_REFUND = 'refund';
+
     public const TYPE_COMMISSION = 'commission';
+
     public const TYPE_VIP_PAYMENT = 'vip_payment';
+
     // Seller earnings
-    public const TYPE_EARNING    = 'earning';     // Tiền seller nhận khi khách mua (pending)
+    public const TYPE_EARNING = 'earning';     // Tiền seller nhận khi khách mua (pending)
+
     public const TYPE_WITHDRAWAL = 'withdrawal';  // Seller rút tiền
 
-    public const STATUS_PENDING   = 'pending';
+    public const STATUS_PENDING = 'pending';
+
     public const STATUS_COMPLETED = 'completed';
-    public const STATUS_FAILED    = 'failed';
+
+    public const STATUS_FAILED = 'failed';
 
     protected $fillable = [
         'wallet_id',
@@ -162,15 +172,14 @@ class WalletTransaction extends Model
 
     public function order()
     {
-        return $this->belongsTo(\App\Models\Order::class);
+        return $this->belongsTo(Order::class);
     }
-
 
     public function getFormattedAmount(): string
     {
-        return number_format((float) $this->amount, 0, ',', '.') . ' đ';
+        return number_format((float) $this->amount, 0, ',', '.').' đ';
     }
-   
+
     public function isCompleted(): bool
     {
         return $this->status === self::STATUS_COMPLETED;

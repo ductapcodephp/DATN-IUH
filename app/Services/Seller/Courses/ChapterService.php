@@ -27,9 +27,9 @@ class ChapterService
         $maxSort = $this->chapterRepository->getMaxSortOrder((int) $course->id);
 
         return $this->chapterRepository->create([
-            'course_id'    => $course->id,
-            'title'        => $dto->title,
-            'sort_order'   => $maxSort + 1,
+            'course_id' => $course->id,
+            'title' => $dto->title,
+            'sort_order' => $maxSort + 1,
             'is_published' => $dto->isPublished,
         ]);
     }

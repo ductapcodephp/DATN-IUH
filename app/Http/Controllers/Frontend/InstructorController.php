@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Services\Frontend\InstructorService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class InstructorController extends Controller
@@ -20,10 +20,10 @@ class InstructorController extends Controller
     {
         $filters = $request->only(['search', 'sort']);
         $instructors = $this->instructorService->getAllInstructors($filters, 12);
-        
+
         return Inertia::render('Frontend/Instructor/Index', [
             'instructors' => $instructors,
-            'filters' => $filters
+            'filters' => $filters,
         ]);
     }
 
@@ -32,7 +32,7 @@ class InstructorController extends Controller
         $instructor = $this->instructorService->getInstructorDetail($id);
 
         return Inertia::render('Frontend/Instructor/Detail', [
-            'instructor' => $instructor
+            'instructor' => $instructor,
         ]);
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Services\Seller;
 
 use App\Repositories\User\UserRepositoryInterface;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileService
 {
@@ -19,7 +19,7 @@ class ProfileService
             'phone' => $data['phone'] ?? null,
         ];
 
-        if (isset($data['avatar']) && $data['avatar'] instanceof \Illuminate\Http\UploadedFile) {
+        if (isset($data['avatar']) && $data['avatar'] instanceof UploadedFile) {
             $path = $data['avatar']->store('avatars', 'public');
             $updateData['avatar'] = $path;
         }
@@ -30,7 +30,7 @@ class ProfileService
     public function updatePassword(int $userId, string $newPassword): bool
     {
         return $this->userRepository->update($userId, [
-            'password' => Hash::make($newPassword)
+            'password' => Hash::make($newPassword),
         ]);
     }
 

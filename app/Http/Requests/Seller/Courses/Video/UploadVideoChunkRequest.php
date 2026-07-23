@@ -22,11 +22,11 @@ class UploadVideoChunkRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'video_chunk'  => ['required', 'file'],
-            'chunk_index'  => ['required', 'integer', 'min:0'],
+            'video_chunk' => ['required', 'file'],
+            'chunk_index' => ['required', 'integer', 'min:0'],
             'total_chunks' => ['required', 'integer', 'min:1'],
-            'file_uid'     => ['required', 'string', 'max:255'],
-            'filename'     => ['required', 'string', 'max:255'],
+            'file_uid' => ['required', 'string', 'max:255'],
+            'filename' => ['required', 'string', 'max:255'],
         ];
     }
 }

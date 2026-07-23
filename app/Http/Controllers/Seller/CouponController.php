@@ -31,8 +31,9 @@ class CouponController extends Controller
             'coupons' => CouponResource::collection($coupons),
             'courses' => $courses,
         ]);
-    
+
     }
+
     public function store(StoreCouponRequest $request): RedirectResponse
     {
         $dto = CouponData::fromRequest($request);
@@ -66,7 +67,8 @@ class CouponController extends Controller
 
         return back();
     }
-        protected function authorizeAccess(Coupon $coupon): void
+
+    protected function authorizeAccess(Coupon $coupon): void
     {
         if ((int) $coupon->seller_id !== (int) auth()->id()) {
             abort(403, 'Bạn không có quyền thao tác trên mã giảm giá này!');

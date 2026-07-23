@@ -3,14 +3,15 @@
 namespace App\Services\Finance\Payment\Pipes\Ipn;
 
 use App\DTO\Payment\IpnData;
-use App\Services\Frontend\CartService;
+use App\Events\PaymentCompleted;
 use App\Models\CourseEnrollment;
+use App\Models\DailyStatistic;
 use App\Models\SystemWallet;
-use App\Models\Wallet;
 use App\Models\VipPackage;
 use App\Models\VipSubscription;
-use App\Events\PaymentCompleted;
+use App\Models\Wallet;
 use App\Notifications\Seller\NewCourseEnrollmentNotification;
+use App\Services\Frontend\CartService;
 use Closure;
 
 class CompleteOrderPayment
@@ -46,33 +47,33 @@ class CompleteOrderPayment
             $order->update(['status' => 'completed']);
 
             // (SIMULATION) Mô phỏng tài khoản Vietcombank của công ty nhận được 100% tiền khách trả
-            SystemWallet::getInstance()->addTransaction((float) $order->amount_paid, 'in', 'Order', $order->id, 'Tiền khách mua khóa học #' . $order->id);
+            SystemWallet::getInstance()->addTransaction((float) $order->amount_paid, 'in', 'Order', $order->id, 'Tiền khách mua khóa học #'.$order->id);
 
             // Cộng tiền vào ví pending của seller (đã trừ hoa hồng platform)
             if ($order->course_id && $order->course->seller_id) {
                 $sellerId = $order->course->seller_id;
-                
+
                 $sellerWallet = Wallet::firstOrCreate(
                     ['user_id' => $sellerId],
                     ['balance' => 0, 'balance_available' => 0, 'balance_pending' => 0]
                 );
-                
+
                 $sellerWallet->addPendingEarning(
                     (float) $order->seller_amount,
                     $order->id,
-                    'Thu nhập chờ giải phóng từ đơn hàng #' . $order->id
+                    'Thu nhập chờ giải phóng từ đơn hàng #'.$order->id
                 );
 
                 // Update Daily Statistic
-                \App\Models\DailyStatistic::updateOrCreate(
+                DailyStatistic::updateOrCreate(
                     [
                         'seller_id' => $sellerId,
                         'date' => now()->toDateString(),
                     ],
                     [] // The values are handled by increment/decrement below, but we need to ensure the record exists first.
                 )->increment('total_revenue', (float) $order->seller_amount);
-                
-                \App\Models\DailyStatistic::where('seller_id', $sellerId)
+
+                DailyStatistic::where('seller_id', $sellerId)
                     ->where('date', now()->toDateString())
                     ->increment('total_orders');
             }
@@ -88,7 +89,7 @@ class CompleteOrderPayment
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
-                
+
                 // Gửi thông báo cho seller
                 if ($order->course && $order->course->seller) {
                     $order->course->seller->notify(new NewCourseEnrollmentNotification(
@@ -103,6 +104,11 @@ class CompleteOrderPayment
             if ($order->vip_package_id) {
                 $package = VipPackage::find($order->vip_package_id);
                 if ($package) {
+                    VipSubscription::where('user_id', $order->user_id)
+                        ->whereHas('vipPackage', fn ($q) => $q->where('role_type', $package->role_type)->where('package_type', $package->package_type))
+                        ->active()
+                        ->update(['status' => 'cancelled']);
+
                     VipSubscription::create([
                         'user_id' => $order->user_id,
                         'vip_package_id' => $package->id,
@@ -116,7 +122,7 @@ class CompleteOrderPayment
         }
 
         // Bulk insert enrollments
-        if (!empty($enrollmentsToInsert)) {
+        if (! empty($enrollmentsToInsert)) {
             CourseEnrollment::insertOrIgnore($enrollmentsToInsert);
         }
 
@@ -128,4 +134,3 @@ class CompleteOrderPayment
         return $next($data);
     }
 }
-

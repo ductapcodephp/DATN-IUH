@@ -41,6 +41,7 @@ class ReviewRepository implements ReviewRepositoryInterface
         if ($review) {
             $review->update($data);
         }
+
         return $review;
     }
 

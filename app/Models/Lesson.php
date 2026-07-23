@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Kalnoy\Nestedset\Collection;
 
 /**
  * @property int $id
@@ -19,20 +21,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $type
  * @property bool $is_preview Free preview, no purchase needed
  * @property bool $is_published
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Chapter|null $chapter
- * @property-read \Kalnoy\Nestedset\Collection<int, \App\Models\Comment> $comments
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Chapter|null $chapter
+ * @property-read Collection<int, Comment> $comments
  * @property-read int|null $comments_count
- * @property-read \App\Models\Course|null $course
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VideoNote> $notes
+ * @property-read Course|null $course
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, VideoNote> $notes
  * @property-read int|null $notes_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CourseProgress> $progressRecords
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, CourseProgress> $progressRecords
  * @property-read int|null $progress_records_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Quiz> $quizzes
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Quiz> $quizzes
  * @property-read int|null $quizzes_count
- * @property-read \App\Models\Video|null $video
+ * @property-read Video|null $video
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson accessible()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson document()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson newModelQuery()
@@ -58,6 +61,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lesson withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Lesson extends Model
@@ -153,7 +157,7 @@ class Lesson extends Model
     {
         return $query->where(function ($q) {
             $q->where('is_preview', true)
-              ->orWhere('is_published', true);
+                ->orWhere('is_published', true);
         });
     }
 }

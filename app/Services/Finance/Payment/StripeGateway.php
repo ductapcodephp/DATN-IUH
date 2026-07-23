@@ -3,18 +3,19 @@
 namespace App\Services\Finance\Payment;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class StripeGateway implements PaymentGatewayInterface
 {
     public function getPaymentUrl(float $amount, string $transactionCode): string
     {
         $secretKey = env('STRIPE_SECRET');
-        
+
         if (empty($secretKey)) {
             throw new \Exception('Chưa cấu hình STRIPE_SECRET trong file .env');
         }
 
-        $response = \Illuminate\Support\Facades\Http::withToken($secretKey)
+        $response = Http::withToken($secretKey)
             ->asForm()
             ->post('https://api.stripe.com/v1/checkout/sessions', [
                 'payment_method_types' => ['card'],
@@ -23,19 +24,19 @@ class StripeGateway implements PaymentGatewayInterface
                 'success_url' => route('frontend.payment.return', [
                     'gateway' => 'stripe',
                     'transaction_code' => $transactionCode,
-                    'status' => 'success'
+                    'status' => 'success',
                 ]),
                 'cancel_url' => route('frontend.cart.index', [
                     'gateway' => 'stripe',
                     'transaction_code' => $transactionCode,
-                    'status' => 'failed'
+                    'status' => 'failed',
                 ]),
                 'line_items' => [
                     [
                         'price_data' => [
                             'currency' => 'vnd',
                             'product_data' => [
-                                'name' => 'Thanh toán đơn hàng #' . $transactionCode,
+                                'name' => 'Thanh toán đơn hàng #'.$transactionCode,
                             ],
                             'unit_amount' => (int) $amount,
                         ],
@@ -48,17 +49,17 @@ class StripeGateway implements PaymentGatewayInterface
             return $response->json('url');
         }
 
-        throw new \Exception('Lỗi tạo link thanh toán Stripe: ' . $response->body());
+        throw new \Exception('Lỗi tạo link thanh toán Stripe: '.$response->body());
     }
 
     public function handleCallback(Request $request): array
     {
         if ($request->isMethod('post') && $request->has('type')) {
             $payload = $request->all();
-            
+
             if ($payload['type'] === 'checkout.session.completed') {
                 $session = $payload['data']['object'];
-                
+
                 return [
                     'status' => 'success',
                     'transaction_code' => $session['client_reference_id'] ?? null,
@@ -66,7 +67,7 @@ class StripeGateway implements PaymentGatewayInterface
                     'raw_response' => $payload,
                 ];
             }
-            
+
             return [
                 'status' => 'failed',
                 'transaction_code' => $payload['data']['object']['client_reference_id'] ?? null,
@@ -76,7 +77,7 @@ class StripeGateway implements PaymentGatewayInterface
         }
 
         $status = $request->input('status') === 'success' ? 'success' : 'failed';
-        
+
         return [
             'status' => $status,
             'transaction_code' => $request->input('transaction_code'),

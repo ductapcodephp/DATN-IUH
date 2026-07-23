@@ -16,9 +16,10 @@ class UserRepository
 
     public function findIdByReferralCode(?string $code): ?int
     {
-        if (!$code) {
+        if (! $code) {
             return null;
         }
+
         return User::query()->where('referral_code', $code)->value('id');
     }
 

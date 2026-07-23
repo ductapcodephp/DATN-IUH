@@ -3,13 +3,12 @@
 namespace App\Services\Finance\Payment\Pipes\Ipn;
 
 use App\DTO\Payment\IpnData;
-use App\Models\OnlinePayment;
 use App\Exceptions\PaymentException;
+use App\Models\OnlinePayment;
 use Closure;
 
 class ValidateIpnPayment
 {
-  
     public function handle(IpnData $data, Closure $next)
     {
         if (empty($data->transactionCode)) {
@@ -24,7 +23,7 @@ class ValidateIpnPayment
             ->lockForUpdate()
             ->first();
 
-        if (!$payment) {
+        if (! $payment) {
             throw new PaymentException(
                 'Không tìm thấy giao dịch trong hệ thống.',
                 PaymentException::ORDER_NOT_FOUND

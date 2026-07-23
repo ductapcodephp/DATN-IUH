@@ -10,12 +10,12 @@ class DailyStatistic extends Model
         'seller_id',
         'date',
         'total_revenue',
-        'total_orders'
+        'total_orders',
     ];
 
     protected $casts = [
         'date' => 'date',
         'total_revenue' => 'decimal:2',
-        'total_orders' => 'integer'
+        'total_orders' => 'integer',
     ];
 }

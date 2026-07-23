@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\VipSubscription;
 use App\Notifications\Seller\VipExpiringNotification;
+use Illuminate\Console\Command;
 
 class CheckExpiringVipSubscriptions extends Command
 {
@@ -28,7 +28,7 @@ class CheckExpiringVipSubscriptions extends Command
     public function handle()
     {
         $targetDate = now()->addDays(3)->toDateString();
-        
+
         $expiringSubscriptions = VipSubscription::with(['user', 'vipPackage'])
             ->where('status', 'active')
             ->whereDate('expires_at', $targetDate)
@@ -42,7 +42,7 @@ class CheckExpiringVipSubscriptions extends Command
                 ));
             }
         }
-        
+
         $this->info("Đã gửi thông báo cho {$expiringSubscriptions->count()} tài khoản VIP sắp hết hạn.");
     }
 }

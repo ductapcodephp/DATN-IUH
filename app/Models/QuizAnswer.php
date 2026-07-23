@@ -13,7 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $is_correct
  * @property string|null $deleted_at
  * @property int $sort_order
- * @property-read \App\Models\QuizQuestion $question
+ * @property-read QuizQuestion $question
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer byQuestion($questionId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer correct()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer incorrect()
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer whereIsCorrect($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer whereQuizQuestionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|QuizAnswer whereSortOrder($value)
+ *
  * @mixin \Eloquent
  */
 class QuizAnswer extends Model

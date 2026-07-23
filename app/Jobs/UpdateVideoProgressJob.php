@@ -2,30 +2,32 @@
 
 namespace App\Jobs;
 
+use App\Models\CourseEnrollment;
 use App\Models\CourseProgress;
 use App\Models\Lesson;
-use App\Models\CourseEnrollment;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Redis;
 
-class UpdateVideoProgressJob implements ShouldQueue, ShouldBeUnique
+class UpdateVideoProgressJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $userId;
+
     public $lessonId;
+
     public $courseId;
 
     public $uniqueFor = 3600; // Khóa 1 tiếng để tránh lặp job khi worker bị tắt
-    
+
     public function uniqueId(): string
     {
-        return $this->userId . '_' . $this->lessonId;
+        return $this->userId.'_'.$this->lessonId;
     }
 
     public function __construct($userId, $lessonId, $courseId)
@@ -40,7 +42,7 @@ class UpdateVideoProgressJob implements ShouldQueue, ShouldBeUnique
         $redisKey = "video_progress:{$this->userId}:{$this->lessonId}";
         $data = Redis::get($redisKey);
 
-        if (!$data) {
+        if (! $data) {
             return;
         }
 
@@ -71,7 +73,7 @@ class UpdateVideoProgressJob implements ShouldQueue, ShouldBeUnique
 
         $progress->updateWatchedAndSkippedSeconds($watchedSeconds, $skippedSeconds);
 
-        if (!$wasCompleted && $progress->is_completed) {
+        if (! $wasCompleted && $progress->is_completed) {
             $totalLessons = Lesson::whereHas('chapter', function ($q) {
                 $q->where('course_id', $this->courseId);
             })->count();

@@ -3,9 +3,9 @@
 namespace App\Services\Finance\Payment\Pipes\Ipn;
 
 use App\DTO\Payment\IpnData;
-use App\Models\Wallet;
-use App\Models\WalletTransaction;
 use App\Events\PaymentCompleted;
+use App\Models\Wallet;
+use App\Models\WalletBonus;
 use Closure;
 
 class CompleteDepositPayment
@@ -16,7 +16,7 @@ class CompleteDepositPayment
     public function handle(IpnData $data, Closure $next)
     {
         // Bỏ qua nếu không phải giao dịch thành công hoặc không phải loại NẠP TIỀN
-        if ($data->callbackData['status'] !== 'success' || !str_starts_with($data->transactionCode, 'DEP_')) {
+        if ($data->callbackData['status'] !== 'success' || ! str_starts_with($data->transactionCode, 'DEP_')) {
             return $next($data);
         }
 
@@ -33,20 +33,20 @@ class CompleteDepositPayment
         // Tính tiền thưởng nạp (Bonus Top-up) từ database
         $amount = (float) $payment->amount;
         $bonus = 0;
-        
-        $applicableBonus = \App\Models\WalletBonus::where('is_active', true)
+
+        $applicableBonus = WalletBonus::where('is_active', true)
             ->where('min_amount', '<=', $amount)
             ->orderByDesc('min_amount')
             ->first();
 
         if ($applicableBonus) {
             $bonus = $amount * ($applicableBonus->bonus_percentage / 100);
-            
-            if (!is_null($applicableBonus->max_bonus_amount) && $bonus > $applicableBonus->max_bonus_amount) {
+
+            if (! is_null($applicableBonus->max_bonus_amount) && $bonus > $applicableBonus->max_bonus_amount) {
                 $bonus = (float) $applicableBonus->max_bonus_amount;
             }
         }
-        
+
         $totalAmount = $amount + $bonus;
 
         // Xử lý nạp tiền vào ví
@@ -55,9 +55,9 @@ class CompleteDepositPayment
             ['balance' => 0, 'balance_available' => 0, 'balance_pending' => 0]
         );
 
-        $description = 'Nạp tiền vào ví qua ' . strtoupper($payment->payment_gateway);
+        $description = 'Nạp tiền vào ví qua '.strtoupper($payment->payment_gateway);
         if ($bonus > 0) {
-            $description .= ' (Bao gồm ' . number_format($bonus, 0, ',', '.') . 'đ tiền thưởng nạp)';
+            $description .= ' (Bao gồm '.number_format($bonus, 0, ',', '.').'đ tiền thưởng nạp)';
         }
 
         $wallet->deposit($totalAmount, $description, $payment->transaction_code);

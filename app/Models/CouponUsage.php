@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -15,8 +16,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Coupon $coupon
  * @property User $user
  * @property Order $order
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage byCoupon($couponId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage byOrder($orderId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage byUser($userId)
@@ -31,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class CouponUsage extends Model

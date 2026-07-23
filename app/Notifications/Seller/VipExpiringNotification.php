@@ -3,8 +3,6 @@
 namespace App\Notifications\Seller;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class VipExpiringNotification extends Notification
@@ -41,7 +39,7 @@ class VipExpiringNotification extends Notification
             'title' => 'Gói VIP sắp hết hạn',
             'message' => "Gói VIP '{$this->packageName}' của bạn sẽ hết hạn trong {$this->daysRemaining} ngày tới. Vui lòng gia hạn để không bị gián đoạn.",
             'icon' => 'fa-solid fa-crown',
-            'color' => 'text-danger'
+            'color' => 'text-danger',
         ];
     }
 

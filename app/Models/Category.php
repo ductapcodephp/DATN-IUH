@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Kalnoy\Nestedset\NodeTrait; 
-
+use Kalnoy\Nestedset\Collection;
+use Kalnoy\Nestedset\NodeTrait;
 
 /**
  * @property int $id
@@ -20,14 +21,15 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property int $_lft
  * @property int $_rgt
  * @property int|null $parent_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * @property-read \Kalnoy\Nestedset\Collection<int, Category> $children
+ * @property-read Collection<int, Category> $children
  * @property-read int|null $children_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Course> $courses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Course> $courses
  * @property-read int|null $courses_count
  * @property-read Category|null $parent
+ *
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Category active()
  * @method static \Kalnoy\Nestedset\Collection<int, static> all($columns = ['*'])
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Category ancestorsAndSelf($id, array $columns = [])
@@ -88,23 +90,24 @@ use Kalnoy\Nestedset\NodeTrait;
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Category whereUpdatedAt($value)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Category withDepth(string $as = 'depth')
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Category withoutRoot()
+ *
  * @mixin \Eloquent
  */
 class Category extends Model
 {
-    use HasFactory, NodeTrait; 
+    use HasFactory, NodeTrait;
+
     protected $fillable = [
         'name',
         'slug',
         'description',
         'image',
-        'parent_id', 
+        'parent_id',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
     ];
-
 
     public function courses(): HasMany
     {
@@ -126,7 +129,6 @@ class Category extends Model
         return $query->defaultOrder();
     }
 
-
     protected static function boot()
     {
         parent::boot();
@@ -138,7 +140,7 @@ class Category extends Model
         });
 
         static::updating(function ($model) {
-            if ($model->isDirty('name') && !$model->isDirty('slug')) {
+            if ($model->isDirty('name') && ! $model->isDirty('slug')) {
                 $model->slug = Str::slug($model->name);
             }
         });

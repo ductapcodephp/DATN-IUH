@@ -2,21 +2,20 @@
 
 namespace App\Repositories\Frontend\Wishlist;
 
+use Illuminate\Database\Eloquent\Collection;
+
 interface WishlistRepositoryInterface
 {
     /**
      * Get wishlisted courses for a specific user.
      *
-     * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getWishlistCoursesByUserId(int $userId);
 
     /**
      * Toggle a course in user's wishlist.
      *
-     * @param int $userId
-     * @param int $courseId
      * @return array
      */
     public function toggleWishlist(int $userId, int $courseId);

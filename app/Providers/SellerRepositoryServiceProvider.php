@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use App\Repositories\Seller\Courses\CourseRepositoryInterface;
-use App\Repositories\Seller\Courses\CourseRepository;
-use App\Repositories\Seller\Coupons\CouponRepositoryInterface;
 use App\Repositories\Seller\Coupons\CouponRepository;
-use App\Repositories\Seller\Students\StudentRepositoryInterface;
+use App\Repositories\Seller\Coupons\CouponRepositoryInterface;
+use App\Repositories\Seller\Courses\CourseRepository;
+use App\Repositories\Seller\Courses\CourseRepositoryInterface;
 use App\Repositories\Seller\Students\StudentRepository;
+use App\Repositories\Seller\Students\StudentRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class SellerRepositoryServiceProvider extends ServiceProvider

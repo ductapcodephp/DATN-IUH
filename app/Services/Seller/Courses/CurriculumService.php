@@ -2,11 +2,8 @@
 
 namespace App\Services\Seller\Courses;
 
-use App\Models\Chapter;
 use App\Models\Course;
-use App\Models\Lesson;
 use App\Repositories\Seller\Courses\ChapterRepository;
-use App\Repositories\Seller\Courses\LessonRepository;
 
 class CurriculumService
 {
@@ -21,6 +18,4 @@ class CurriculumService
     {
         return $this->chapterRepository->loadCourseCurriculum($course);
     }
-
-
 }

@@ -17,7 +17,7 @@ class InstructorService
     {
         return $this->instructorRepository->getAllInstructors($filters, $perPage);
     }
-    
+
     public function getInstructorDetail($id)
     {
         return $this->instructorRepository->getInstructorDetail($id);

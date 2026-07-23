@@ -19,13 +19,13 @@ class OrderController extends Controller
 
     public function index(Request $request): Response
     {
-        $userId  = Auth::id();
+        $userId = Auth::id();
         $filters = $request->only(['status', 'payment_method', 'date_from', 'date_to']);
 
         $orders = $this->orderService->getOrders($userId, $filters);
 
         return Inertia::render('Frontend/Dashboard/Orders', [
-            'orders'  => $orders,
+            'orders' => $orders,
             'filters' => $filters,
         ]);
     }
@@ -33,9 +33,9 @@ class OrderController extends Controller
     public function show(int $orderId): Response
     {
         $userId = Auth::id();
-        $order  = $this->orderService->getOrderDetail($userId, $orderId);
+        $order = $this->orderService->getOrderDetail($userId, $orderId);
 
-        if (!$order) {
+        if (! $order) {
             abort(404, 'Đơn hàng không tồn tại.');
         }
 

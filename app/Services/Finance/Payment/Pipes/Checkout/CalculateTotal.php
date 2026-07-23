@@ -3,10 +3,10 @@
 namespace App\Services\Finance\Payment\Pipes\Checkout;
 
 use App\DTO\Payment\CheckoutData;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 use Closure;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class CalculateTotal
 {
@@ -26,7 +26,7 @@ class CalculateTotal
             throw new Exception('Số tiền thanh toán không hợp lệ.');
         }
 
-        $data->transactionCode = strtoupper($data->gatewayName) . '_' . time() . '_' . Str::random(5);
+        $data->transactionCode = strtoupper($data->gatewayName).'_'.time().'_'.Str::random(5);
 
         return $next($data);
     }

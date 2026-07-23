@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Course;
+
 class CartRepository implements CartRepositoryInterface
 {
     public function getCartByUserId(int $userId)
@@ -23,7 +24,7 @@ class CartRepository implements CartRepositoryInterface
         return CartItem::create([
             'cart_id' => $cartId,
             'course_id' => $courseId,
-            'price' => $price
+            'price' => $price,
         ]);
     }
 
@@ -51,18 +52,18 @@ class CartRepository implements CartRepositoryInterface
                 ->validNow()
                 ->available()
                 ->get();
-                
+
             return [
                 'courseCoupons' => collect(),
                 'instructorCoupons' => collect(),
-                'platformCoupons' => $platformCoupons
+                'platformCoupons' => $platformCoupons,
             ];
         }
 
         $course = Course::select('id', 'seller_id')->findOrFail((int) $courseId);
-        
+
         // Tách ra 3 truy vấn độc lập và gộp lại cho cực kỳ dễ hiểu theo đúng ý sếp:
-        
+
         // 1. Mã giảm giá CHỈ DÀNH RIÊNG cho khóa học này (của đúng giảng viên này)
         $courseCoupons = Coupon::where('course_id', $courseId)
             ->where('seller_id', $course->seller_id)
@@ -75,13 +76,12 @@ class CartRepository implements CartRepositoryInterface
 
         // 3. Mã giảm giá TOÀN SÀN của hệ thống (KHÔNG TRẢ VỀ Ở ĐÂY NỮA VÌ NÓ THUỘC MODAL KHÁC)
         // Sếp đã nhắc: "2 cái modal mở ra khác nhau nha mày không chung dữ liệu"
-        
+
         // Trả về mảng riêng rẽ
         return [
             'courseCoupons' => $courseCoupons,
             'instructorCoupons' => $sellerCoupons,
-            'platformCoupons' => collect() // Trả mảng rỗng để không lọt mã toàn sàn vào modal của khóa học
+            'platformCoupons' => collect(), // Trả mảng rỗng để không lọt mã toàn sàn vào modal của khóa học
         ];
     }
-    
 }

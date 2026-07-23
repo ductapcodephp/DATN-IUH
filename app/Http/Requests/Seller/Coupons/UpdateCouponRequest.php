@@ -21,14 +21,14 @@ class UpdateCouponRequest extends FormRequest
         $couponId = $this->route('coupon')->id;
 
         return [
-            'code'       => ['required', 'string', 'max:50', 'unique:coupons,code,' . $couponId],
-            'type'       => ['required', 'string', 'in:percent,fixed'],
-            'value'      => ['required', 'numeric', 'min:0'],
-            'max_uses'   => ['nullable', 'integer', 'min:1'],
-            'starts_at'  => ['nullable', 'date'],
+            'code' => ['required', 'string', 'max:50', 'unique:coupons,code,'.$couponId],
+            'type' => ['required', 'string', 'in:percent,fixed'],
+            'value' => ['required', 'numeric', 'min:0'],
+            'max_uses' => ['nullable', 'integer', 'min:1'],
+            'starts_at' => ['nullable', 'date'],
             'expires_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
-            'course_id'  => ['nullable', 'integer', 'exists:courses,id'],
-            'is_active'  => ['boolean'],
+            'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+            'is_active' => ['boolean'],
         ];
     }
 }

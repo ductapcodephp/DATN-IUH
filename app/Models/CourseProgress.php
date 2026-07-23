@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -15,12 +15,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $watched_seconds Seconds watched in this lesson
  * @property int $duration_seconds Total lesson duration
  * @property bool $is_completed Lesson fully watched
- * @property \Illuminate\Support\Carbon|null $last_watched_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Course|null $course
- * @property-read \App\Models\Lesson|null $lesson
- * @property-read \App\Models\User|null $user
+ * @property Carbon|null $last_watched_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Course|null $course
+ * @property-read Lesson|null $lesson
+ * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress byCourse($courseId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress byUser($userId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress completed()
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CourseProgress whereWatchedSeconds($value)
+ *
  * @mixin \Eloquent
  */
 class CourseProgress extends Model
@@ -60,7 +62,6 @@ class CourseProgress extends Model
         'last_watched_at' => 'datetime',
     ];
 
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -75,7 +76,6 @@ class CourseProgress extends Model
     {
         return $this->belongsTo(Lesson::class);
     }
-
 
     public function scopeCompleted($query)
     {
@@ -97,12 +97,12 @@ class CourseProgress extends Model
         return $query->where('course_id', $courseId);
     }
 
-
     public function getProgressPercentage(): float
     {
         if ($this->duration_seconds == 0) {
             return 0;
         }
+
         return round(($this->watched_seconds / $this->duration_seconds) * 100, 2);
     }
 
@@ -110,7 +110,7 @@ class CourseProgress extends Model
     {
         $this->watched_seconds = max($this->watched_seconds, $watchedSeconds);
         $this->skipped_seconds = max($this->skipped_seconds ?? 0, $skippedSeconds);
-        
+
         if ($this->duration_seconds > 0 && $this->getProgressPercentage() >= 70) {
             $this->is_completed = true;
         }

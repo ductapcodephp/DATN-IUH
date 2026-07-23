@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller\Courses;
 
-
 use App\DTO\Seller\Course\Lesson\ReorderLessonData;
 use App\DTO\Seller\Course\Lesson\StoreLessonData;
 use App\DTO\Seller\Course\Lesson\UpdateLessonData;
@@ -76,7 +75,7 @@ class LessonController extends Controller
         $isSellerCourse = (int) $course->seller_id === (int) auth()->id();
         $isLessonInCourse = (int) $lesson->course_id === (int) $course->id;
 
-        if (!$isSellerCourse || !$isLessonInCourse) {
+        if (! $isSellerCourse || ! $isLessonInCourse) {
             abort(403, 'Bạn không có quyền thao tác trên bài học này!');
         }
     }

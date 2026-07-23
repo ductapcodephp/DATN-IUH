@@ -23,7 +23,7 @@ class StoreLessonRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'type'  => ['required', 'string', 'in:video,document,quiz_only'],
+            'type' => ['required', 'string', 'in:video,document,quiz_only'],
         ];
     }
 }

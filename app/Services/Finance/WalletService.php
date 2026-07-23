@@ -1,7 +1,12 @@
 <?php
+
 declare(strict_types=1);
+
 namespace App\Services\Finance;
 
+use App\DTO\Finance\WithdrawalData;
+use App\Models\UserBankAccount;
+use App\Models\WalletTransaction;
 use App\Repositories\Finance\WalletRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -14,30 +19,37 @@ class WalletService
     {
         return $this->walletRepository->getWalletInfo($userId);
     }
+
     public function getWalletTransactions(int $userId, array $filters = []): LengthAwarePaginator
     {
         return $this->walletRepository->getWalletTransactions($userId, $filters);
     }
+
     public function getOnlinePayments(int $userId, array $filters = []): LengthAwarePaginator
     {
         return $this->walletRepository->getOnlinePayments($userId, $filters);
     }
+
     public function getBankAccounts(int $userId): Collection
     {
         return $this->walletRepository->getBankAccounts($userId);
     }
-    public function addBankAccount(int $userId, array $data): \App\Models\UserBankAccount
+
+    public function addBankAccount(int $userId, array $data): UserBankAccount
     {
         return $this->walletRepository->addBankAccount($userId, $data);
     }
-    public function updateBankAccount(int $userId, int $bankAccountId, array $data): \App\Models\UserBankAccount
+
+    public function updateBankAccount(int $userId, int $bankAccountId, array $data): UserBankAccount
     {
         return $this->walletRepository->updateBankAccount($userId, $bankAccountId, $data);
     }
+
     public function deleteBankAccount(int $userId, int $bankAccountId): bool
     {
         return $this->walletRepository->deleteBankAccount($userId, $bankAccountId);
     }
+
     public function setDefaultBankAccount(int $userId, int $bankAccountId): bool
     {
         return $this->walletRepository->setDefaultBankAccount($userId, $bankAccountId);
@@ -58,7 +70,7 @@ class WalletService
         return $this->walletRepository->getUnifiedRevenueTransactions($userId, $filters);
     }
 
-    public function processWithdrawal(\App\DTO\Finance\WithdrawalData $data): \App\Models\WalletTransaction
+    public function processWithdrawal(WithdrawalData $data): WalletTransaction
     {
         return $this->walletRepository->processWithdrawal($data);
     }

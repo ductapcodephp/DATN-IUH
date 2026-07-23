@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -19,16 +20,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $max_uses Max total uses, null = unlimited
  * @property int $used_count
  * @property int|null $course_id
- * @property \Illuminate\Support\Carbon|null $starts_at
- * @property \Illuminate\Support\Carbon|null $expires_at
+ * @property Carbon|null $starts_at
+ * @property Carbon|null $expires_at
  * @property bool $is_active
  * @property string|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Course|null $course
- * @property-read \App\Models\User|null $seller
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CouponUsage> $usages
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Course|null $course
+ * @property-read User|null $seller
+ * @property-read Collection<int, CouponUsage> $usages
  * @property-read int|null $usages_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon available()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon fixed()
@@ -54,6 +56,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereUsedCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon whereValue($value)
+ *
  * @mixin \Eloquent
  */
 class Coupon extends Model
@@ -84,7 +87,6 @@ class Coupon extends Model
         'expires_at' => 'datetime',
     ];
 
-
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
@@ -99,7 +101,6 @@ class Coupon extends Model
     {
         return $this->hasMany(CouponUsage::class);
     }
-
 
     public function scopeActive($query)
     {
@@ -120,41 +121,48 @@ class Coupon extends Model
     {
         return $query->where(function ($q) use ($courseId) {
             $q->whereNull('course_id')
-              ->orWhere('course_id', $courseId);
+                ->orWhere('course_id', $courseId);
         });
     }
 
     public function scopeValidNow($query)
     {
         return $query->where('is_active', true)
-                    ->where(function ($q) {
-                        $q->whereNull('starts_at')
-                          ->orWhere('starts_at', '<=', now());
-                    })
-                    ->where(function ($q) {
-                        $q->whereNull('expires_at')
-                          ->orWhere('expires_at', '>=', now());
-                    });
+            ->where(function ($q) {
+                $q->whereNull('starts_at')
+                    ->orWhere('starts_at', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>=', now());
+            });
     }
 
     public function scopeAvailable($query)
     {
         return $query->where(function ($q) {
             $q->whereNull('max_uses')
-              ->orWhereRaw('used_count < max_uses');
+                ->orWhereRaw('used_count < max_uses');
         });
     }
 
-
     public function isValid(): bool
     {
-        if (!$this->is_active) return false;
-        
-        if ($this->starts_at && $this->starts_at > now()) return false;
-        if ($this->expires_at && $this->expires_at < now()) return false;
-        
-        if ($this->max_uses && $this->used_count >= $this->max_uses) return false;
-        
+        if (! $this->is_active) {
+            return false;
+        }
+
+        if ($this->starts_at && $this->starts_at > now()) {
+            return false;
+        }
+        if ($this->expires_at && $this->expires_at < now()) {
+            return false;
+        }
+
+        if ($this->max_uses && $this->used_count >= $this->max_uses) {
+            return false;
+        }
+
         return true;
     }
 
@@ -170,7 +178,7 @@ class Coupon extends Model
 
     public function calculateDiscount($orderAmount)
     {
-        if (!$this->isValid()) {
+        if (! $this->isValid()) {
             return 0;
         }
 

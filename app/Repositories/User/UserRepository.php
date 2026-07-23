@@ -17,6 +17,7 @@ class UserRepository implements UserRepositoryInterface
         if ($user) {
             return $user->update($data);
         }
+
         return false;
     }
 }

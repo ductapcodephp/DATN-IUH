@@ -3,8 +3,8 @@
 namespace App\Services\Finance\Payment\Pipes\Checkout;
 
 use App\DTO\Payment\CheckoutData;
-use App\Services\Frontend\CartService;
 use App\Models\Coupon;
+use App\Services\Frontend\CartService;
 use Closure;
 use Exception;
 
@@ -19,6 +19,7 @@ class ApplyCoupons
     {
         if (empty($data->couponIds)) {
             $data->validCoupons = collect();
+
             return $next($data);
         }
 
@@ -33,11 +34,11 @@ class ApplyCoupons
 
         $validCouponIds = collect($discountResult['validCoupons'])->pluck('id')->toArray();
 
-        if (!empty($validCouponIds)) {
+        if (! empty($validCouponIds)) {
             $data->validCoupons = Coupon::whereIn('id', $validCouponIds)->lockForUpdate()->get();
 
             foreach ($data->validCoupons as $coupon) {
-                if (!$coupon->isValid()) {
+                if (! $coupon->isValid()) {
                     throw new Exception("Mã {$coupon->code} vừa mới hết lượt sử dụng. Vui lòng chọn lại.");
                 }
                 $coupon->increment('used_count');

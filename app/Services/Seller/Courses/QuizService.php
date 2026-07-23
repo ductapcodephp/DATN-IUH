@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Seller\Courses;
 
-
 use App\DTO\Seller\Course\Lesson\ReorderQuestionData;
 use App\DTO\Seller\Course\Lesson\StoreQuestionData;
 use App\Models\Lesson;
@@ -24,12 +23,12 @@ class QuizService
         DB::transaction(function () use ($lesson, $dto) {
             $quiz = $this->quizRepository->getFirstByLesson($lesson);
 
-            if (!$quiz) {
+            if (! $quiz) {
                 $quiz = $this->quizRepository->createQuiz([
-                    'lesson_id'       => $lesson->id,
-                    'title'           => 'Trắc nghiệm kiến thức: ' . $lesson->title,
+                    'lesson_id' => $lesson->id,
+                    'title' => 'Trắc nghiệm kiến thức: '.$lesson->title,
                     'trigger_seconds' => 0,
-                    'is_required'     => false,
+                    'is_required' => false,
                 ]);
             }
 
@@ -42,14 +41,14 @@ class QuizService
         $maxSort = $this->quizRepository->getMaxQuestionSortOrder($quiz);
 
         $question = $this->quizRepository->createQuestion($quiz, [
-            'question'   => $dto->questionText,
-            'type'       => $dto->type,
+            'question' => $dto->questionText,
+            'type' => $dto->type,
             'sort_order' => $maxSort + 1,
         ]);
 
         foreach ($dto->answers as $index => $answerDto) {
             $question->answers()->create([
-                'answer'     => $answerDto->text,
+                'answer' => $answerDto->text,
                 'is_correct' => $answerDto->isCorrect,
                 'sort_order' => $index + 1,
             ]);
@@ -63,14 +62,14 @@ class QuizService
         DB::transaction(function () use ($question, $dto) {
             $question->update([
                 'question' => $dto->questionText,
-                'type'     => $dto->type,
+                'type' => $dto->type,
             ]);
 
             $question->answers()->delete();
 
             foreach ($dto->answers as $index => $answerDto) {
                 $question->answers()->create([
-                    'answer'     => $answerDto->text,
+                    'answer' => $answerDto->text,
                     'is_correct' => $answerDto->isCorrect,
                     'sort_order' => $index + 1,
                 ]);

@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use App\Models\Course;
-use App\Services\Frontend\CourseService;
-use App\Services\Frontend\CartService;
 use App\DTO\Frontend\Cart\CartItemData;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Services\Frontend\CartService;
+use App\Services\Frontend\CourseService;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class CartController extends Controller
 {
     protected $courseService;
+
     protected $cartService;
 
     public function __construct(CourseService $courseService, CartService $cartService)
@@ -26,12 +27,12 @@ class CartController extends Controller
     public function index(Request $request)
     {
         $cartData = $this->cartService->getCartDataForUser(Auth::id());
-        $appliedCoupons = session('applied_coupons', []); 
-        
+        $appliedCoupons = session('applied_coupons', []);
+
         $discountAmount = 0;
         $validCoupons = [];
-        
-        if (!empty($appliedCoupons)) {
+
+        if (! empty($appliedCoupons)) {
             try {
                 $discountResult = $this->cartService->calculateDiscountForCart($cartData['cartItems'], $appliedCoupons);
                 $discountAmount = $discountResult['discountAmount'];
@@ -42,6 +43,7 @@ class CartController extends Controller
         }
 
         $popularCourses = $this->courseService->getPopularCourses(4);
+
         return Inertia::render('Frontend/Cart/Index', [
             'cart' => $cartData['cart'],
             'cartItems' => $cartData['cartItems'],
@@ -52,24 +54,30 @@ class CartController extends Controller
             'courseCoupons' => Inertia::lazy(function () use ($request) {
                 if ($courseId = $request->input('course_id')) {
                     $res = $this->cartService->getCouponForCourse($courseId);
+
                     return $res['courseCoupons'] ?? [];
                 }
+
                 return [];
             }),
             'instructorCoupons' => Inertia::lazy(function () use ($request) {
                 if ($courseId = $request->input('course_id')) {
                     $res = $this->cartService->getCouponForCourse($courseId);
+
                     return $res['instructorCoupons'] ?? [];
                 }
+
                 return [];
             }),
             'platformCoupons' => Inertia::lazy(function () use ($request) {
                 if ($courseId = $request->input('course_id')) {
                     $res = $this->cartService->getCouponForCourse($courseId);
+
                     return $res['platformCoupons'] ?? [];
                 }
+
                 return [];
-            })
+            }),
         ]);
     }
 
@@ -97,30 +105,25 @@ class CartController extends Controller
         }
     }
 
-    public function getCouponForCourse(Course $course)
-    {
-        return $this->cartService->getCouponForCourse($course->id);
-    }
-
     public function applyCoupons(Request $request)
     {
         $codes = $request->input('codes', []);
-        
+
         if (empty($codes)) {
             session()->forget('applied_coupons');
+
             return back()->with('success', 'Đã gỡ mã giảm giá.');
         }
 
         try {
             $cartData = $this->cartService->getCartDataForUser(Auth::id());
             $this->cartService->calculateDiscountForCart($cartData['cartItems'], $codes);
-            
+
             session(['applied_coupons' => $codes]);
-            
+
             return back()->with('success', 'Đã áp dụng mã giảm giá thành công.');
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
-
 }

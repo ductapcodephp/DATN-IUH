@@ -14,7 +14,7 @@ class UpdateQuizQuestionRequest extends FormRequest
         $questionId = (int) $this->route('questionId');
         $question = QuizQuestion::with('quiz.lesson.course')->find($questionId);
 
-        if (!$question || !$question->quiz?->lesson?->course) {
+        if (! $question || ! $question->quiz?->lesson?->course) {
             return false;
         }
 
@@ -24,10 +24,10 @@ class UpdateQuizQuestionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'question_text'        => ['required', 'string'],
-            'type'                 => ['required', 'in:single_choice,multiple_choice'],
-            'answers'              => ['required', 'array', 'min:2'],
-            'answers.*.text'       => ['required', 'string'],
+            'question_text' => ['required', 'string'],
+            'type' => ['required', 'in:single_choice,multiple_choice'],
+            'answers' => ['required', 'array', 'min:2'],
+            'answers.*.text' => ['required', 'string'],
             'answers.*.is_correct' => ['required', 'boolean'],
         ];
     }

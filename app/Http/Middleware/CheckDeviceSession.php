@@ -5,28 +5,28 @@ namespace App\Http\Middleware;
 use App\Models\RefreshToken;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Carbon;
 
 class CheckDeviceSession
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return $next($request);
         }
 
         $plainToken = Cookie::get('refresh_token');
-        if (!$plainToken) {
+        if (! $plainToken) {
             return $next($request);
         }
 
         $deviceId = md5($request->userAgent() ?? 'Unknown');
         $tokenHash = hash('sha256', $plainToken);
 
-        $redisKey = "user_session:" . Auth::id();
+        $redisKey = 'user_session:'.Auth::id();
 
         $sessionData = Redis::get($redisKey);
         $isCacheMiss = false;
@@ -40,7 +40,7 @@ class CheckDeviceSession
                 ->where('token', $tokenHash)
                 ->first();
 
-            if (!$tokenRecord) {
+            if (! $tokenRecord) {
                 return $next($request);
             }
 
@@ -55,9 +55,9 @@ class CheckDeviceSession
                 'is_revoked' => $tokenRecord->is_revoked,
                 'expires_at' => $tokenRecord->expires_at->toDateTimeString(),
                 'last_used_at' => $tokenRecord->last_used_at ? $tokenRecord->last_used_at->toDateTimeString() : null,
-                'last_sync_db' => now()->toDateTimeString(), 
+                'last_sync_db' => now()->toDateTimeString(),
             ];
-            
+
             $isCacheMiss = true;
         }
 
@@ -67,17 +67,18 @@ class CheckDeviceSession
 
         if ($session['is_revoked'] || Carbon::parse($session['expires_at'])->isPast()) {
             Redis::del($redisKey);
+
             return $this->forceLogout($request);
         }
 
         $now = now();
         $session['last_used_at'] = $now->toDateTimeString();
 
-        if (!$isCacheMiss) {
+        if (! $isCacheMiss) {
             $lastSync = Carbon::parse($session['last_sync_db']);
-            if ($now->diffInSeconds($lastSync) > 600) { 
+            if ($now->diffInSeconds($lastSync) > 600) {
                 RefreshToken::query()->where('id', $session['id'])->update([
-                    'last_used_at' => $now
+                    'last_used_at' => $now,
                 ]);
                 $session['last_sync_db'] = $now->toDateTimeString();
             }
@@ -96,7 +97,7 @@ class CheckDeviceSession
         Cookie::queue(Cookie::forget('refresh_token'));
 
         return redirect()->route('login')->withErrors([
-            'system' => 'Tài khoản của bạn đã được đăng nhập từ một thiết bị khác.'
+            'system' => 'Tài khoản của bạn đã được đăng nhập từ một thiết bị khác.',
         ]);
     }
 }

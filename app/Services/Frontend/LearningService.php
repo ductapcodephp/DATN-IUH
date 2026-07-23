@@ -2,11 +2,12 @@
 
 namespace App\Services\Frontend;
 
-use App\Repositories\Frontend\Learning\LearningRepositoryInterface;
 use App\DTO\Frontend\Course\SubmitQuizData;
 use App\DTO\Frontend\Course\VideoProgressData;
-use Illuminate\Support\Facades\Redis;
 use App\Jobs\UpdateVideoProgressJob;
+use App\Repositories\Frontend\Learning\LearningRepositoryInterface;
+use Illuminate\Support\Facades\Redis;
+
 class LearningService
 {
     protected $learningRepository;
@@ -34,7 +35,7 @@ class LearningService
             $completedLessonIds = $this->learningRepository->getCompletedLessonIds($userId, $course->id);
             $lessonProgresses = $this->learningRepository->getLessonProgresses($userId, $course->id);
             $enrollment = $this->learningRepository->getEnrollment($userId, $course->id);
-            
+
             $isEnrolled = $enrollment ? true : false;
             $courseProgress = $enrollment ? $enrollment->progress : 0;
         }
@@ -56,7 +57,7 @@ class LearningService
 
         foreach ($quiz->questions as $question) {
             $selected = $userAnswers[$question->id] ?? [];
-            if (!is_array($selected)) {
+            if (! is_array($selected)) {
                 $selected = [$selected];
             }
             $correctAnswerIds = $question->answers->where('is_correct', true)->pluck('id')->toArray();
@@ -81,7 +82,7 @@ class LearningService
             $lesson = $this->learningRepository->getLessonWithChapter($quiz->lesson_id);
             if ($lesson && $lesson->chapter) {
                 $courseId = $lesson->chapter->course_id;
-                
+
                 $this->learningRepository->updateOrCreateCourseProgress($userId, $courseId, $lesson->id, [
                     'is_completed' => true,
                     'last_watched_at' => now(),
@@ -102,11 +103,11 @@ class LearningService
     public function updateVideoProgress(VideoProgressData $dto, $course, $lessonId, $userId)
     {
         $redisKey = "video_progress:{$userId}:{$lessonId}";
-        
+
         $oldDataJson = Redis::get($redisKey);
         $oldWatched = 0;
         $lastUpdatedAt = null;
-        
+
         if ($oldDataJson) {
             $oldData = json_decode($oldDataJson, true);
             $oldWatched = $oldData['watched_seconds'] ?? 0;
@@ -115,19 +116,19 @@ class LearningService
 
         $newWatched = max($oldWatched, $dto->watchedSeconds);
         $currentTimestamp = now()->timestamp;
-        
+
         if ($lastUpdatedAt !== null) {
             if ($newWatched > $oldWatched) {
-                $videoTimeJump = $newWatched - $oldWatched; 
-                
-                $maxJumpAllowed = 25; 
-                
+                $videoTimeJump = $newWatched - $oldWatched;
+
+                $maxJumpAllowed = 25;
+
                 if ($videoTimeJump > $maxJumpAllowed) {
-                    $newWatched = $oldWatched; 
+                    $newWatched = $oldWatched;
                 }
             }
         } else {
-            $maxFirstPingAllowed = 25; 
+            $maxFirstPingAllowed = 25;
             if ($newWatched > $maxFirstPingAllowed) {
                 $newWatched = 0;
             }
@@ -137,7 +138,7 @@ class LearningService
             'watched_seconds' => $newWatched,
             'skipped_seconds' => $dto->skippedSeconds,
             'duration_seconds' => $dto->durationSeconds,
-            'updated_at' => $currentTimestamp
+            'updated_at' => $currentTimestamp,
         ]);
 
         Redis::setex($redisKey, 3600, $payload);

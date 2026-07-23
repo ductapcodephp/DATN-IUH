@@ -35,7 +35,7 @@ class CouponRepository implements CouponRepositoryInterface
     public function toggleStatus(Coupon $coupon): bool
     {
         return $coupon->update([
-            'is_active' => !$coupon->is_active,
+            'is_active' => ! $coupon->is_active,
         ]);
     }
 }

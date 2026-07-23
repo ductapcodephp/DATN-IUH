@@ -7,8 +7,11 @@ use Exception;
 class PaymentException extends Exception
 {
     public const ORDER_NOT_FOUND = '01';
+
     public const ORDER_ALREADY_CONFIRMED = '02';
+
     public const INVALID_SIGNATURE = '97';
+
     public const UNKNOWN_ERROR = '99';
 
     protected $errorCode;

@@ -1,4 +1,5 @@
 <?php
+
 // === FILE: app/Models/Video.php ===
 
 namespace App\Models;
@@ -6,8 +7,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
-
 
 /**
  * @property int $id
@@ -19,9 +20,10 @@ use Illuminate\Support\Facades\Storage;
  * @property string|null $mime_type
  * @property string $status
  * @property string|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Lesson|null $lesson
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Lesson|null $lesson
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Video error()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Video newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Video newQuery()
@@ -39,6 +41,7 @@ use Illuminate\Support\Facades\Storage;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Video whereUrl($value)
+ *
  * @mixin \Eloquent
  */
 class Video extends Model
@@ -75,7 +78,7 @@ class Video extends Model
      */
     public function getUrlAttribute($value)
     {
-        if (!$this->r2_key) {
+        if (! $this->r2_key) {
             return null;
         }
 
@@ -129,6 +132,7 @@ class Video extends Model
         if ($hours > 0) {
             return sprintf('%02d:%02d:%02d', $hours, $minutes, $secs);
         }
+
         return sprintf('%02d:%02d', $minutes, $secs);
     }
 }

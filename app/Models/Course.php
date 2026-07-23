@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -29,29 +30,30 @@ use Illuminate\Support\Str;
  * @property string|null $vip_expires_at VIP access expiration
  * @property array<array-key, mixed>|null $requirements Prerequisites array
  * @property array<array-key, mixed>|null $outcomes Learning outcomes array
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Category|null $category
- * @property-read Collection<int, \App\Models\Chapter> $chapters
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Category|null $category
+ * @property-read Collection<int, Chapter> $chapters
  * @property-read int|null $chapters_count
- * @property-read Collection<int, \App\Models\Coupon> $coupons
+ * @property-read Collection<int, Coupon> $coupons
  * @property-read int|null $coupons_count
- * @property-read Collection<int, \App\Models\CourseEnrollment> $enrollments
+ * @property-read Collection<int, CourseEnrollment> $enrollments
  * @property-read int|null $enrollments_count
- * @property-read Collection<int, \App\Models\Lesson> $lessons
+ * @property-read Collection<int, Lesson> $lessons
  * @property-read int|null $lessons_count
- * @property-read Collection<int, \App\Models\Order> $orders
+ * @property-read Collection<int, Order> $orders
  * @property-read int|null $orders_count
- * @property-read Collection<int, \App\Models\CourseProgress> $progressRecords
+ * @property-read Collection<int, CourseProgress> $progressRecords
  * @property-read int|null $progress_records_count
- * @property-read Collection<int, \App\Models\Review> $reviews
+ * @property-read Collection<int, Review> $reviews
  * @property-read int|null $reviews_count
- * @property-read \App\Models\User|null $seller
- * @property-read Collection<int, \App\Models\User> $students
+ * @property-read User|null $seller
+ * @property-read Collection<int, User> $students
  * @property-read int|null $students_count
- * @property-read Collection<int, \App\Models\Wishlist> $wishlists
+ * @property-read Collection<int, Wishlist> $wishlists
  * @property-read int|null $wishlists_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course byCategory($categoryId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course bySeller($sellerId)
@@ -89,6 +91,7 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereVipExpiresAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Course extends Model
@@ -110,8 +113,7 @@ class Course extends Model
         'total_revenue' => 'decimal:2',
     ];
 
-
-   /**
+    /**
      * Khóa học thuộc về một Người bán (Seller)
      */
     public function seller(): BelongsTo
@@ -144,8 +146,6 @@ class Course extends Model
             ->withPivot(['progress', 'is_banned', 'ban_reason', 'banned_at'])
             ->withTimestamps();
     }
-
-
 
     public function chapters(): HasMany
     {
@@ -181,7 +181,6 @@ class Course extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
-
 
     public function scopePublished($query)
     {
@@ -242,7 +241,6 @@ class Course extends Model
         return $query->where('title', 'LIKE', "%{$keyword}%")
             ->orWhere('description', 'LIKE', "%{$keyword}%");
     }
-
 
     protected static function boot()
     {

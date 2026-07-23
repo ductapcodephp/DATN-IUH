@@ -67,7 +67,7 @@ class QuizController extends Controller
     {
         $course = $question->quiz?->lesson?->course;
 
-        if (!$course || (int) $course->seller_id !== (int) auth()->id()) {
+        if (! $course || (int) $course->seller_id !== (int) auth()->id()) {
             abort(403, 'Bạn không có quyền thao tác trên câu hỏi này!');
         }
     }

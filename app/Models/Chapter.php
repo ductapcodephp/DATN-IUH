@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -16,12 +17,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $description
  * @property int $sort_order
  * @property bool $is_published
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Course|null $course
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Lesson> $lessons
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Course|null $course
+ * @property-read Collection<int, Lesson> $lessons
  * @property-read int|null $lessons_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Chapter newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Chapter newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Chapter onlyTrashed()
@@ -39,6 +41,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Chapter whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Chapter withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Chapter withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Chapter extends Model

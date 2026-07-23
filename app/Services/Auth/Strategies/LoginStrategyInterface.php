@@ -7,5 +7,6 @@ namespace App\Services\Auth\Strategies;
 use App\Models\User;
 
 interface LoginStrategyInterface
-{    public function handlePostLogin(User $user): string;
+{
+    public function handlePostLogin(User $user): string;
 }

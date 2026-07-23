@@ -28,10 +28,10 @@ readonly class UpdateLessonData
     public function toArray(): array
     {
         return array_filter([
-            'title'        => $this->title,
-            'description'  => $this->description,
-            'is_preview'   => $this->isPreview,
+            'title' => $this->title,
+            'description' => $this->description,
+            'is_preview' => $this->isPreview,
             'is_published' => $this->isPublished,
-        ], fn ($value) => !is_null($value));
+        ], fn ($value) => ! is_null($value));
     }
 }

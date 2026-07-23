@@ -9,7 +9,7 @@ use App\Http\Requests\Seller\Courses\Quizzes\ReorderQuizQuestionsRequest;
 readonly class ReorderQuestionData
 {
     /**
-     * @param int[] $questionIds
+     * @param  int[]  $questionIds
      */
     public function __construct(
         public array $questionIds,

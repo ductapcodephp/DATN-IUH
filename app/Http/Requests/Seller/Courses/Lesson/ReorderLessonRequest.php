@@ -18,10 +18,10 @@ class ReorderLessonRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'lesson_id'         => ['required', 'integer', 'exists:lessons,id'],
+            'lesson_id' => ['required', 'integer', 'exists:lessons,id'],
             'target_chapter_id' => ['required', 'integer', 'exists:chapters,id'],
-            'sorted_ids'        => ['required', 'array', 'min:1'],
-            'sorted_ids.*'      => ['required', 'integer', 'exists:lessons,id'],
+            'sorted_ids' => ['required', 'array', 'min:1'],
+            'sorted_ids.*' => ['required', 'integer', 'exists:lessons,id'],
         ];
     }
 }

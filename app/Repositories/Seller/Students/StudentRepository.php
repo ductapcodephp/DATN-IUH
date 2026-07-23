@@ -27,13 +27,13 @@ class StudentRepository implements StudentRepositoryInterface
             ->when($filters->search, function ($query, $search) {
                 $query->whereHas('student', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             })
             // Eager loading để tránh lỗi N+1 Query
             ->with([
                 'student:id,name,email,avatar',
-                'course:id,title'
+                'course:id,title',
             ])
             ->latest()
             ->paginate($filters->perPage)
@@ -61,9 +61,9 @@ class StudentRepository implements StudentRepositoryInterface
             ->findOrFail($enrollmentId);
 
         $enrollment->update([
-            'is_banned'  => true,
+            'is_banned' => true,
             'ban_reason' => $reason,
-            'banned_at'  => now(),
+            'banned_at' => now(),
         ]);
 
         return $enrollment;
@@ -78,9 +78,9 @@ class StudentRepository implements StudentRepositoryInterface
             ->findOrFail($enrollmentId);
 
         $enrollment->update([
-            'is_banned'  => false,
+            'is_banned' => false,
             'ban_reason' => null,
-            'banned_at'  => null,
+            'banned_at' => null,
         ]);
 
         return $enrollment;

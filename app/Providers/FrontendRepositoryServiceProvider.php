@@ -2,18 +2,20 @@
 
 namespace App\Providers;
 
-use App\Repositories\Frontend\Home\HomeRepositoryInterface;
-use App\Repositories\Frontend\Home\HomeRepository;
-use App\Repositories\Frontend\Courses\CourseRepositoryInterface;
-use App\Repositories\Frontend\Courses\CourseRepository;
-use App\Repositories\Frontend\Instructor\InstructorRepositoryInterface;
-use App\Repositories\Frontend\Instructor\InstructorRepository;
-use App\Repositories\Frontend\Wishlist\WishlistRepositoryInterface;
-use App\Repositories\Frontend\Wishlist\WishlistRepository;
-use App\Repositories\Frontend\Cart\CartRepositoryInterface;
 use App\Repositories\Frontend\Cart\CartRepository;
-use App\Repositories\Frontend\Learning\LearningRepositoryInterface;
+use App\Repositories\Frontend\Cart\CartRepositoryInterface;
+use App\Repositories\Frontend\Comments\CommentRepository;
+use App\Repositories\Frontend\Comments\CommentRepositoryInterface;
+use App\Repositories\Frontend\Courses\CourseRepository;
+use App\Repositories\Frontend\Courses\CourseRepositoryInterface;
+use App\Repositories\Frontend\Home\HomeRepository;
+use App\Repositories\Frontend\Home\HomeRepositoryInterface;
+use App\Repositories\Frontend\Instructor\InstructorRepository;
+use App\Repositories\Frontend\Instructor\InstructorRepositoryInterface;
 use App\Repositories\Frontend\Learning\LearningRepository;
+use App\Repositories\Frontend\Learning\LearningRepositoryInterface;
+use App\Repositories\Frontend\Wishlist\WishlistRepository;
+use App\Repositories\Frontend\Wishlist\WishlistRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class FrontendRepositoryServiceProvider extends ServiceProvider
@@ -27,8 +29,8 @@ class FrontendRepositoryServiceProvider extends ServiceProvider
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
         $this->app->bind(LearningRepositoryInterface::class, LearningRepository::class);
         $this->app->bind(
-            \App\Repositories\Frontend\Comments\CommentRepositoryInterface::class, 
-            \App\Repositories\Frontend\Comments\CommentRepository::class
+            CommentRepositoryInterface::class,
+            CommentRepository::class
         );
     }
 }

@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -20,15 +22,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property numeric $seller_amount Amount paid to seller
  * @property string $status
  * @property string $payment_method wallet, vnpay, etc
- * @property \Illuminate\Support\Carbon|null $refunded_at
+ * @property Carbon|null $refunded_at
  * @property string|null $refund_reason
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Coupon|null $coupon
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CouponUsage> $couponUsages
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Coupon|null $coupon
+ * @property-read Collection<int, CouponUsage> $couponUsages
  * @property-read int|null $coupon_usages_count
- * @property-read \App\Models\Course|null $course
- * @property-read \App\Models\User|null $user
+ * @property-read Course|null $course
+ * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byCourse($courseId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byPaymentMethod($method)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byUser($userId)
@@ -54,6 +57,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class Order extends Model

@@ -3,8 +3,6 @@
 namespace App\Notifications\Seller;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class NewCourseEnrollmentNotification extends Notification
@@ -38,7 +36,7 @@ class NewCourseEnrollmentNotification extends Notification
             'message' => "Học viên {$this->studentName} vừa đăng ký khóa học '{$this->courseName}' của bạn.",
             'course_id' => $this->courseId,
             'icon' => 'fa-solid fa-user-graduate',
-            'color' => 'text-success'
+            'color' => 'text-success',
         ];
     }
 }

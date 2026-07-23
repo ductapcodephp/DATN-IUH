@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Shared;
 
 use App\Http\Controllers\Controller;
-use App\Services\Shared\ReviewService;
-use App\Services\Frontend\CourseService;
-use Illuminate\Http\Request;
-use App\Models\Review;
 use App\Models\Course;
+use App\Models\Review;
 use App\Notifications\Seller\NewReviewNotification;
+use App\Services\Frontend\CourseService;
+use App\Services\Shared\ReviewService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ReviewController extends Controller
 {
     protected $reviewService;
+
     protected $courseService;
 
     public function __construct(ReviewService $reviewService, CourseService $courseService)
@@ -35,7 +36,7 @@ class ReviewController extends Controller
         $course = $this->courseService->getCourseDetailBySlug($slug);
         $enrollment = $this->courseService->getEnrollment(auth()->id(), $course->id);
 
-        if (!$enrollment) {
+        if (! $enrollment) {
             return back()->with('error', 'Bạn chưa tham gia khóa học này!');
         }
 
@@ -51,7 +52,7 @@ class ReviewController extends Controller
 
         $order = $this->courseService->getCompletedOrderForCourse(auth()->id(), $course->id);
 
-        if (!$order) {
+        if (! $order) {
             return back()->with('error', 'Không tìm thấy hóa đơn của bạn cho khóa học này!');
         }
 
@@ -68,7 +69,7 @@ class ReviewController extends Controller
             $course->seller->notify(new NewReviewNotification(
                 $course->title,
                 auth()->user()->name,
-                (int)$request->input('rating'),
+                (int) $request->input('rating'),
                 $course->id
             ));
         }
@@ -119,7 +120,7 @@ class ReviewController extends Controller
 
         return Inertia::render('Seller/Reviews', [
             'course' => $course,
-            'reviews' => $reviews
+            'reviews' => $reviews,
         ]);
     }
 
@@ -139,7 +140,7 @@ class ReviewController extends Controller
     public function reply(Request $request, Review $review)
     {
         $request->validate([
-            'reply_content' => 'required|string|max:1000'
+            'reply_content' => 'required|string|max:1000',
         ]);
 
         $review->load('course');
