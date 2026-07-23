@@ -49,6 +49,12 @@ const menuItems = [
         icon: 'fa-solid fa-building-columns',
         route: 'finance.bank-accounts.index',
     },
+    {
+        key: 'vip',
+        label: 'Nâng cấp VIP',
+        icon: 'fa-solid fa-crown',
+        route: 'dashboard.vip.index',
+    },
 ];
 
 export default function DashboardLayout({ children, title, activeKey }) {

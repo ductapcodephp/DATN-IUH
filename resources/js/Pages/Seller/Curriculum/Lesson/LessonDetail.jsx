@@ -20,7 +20,7 @@ export default function LessonDetail({ course, lesson }) {
 
 
                     <div style={{ marginBottom: '-8px' }}>
-                        <Link href={route('seller.courses.curriculum.index', course.id)} style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
+                        <Link href={route('seller.courses.curriculum.index', course.id)} style={{ color: '#f97316', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
                             <i className="fa-solid fa-arrow-left"></i> Quay lại Giáo trình khóa học
                         </Link>
                     </div>

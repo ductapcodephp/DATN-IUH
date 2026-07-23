@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
-import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
+import DashboardLayout from '@/Layouts/Frontend/DashboardLayout';
 
-export default function VipPackages({ packages, activeSubscriptions }) {
+export default function VipPackages({ packages, currentSubscription }) {
     const { auth } = usePage().props;
     const walletBalance = auth?.wallet?.balance_available || 0;
     
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedPackage, setSelectedPackage] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('vnpay');
-    const [activeTab, setActiveTab] = useState('storage');
-
-    const storagePackages = packages.filter(p => p.package_type === 'storage');
-    const commissionPackages = packages.filter(p => p.package_type === 'commission');
-
-    const getActiveSub = (type) => activeSubscriptions?.find(sub => (sub.vip_package?.package_type || sub.vipPackage?.package_type) === type);
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
@@ -26,7 +20,7 @@ export default function VipPackages({ packages, activeSubscriptions }) {
     };
 
     const handleConfirmPayment = () => {
-        router.post(route('seller.vip.buy'), { 
+        router.post(route('dashboard.vip.buy'), { 
             package_id: selectedPackage.id,
             payment_method: paymentMethod
         }, {
@@ -35,104 +29,69 @@ export default function VipPackages({ packages, activeSubscriptions }) {
     };
 
     return (
-        <>
+        <DashboardLayout title="Nâng cấp gói VIP" activeKey="vip">
             <Head title="Nâng cấp gói VIP" />
 
             <div className="page">
                 <div className="page-header">
-                    <div className="page-title">Gói dịch vụ Seller VIP</div>
-                    <div className="page-sub text-muted">Nâng cấp tài khoản để tận hưởng phí sàn thấp hơn và các đặc quyền ưu tiên</div>
+                    <div className="page-title">Gói dịch vụ Học viên VIP</div>
+                    <div className="page-sub text-muted">Nâng cấp tài khoản để nhận ưu đãi giảm giá và huy hiệu nổi bật</div>
                 </div>
 
-                {/* Tabs */}
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '2px solid #e2e8f0' }}>
-                    <button 
-                        onClick={() => setActiveTab('storage')} 
-                        style={{ padding: '12px 24px', background: 'none', border: 'none', borderBottom: activeTab === 'storage' ? '2px solid #f97316' : '2px solid transparent', color: activeTab === 'storage' ? '#f97316' : '#64748b', fontWeight: 'bold', cursor: 'pointer', marginBottom: '-2px' }}
-                    >
-                        Gói Mua Dung Lượng
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('commission')} 
-                        style={{ padding: '12px 24px', background: 'none', border: 'none', borderBottom: activeTab === 'commission' ? '2px solid #f97316' : '2px solid transparent', color: activeTab === 'commission' ? '#f97316' : '#64748b', fontWeight: 'bold', cursor: 'pointer', marginBottom: '-2px' }}
-                    >
-                        Gói VIP Phí Sàn
-                    </button>
-                </div>
-
-                {getActiveSub(activeTab) && (
+                {currentSubscription && (
                     <div className="alert alert-success mt-4 d-flex align-items-center gap-3" style={{ borderRadius: '12px', border: 'none', background: '#dcfce7', color: '#166534' }}>
                         <i className="fa-solid fa-crown fs-4 text-warning"></i>
                         <div>
-                            <strong>Bạn đang sử dụng {getActiveSub(activeTab).vip_package?.name || getActiveSub(activeTab).vipPackage?.name}</strong>
+                            <strong>Bạn đang sử dụng gói {currentSubscription.vip_package?.name || currentSubscription.vipPackage?.name}</strong>
                             <div style={{ fontSize: '0.85rem' }}>
-                                Thời hạn: {new Date(getActiveSub(activeTab).starts_at).toLocaleDateString('vi-VN')} - {new Date(getActiveSub(activeTab).expires_at).toLocaleDateString('vi-VN')}
+                                Thời hạn: {new Date(currentSubscription.starts_at).toLocaleDateString('vi-VN')} - {new Date(currentSubscription.expires_at).toLocaleDateString('vi-VN')}
                             </div>
                         </div>
                     </div>
                 )}
 
                 <div className="row g-4 mt-2">
-                    {activeTab === 'commission' && (
-                        <div className="col-md-4">
-                            <div className="card h-100" style={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-                                <div className="card-body p-4 text-center">
-                                    <h4 className="fw-bold text-secondary">Miễn phí</h4>
-                                    <div className="display-6 fw-bold my-3 text-dark">0đ <span className="fs-6 text-muted fw-normal">/tháng</span></div>
-                                    <p className="text-muted mb-4" style={{ fontSize: '0.9rem' }}>Hoa hồng chiết khấu 20%</p>
-                                    
-                                    <ul className="list-unstyled text-start mb-4" style={{ fontSize: '0.9rem', color: '#475569' }}>
-                                        <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Tính năng bán hàng cơ bản</li>
-                                        <li className="mb-2 text-muted text-decoration-line-through"><i className="fa-solid fa-xmark me-2"></i>Huy hiệu ưu tiên</li>
-                                        <li className="mb-2 text-muted text-decoration-line-through"><i className="fa-solid fa-xmark me-2"></i>Thống kê nâng cao</li>
-                                    </ul>
-                                    
-                                    <button className="btn btn-outline-secondary w-100" disabled style={{ borderRadius: '8px' }}>
-                                        {!getActiveSub('commission') ? 'Gói hiện tại' : 'Gói mặc định'}
-                                    </button>
-                                </div>
+                    {/* Gói Free (Mặc định) */}
+                    <div className="col-md-4">
+                        <div className="card h-100" style={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+                            <div className="card-body p-4 text-center">
+                                <h4 className="fw-bold text-secondary">Miễn phí</h4>
+                                <div className="display-6 fw-bold my-3 text-dark">0đ <span className="fs-6 text-muted fw-normal">/tháng</span></div>
+                                <p className="text-muted mb-4" style={{ fontSize: '0.9rem' }}>Hoa hồng chiết khấu 15%</p>
+                                
+                                <ul className="list-unstyled text-start mb-4" style={{ fontSize: '0.9rem', color: '#475569' }}>
+                                    <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Không thu phí Upload video</li>
+                                    <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Không giới hạn số khóa học</li>
+                                    <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Tính năng bán hàng cơ bản</li>
+                                    <li className="mb-2 text-muted text-decoration-line-through"><i className="fa-solid fa-xmark me-2"></i>Huy hiệu ưu tiên</li>
+                                    <li className="mb-2 text-muted text-decoration-line-through"><i className="fa-solid fa-xmark me-2"></i>Thống kê nâng cao</li>
+                                </ul>
+                                
+                                <button className="btn btn-outline-secondary w-100" disabled style={{ borderRadius: '8px' }}>
+                                    {(!currentSubscription || (currentSubscription.vip_package?.name || currentSubscription.vipPackage?.name) === 'Free') ? 'Gói hiện tại' : 'Gói mặc định'}
+                                </button>
                             </div>
                         </div>
-                    )}
-                    {activeTab === 'storage' && (
-                        <div className="col-md-4">
-                            <div className="card h-100" style={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-                                <div className="card-body p-4 text-center">
-                                    <h4 className="fw-bold text-secondary">Cơ bản</h4>
-                                    <div className="display-6 fw-bold my-3 text-dark">0đ <span className="fs-6 text-muted fw-normal">/tháng</span></div>
-                                    <p className="text-muted mb-4" style={{ fontSize: '0.9rem' }}>Lưu trữ 5GB</p>
-                                    
-                                    <ul className="list-unstyled text-start mb-4" style={{ fontSize: '0.9rem', color: '#475569' }}>
-                                        <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Tải lên Video</li>
-                                        <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Băng thông không giới hạn</li>
-                                    </ul>
-                                    
-                                    <button className="btn btn-outline-secondary w-100" disabled style={{ borderRadius: '8px' }}>
-                                        {!getActiveSub('storage') ? 'Gói hiện tại' : 'Gói mặc định'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    </div>
 
                     {/* Danh sách các gói từ DB */}
-                    {(activeTab === 'storage' ? storagePackages : commissionPackages).map((pkg) => (
+                    {packages.map((pkg) => (
                         <div key={pkg.id} className="col-md-4">
                             <div className="card h-100 position-relative" style={{ 
                                 borderRadius: '16px', 
-                                border: pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín') ? '2px solid #EA580C' : '1px solid #e2e8f0',
-                                boxShadow: pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín') ? '0 10px 25px -5px rgba(234, 88, 12, 0.2)' : '0 4px 6px -1px rgba(0,0,0,0.05)'
+                                border: pkg.name === 'Business' ? '2px solid #EA580C' : '1px solid #e2e8f0',
+                                boxShadow: pkg.name === 'Business' ? '0 10px 25px -5px rgba(234, 88, 12, 0.2)' : '0 4px 6px -1px rgba(0,0,0,0.05)'
                             }}>
-                                {(pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín')) && (
+                                {pkg.name === 'Business' && (
                                     <span className="badge bg-fire position-absolute top-0 start-50 translate-middle" style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '20px' }}>
                                         PHỔ BIẾN NHẤT
                                     </span>
                                 )}
                                 
                                 <div className="card-body p-4 text-center">
-                                    <h4 className="fw-bold" style={{ color: (pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín')) ? '#EA580C' : '#0284c7' }}>
-                                        {(pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín')) && <i className="fa-solid fa-fire me-2"></i>}
-                                        {pkg.name.split(' (')[0]}
+                                    <h4 className="fw-bold" style={{ color: pkg.name === 'Business' ? '#EA580C' : '#0284c7' }}>
+                                        {pkg.name === 'Business' && <i className="fa-solid fa-fire me-2"></i>}
+                                        {pkg.name}
                                     </h4>
                                     <div className="display-6 fw-bold my-3 text-dark">
                                         {formatCurrency(pkg.price).replace(' ₫', 'đ')} <span className="fs-6 text-muted fw-normal">/{pkg.duration_days} ngày</span>
@@ -140,23 +99,18 @@ export default function VipPackages({ packages, activeSubscriptions }) {
                                     <p className="text-muted mb-4" style={{ fontSize: '0.9rem', height: '40px' }}>{pkg.description}</p>
                                     
                                     <ul className="list-unstyled text-start mb-4" style={{ fontSize: '0.9rem', color: '#475569' }}>
-                                        {activeTab === 'commission' ? (
-                                            <>
-                                                <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Hoa hồng giảm còn {pkg.commission_rate}%</li>
-                                                <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Huy hiệu {pkg.name.split(' (')[0]}</li>
-                                                <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Ưu tiên hiển thị Top Search</li>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Mở rộng lên {pkg.max_storage_gb} GB</li>
-                                                <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Tốc độ xử lý video ưu tiên</li>
-                                            </>
+                                        <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Hoa hồng chiết khấu siêu rẻ</li>
+                                        <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Tất cả tính năng của gói Free</li>
+                                        <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Ưu tiên hiển thị Top Search</li>
+                                        <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Badge {pkg.name} xịn xò</li>
+                                        {pkg.name === 'Business' && (
+                                            <li className="mb-2"><i className="fa-solid fa-check text-success me-2"></i>Banner quảng cáo riêng & CSKH VIP</li>
                                         )}
                                     </ul>
                                     
                                     <button 
                                         onClick={() => handleBuyClick(pkg)}
-                                        className={`btn w-100 fw-bold ${(pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín')) ? 'btn-fire text-white' : 'btn-outline-primary'}`} 
+                                        className={`btn w-100 fw-bold ${pkg.name === 'Business' ? 'btn-fire text-white' : 'btn-outline-primary'}`} 
                                         style={{ borderRadius: '8px', padding: '10px' }}
                                     >
                                         Mua gói này
@@ -230,8 +184,6 @@ export default function VipPackages({ packages, activeSubscriptions }) {
                     </div>
                 </>
             )}
-        </>
+        </DashboardLayout>
     );
 }
-
-VipPackages.layout = page => <SellerLayout children={page} />

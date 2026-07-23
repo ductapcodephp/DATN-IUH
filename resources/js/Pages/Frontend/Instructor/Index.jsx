@@ -71,11 +71,17 @@ export default function Index({ instructors, filters }) {
                         {instructorList.map((instructor) => (
                             <div className="col-lg-3 col-md-4 col-sm-6" key={instructor.id}>
                                 <div className="instructor-card-pro text-center">
-                                    <div className="avatar-wrapper">
+                                    <div className="avatar-wrapper position-relative d-inline-block">
                                         <img src={instructor.avatar || '/images/default-avatar.png'} alt={instructor.name} />
-                                        {/* Optional top-rated badge */}
+                                        {instructor.is_vip_seller ? (
+                                            <div className="position-absolute" style={{ bottom: '-10px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+                                                <span className="badge text-white rounded-pill px-2 py-1 shadow border border-white" style={{ backgroundColor: 'var(--fire)', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                                                    <i className="fa-solid fa-crown me-1 text-warning"></i>{instructor.vip_badge_text || 'Uy tín'}
+                                                </span>
+                                            </div>
+                                        ) : null}
                                     </div>
-                                    <h4 className="instructor-name">{instructor.name}</h4>
+                                    <h4 className="instructor-name mt-3">{instructor.name}</h4>
                                     <div className="instructor-title">{instructor.bio || 'Giảng viên'}</div>
                                     
                                     <div className="stats-row">

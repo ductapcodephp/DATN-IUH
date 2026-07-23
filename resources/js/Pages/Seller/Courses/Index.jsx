@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import Modal from '@/Components/Modal';
 import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import Pagination from "@/Components/Pagination.jsx";
 import SweetAlert from '@/Components/SweetAlert';
@@ -10,7 +11,23 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
     const [perPage, setPerPage] = useState(filters.per_page || 10);
     const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null, title: '' });
 
+    const { auth } = usePage().props;
     const isFirstRender = useRef(true);
+    const [showStorageModal, setShowStorageModal] = useState(false);
+
+    const formatBytes = (bytes) => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const limitBytes = auth?.seller_storage_limit || 0;
+    const usedBytes = auth?.seller_storage_used || 0;
+    const usedPercentage = limitBytes > 0 ? (usedBytes / limitBytes) * 100 : 0;
+    const isStorageFull = usedBytes >= limitBytes && limitBytes > 0;
+    const isNearLimit = usedPercentage >= 90;
 
     useEffect(() => {
         if (isFirstRender.current) {
@@ -38,6 +55,13 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
         setConfirmDelete({ show: true, id, title });
     };
 
+    const handleCreateCourse = (e) => {
+        if (isStorageFull) {
+            e.preventDefault();
+            setShowStorageModal(true);
+        }
+    };
+
     return (
         <>
             <Head title="Quản lý khóa học" />
@@ -57,28 +81,69 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
                 onClose={() => setConfirmDelete({ show: false, id: null, title: '' })}
             />
 
+            <Modal show={showStorageModal} onClose={() => setShowStorageModal(false)} maxWidth="sm">
+                <div style={{ padding: '24px', textAlign: 'center' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#fee2e2', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '28px' }}>
+                        <i className="fa-solid fa-hard-drive"></i>
+                    </div>
+                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px' }}>Dung lượng lưu trữ đã đầy</h3>
+                    <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px' }}>
+                        Bạn đã sử dụng hết {formatBytes(limitBytes)} dung lượng lưu trữ của gói hiện tại. Không thể tạo thêm khóa học và tải lên video mới. Vui lòng nâng cấp gói dung lượng để tiếp tục.
+                    </p>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                        <button onClick={() => setShowStorageModal(false)} className="btn btn-light" style={{ padding: '8px 16px', borderRadius: '8px' }}>
+                            Đóng
+                        </button>
+                        <Link href={route('seller.vip.index')} className="btn btn-primary" style={{ padding: '8px 16px', borderRadius: '8px' }}>
+                            Mua thêm dung lượng
+                        </Link>
+                    </div>
+                </div>
+            </Modal>
+
             <div className="page">
-                <div className="page-header">
+                <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
                         <div className="page-title">Danh sách khóa học giảng dạy ({totalCoursesCount || 0})</div>
                         <div className="page-sub">Xem, chỉnh sửa hoặc tạm dừng kinh doanh các bài giảng của bạn</div>
                     </div>
-                    {/* Style inline cho nút Tạo khóa học mới đồng bộ tone cam */}
-                    <Link
-                        href={route('seller.courses.create')}
-                        className="btn-primary"
-                        style={{
-                            textDecoration: 'none',
-                            backgroundColor: '#f97316',
-                            color: '#fff',
-                            border: 'none',
-                            transition: 'background-color 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#ea580c'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = '#f97316'}
-                    >
-                        <i className="fa-solid fa-plus"></i> Tạo khóa học mới
-                    </Link>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        {/* Thanh đo dung lượng */}
+                        <div style={{ width: '220px', backgroundColor: '#f1f5f9', borderRadius: '8px', padding: '10px 16px', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#475569' }}>
+                                <span>Lưu trữ (R2)</span>
+                                <span>{formatBytes(usedBytes)} / {formatBytes(limitBytes)}</span>
+                            </div>
+                            <div style={{ width: '100%', height: '6px', backgroundColor: '#e2e8f0', borderRadius: '99px', overflow: 'hidden' }}>
+                                <div style={{ width: `${Math.min(usedPercentage, 100)}%`, height: '100%', backgroundColor: isNearLimit ? '#ef4444' : '#f97316', transition: 'width 0.3s ease' }}></div>
+                            </div>
+                        </div>
+
+                        {/* Nút Tạo khóa học */}
+                        <Link
+                            href={route('seller.courses.create')}
+                            className="btn-primary"
+                            onClick={handleCreateCourse}
+                            style={{
+                                textDecoration: 'none',
+                                backgroundColor: '#f97316',
+                                color: '#fff',
+                                border: 'none',
+                                transition: 'background-color 0.2s',
+                                padding: '10px 16px',
+                                borderRadius: '6px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontWeight: 'bold'
+                            }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#ea580c'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = '#f97316'}
+                        >
+                            <i className="fa-solid fa-plus"></i> Tạo khóa học
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="table-card">

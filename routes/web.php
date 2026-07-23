@@ -66,6 +66,10 @@ Route::middleware('auth')->group(function () {
         Route::put('/profile/password', [DashboardProfileController::class, 'changePassword'])->name('profile.password');
 
         Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+
+        // VIP Packages for User
+        Route::get('/vip-packages', [\App\Http\Controllers\Frontend\Dashboard\UserVipController::class, 'index'])->name('vip.index');
+        Route::post('/vip-packages/buy', [\App\Http\Controllers\Frontend\Dashboard\UserVipController::class, 'buy'])->name('vip.buy');
     });
 
     // SHARED FINANCE ROUTES
@@ -149,6 +153,7 @@ Route::middleware('auth')->group(function () {
 });
 Route::prefix('tech-education')->name('frontend.')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/courses/search-suggestions', [CourseController::class, 'searchSuggestions'])->name('course.search-suggestions');
     Route::get('/courses', [CourseController::class, 'index'])->name('course.index');
     Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('course.detail');
     Route::get('/instructors', [InstructorController::class, 'index'])->name('instructor.index');
@@ -174,8 +179,6 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
         Route::post('/wallet/deposit', [PaymentController::class, 'deposit'])->name('wallet.deposit');
         Route::post('/payment/retry/{id}', [PaymentController::class, 'retry'])->name('payment.retry');
         Route::get('/payment/{gateway}/return', [PaymentController::class, 'gatewayReturn'])->name('payment.return');
-        Route::get('/cart/course/{course}/coupons', [CartController::class, 'getCouponForCourse'])
-            ->name('cart.course.coupons');
         Route::post('/cart/apply-coupons', [CartController::class, 'applyCoupons'])->name('cart.apply-coupons');
         // Wishlist route
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');

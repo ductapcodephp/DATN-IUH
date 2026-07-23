@@ -1,8 +1,15 @@
-import React from 'react';
-import { Link, usePage } from '@inertiajs/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, usePage, router } from '@inertiajs/react';
+import VipBadge from '@/Components/VipBadge';
+import axios from 'axios';
 
 export default function Header() {
     const { auth } = usePage().props;
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const searchRef = useRef(null);
     const { url } = usePage();
     const user = auth?.user;
 
@@ -17,6 +24,47 @@ export default function Header() {
             return url === '/tech-education/home';
         }
         return url.startsWith(`/tech-education${path}`);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery.trim().length > 0) {
+                setIsSearching(true);
+                setShowDropdown(true);
+                axios.get(route('frontend.course.search-suggestions', { keyword: searchQuery }))
+                    .then(response => {
+                        setSearchResults(response.data.data);
+                    })
+                    .catch(error => {
+                        console.error('Lỗi tìm kiếm:', error);
+                    })
+                    .finally(() => {
+                        setIsSearching(false);
+                    });
+            } else {
+                setSearchResults([]);
+                setShowDropdown(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery]);
+
+    const handleSearchSubmit = (e) => {
+        if (e.key === 'Enter' && searchQuery.trim()) {
+            setShowDropdown(false);
+            router.get(route('frontend.course.index'), { search: searchQuery.trim() });
+        }
     };
 
     return (
@@ -143,7 +191,8 @@ export default function Header() {
 
                         <div
                             className="search-wrap my-0"
-                            style={{ maxWidth: "240px", width: "100%" }}
+                            style={{ maxWidth: "350px", width: "100%", position: "relative" }}
+                            ref={searchRef}
                         >
 
                             <i className="fa-solid fa-magnifying-glass search-icon"></i>
@@ -154,23 +203,59 @@ export default function Header() {
                                 id="searchInput"
                                 placeholder="Tìm kiếm khoá học..."
                                 autoComplete="off"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={handleSearchSubmit}
+                                onFocus={() => {
+                                    if (searchQuery.trim().length > 0) setShowDropdown(true);
+                                }}
                             />
 
+                            {showDropdown && (
+                                <div className="search-dropdown show position-absolute bg-white border rounded shadow-sm mt-1" style={{ top: "100%", zIndex: 1050, right: 0, width: "450px", maxWidth: "90vw", overflow: "hidden" }}>
+                                    
+                                    {isSearching && (
+                                        <div className="text-center p-3 text-muted">
+                                            <i className="fa-solid fa-spinner fa-spin me-2"></i>
+                                            Đang tìm...
+                                        </div>
+                                    )}
 
-                            <div className="search-dropdown" id="searchDropdown">
+                                    {!isSearching && searchResults.length > 0 && (
+                                        <div className="list-group list-group-flush">
+                                            {searchResults.map(course => (
+                                                <Link
+                                                    key={course.id}
+                                                    href={route('frontend.course.detail', course.slug)}
+                                                    className="list-group-item list-group-item-action d-flex align-items-center gap-2 border-bottom-0 py-2"
+                                                    onClick={() => setShowDropdown(false)}
+                                                >
+                                                    <img 
+                                                        src={getAvatarUrl(course.thumbnail)} 
+                                                        alt={course.title}
+                                                        className="rounded object-fit-cover shadow-sm"
+                                                        style={{ width: "50px", height: "50px" }}
+                                                        onError={(e) => { e.target.src = "/assets/frontend/img/default-course.png"; }}
+                                                    />
+                                                    <div className="d-flex flex-column overflow-hidden text-truncate w-100">
+                                                        <span className="fw-medium text-truncate text-dark font-sm mb-0">{course.title}</span>
+                                                        {course.is_vip_seller ? (
+                                                            <span className="text-fire fw-bold" style={{ fontSize: '10px' }}><i className="fa-solid fa-star me-1"></i> {course.vip_badge_text || 'Đề xuất'}</span>
+                                                        ) : null}
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
 
-                                <div
-                                    id="searchLoading"
-                                    className="text-center p-3 d-none text-muted"
-                                >
-                                    <i className="fa-solid fa-spinner fa-spin"></i>
-                                    Đang tìm...
+                                    {!isSearching && searchResults.length === 0 && searchQuery.trim().length > 0 && (
+                                        <div className="p-3 text-center text-muted font-sm">
+                                            Không tìm thấy khóa học nào.
+                                        </div>
+                                    )}
+
                                 </div>
-
-
-                                <div id="searchResults"></div>
-
-                            </div>
+                            )}
 
                         </div>
 
@@ -190,6 +275,9 @@ export default function Header() {
                                     <a className="nav-link dropdown-toggle d-flex align-items-center gap-2 p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <img src={getAvatarUrl(user.avatar)} alt="Avatar" className="rounded-circle object-fit-cover" width="36" height="36" />
                                         <span className="fw-semibold text-dark d-none d-md-inline-block">{user.name}</span>
+                                        <div className="d-none d-md-block">
+                                            <VipBadge isUserVip={auth?.isUserVip} isSellerVip={auth?.isSellerVip} />
+                                        </div>
                                     </a>
                                     <ul className="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2 p-2" aria-labelledby="userDropdown">
                                         <li><Link className="dropdown-item py-2 rounded font-sm" href={route('dashboard.index')}><i className="fa-solid fa-gauge me-2 text-secondary"></i> Bảng điều khiển</Link></li>

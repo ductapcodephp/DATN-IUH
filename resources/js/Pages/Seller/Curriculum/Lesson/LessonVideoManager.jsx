@@ -36,7 +36,7 @@ export default function LessonVideoManager({ course, lesson }) {
                         <div>
                             <i className="fa-solid fa-cloud-arrow-up" style={{ fontSize: '44px', marginBottom: '12px', color: '#94a3b8' }}></i>
                             <p style={{ marginBottom: '16px', fontSize: '14px' }}>Bài học cấu hình dạng Video nhưng chưa có tài nguyên được đẩy lên.</p>
-                            <button onClick={() => setShowUploadModal(true)} style={{ padding: '10px 20px', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+                            <button onClick={() => setShowUploadModal(true)} style={{ padding: '10px 20px', background: '#f97316', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
                                 Tải Video Lên Ngay
                             </button>
                         </div>
