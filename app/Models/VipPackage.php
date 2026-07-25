@@ -42,6 +42,8 @@ class VipPackage extends Model
 
     protected $fillable = [
         'name',
+        'badge_text',
+        'priority_level',
         'role_type',
         'package_type',
         'price',

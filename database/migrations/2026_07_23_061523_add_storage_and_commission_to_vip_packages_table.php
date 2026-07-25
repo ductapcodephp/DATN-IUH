@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('vip_packages', function (Blueprint $table) {
-            $table->integer('max_storage_gb')->default(5)->after('duration_days')->comment('Max storage quota in GB');
+            $table->integer('max_storage_gb')->default(5)->after('duration_days')->comment('Max storage quota in GB')->nullable();
             $table->decimal('commission_rate', 5, 2)->nullable()->after('max_storage_gb')->comment('Platform fee % for this package');
         });
     }

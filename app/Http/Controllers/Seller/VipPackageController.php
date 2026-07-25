@@ -40,7 +40,7 @@ class VipPackageController extends Controller
             'payment_method' => 'required|in:vnpay,stripe,wallet',
         ]);
 
-        $package = VipPackage::findOrFail($request->package_id);
+        $package = VipPackage::forRole('seller')->findOrFail($request->package_id);
         $user = Auth::user();
 
         // Thanh toán bằng ví điện tử
@@ -50,11 +50,25 @@ class VipPackageController extends Controller
                 return back()->with('error', 'Số dư ví không đủ để mua gói VIP này.');
             }
 
+            // Tạo order cho ví
+            $order = Order::create([
+                'user_id' => $user->id,
+                'course_id' => null,
+                'vip_package_id' => $package->id,
+                'amount_original' => $package->price,
+                'amount_paid' => $package->price,
+                'commission_rate' => 0,
+                'commission_amount' => $package->price,
+                'seller_amount' => 0,
+                'status' => 'completed',
+                'payment_method' => 'wallet',
+            ]);
+
             // Trừ tiền ví
             $wallet->withdraw($package->price, 'Mua gói VIP '.$package->name, WalletTransaction::TYPE_VIP_PAYMENT);
 
             // Kích hoạt VIP ngay lập tức
-            $this->activateVip($user->id, $package);
+            $this->activateVip($user->id, $package, $order->id);
 
             return back()->with('success', 'Thanh toán thành công! Gói VIP đã được kích hoạt.');
         }
@@ -97,19 +111,35 @@ class VipPackageController extends Controller
 
     private function activateVip($userId, $package, $orderId = null)
     {
-        // Deactivate old active subscriptions of same role_type and package_type
-        VipSubscription::where('user_id', $userId)
+        $activeSub = VipSubscription::where('user_id', $userId)
             ->whereHas('vipPackage', fn ($q) => $q->where('role_type', $package->role_type)->where('package_type', $package->package_type))
             ->active()
-            ->update(['status' => 'cancelled']);
+            ->first();
 
-        VipSubscription::create([
-            'user_id' => $userId,
-            'vip_package_id' => $package->id,
-            'order_id' => $orderId,
-            'starts_at' => now(),
-            'expires_at' => now()->addDays($package->duration_days),
-            'status' => 'active',
-        ]);
+        if ($activeSub && $activeSub->vip_package_id == $package->id) {
+            // Gia hạn gói hiện tại
+            $activeSub->update([
+                'expires_at' => \Carbon\Carbon::parse($activeSub->expires_at)->addDays($package->duration_days),
+            ]);
+            $subscriptionId = $activeSub->id;
+        } else {
+            // Hủy gói cũ khác loại (nhưng cùng type)
+            if ($activeSub) {
+                $activeSub->update(['status' => 'cancelled']);
+            }
+
+            $newSub = VipSubscription::create([
+                'user_id' => $userId,
+                'vip_package_id' => $package->id,
+                'starts_at' => now(),
+                'expires_at' => now()->addDays($package->duration_days),
+                'status' => 'active',
+            ]);
+            $subscriptionId = $newSub->id;
+        }
+
+        if ($orderId) {
+            Order::where('id', $orderId)->update(['vip_subscription_id' => $subscriptionId]);
+        }
     }
 }
