@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduFlow Admin - Premium Dashboard</title>
+    
+    <!-- Google Fonts: Roboto & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="app-layout">
+
+    <!-- Ambient Background Blobs -->
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+    <div class="ambient-blob blob-3"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar glass-panel" id="sidebar">
+        <div class="sidebar-header">
+            <h3 class="sidebar-logo m-0 glow-text">EduFlow<span class="text-primary-glow">Admin</span></h3>
+            <button class="btn btn-icon sidebar-toggle d-lg-none text-white" id="sidebarClose">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu position-relative">
+            <div class="menu-indicator"></div>
+            <ul class="nav flex-column" id="sidebarNav">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-index="0">
+                        <span class="nav-icon"><i class="fa-solid fa-gauge"></i></span>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-index="1">
+                        <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
+                        <span class="nav-text">Người dùng</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-index="2">
+                        <span class="nav-icon"><i class="fa-solid fa-crown"></i></span>
+                        <span class="nav-text">Gói VIP</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-index="3">
+                        <span class="nav-icon"><i class="fa-solid fa-gear"></i></span>
+                        <span class="nav-text">Cài đặt</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile-block d-flex align-items-center gap-3">
+                <div class="avatar-glow">
+                    <img src="https://ui-avatars.com/api/?name=Super+Admin&background=4facfe&color=fff" alt="Avatar" class="rounded-circle" width="40" height="40">
+                </div>
+                <div class="sidebar-footer-info overflow-hidden">
+                    <div class="fw-bold text-truncate text-dark">Super Admin</div>
+                    <div class="text-muted small text-truncate">Quản trị viên</div>
+                </div>
+                <a href="#" class="btn btn-icon text-muted ms-auto hover-glow" title="Đăng xuất">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="dashboard-wrapper" id="mainWrapper">
+        <!-- Topbar -->
+        <header class="topbar glass-panel-light">
+            <div class="d-flex align-items-center justify-content-between w-100">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-icon text-dark d-lg-none" id="sidebarToggle">
+                        <i class="fa-solid fa-bars fs-4"></i>
+                    </button>
+                    <nav aria-label="breadcrumb" class="d-none d-md-block">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item text-muted">Dashboards</li>
+                            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">Tổng quan</li>
+                        </ol>
+                    </nav>
+                </div>
+                
+                <div class="d-flex align-items-center gap-4">
+                    <!-- Search -->
+                    <div class="position-relative d-none d-md-block">
+                        <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" class="form-control glass-input ps-5 rounded-pill" placeholder="Tìm kiếm...">
+                    </div>
+                    
+                    <!-- Notifications -->
+                    <div class="position-relative cursor-pointer hover-glow-icon">
+                        <i class="fa-regular fa-bell fs-4 text-dark transition-all"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white pulse-badge">
+                            3
+                        </span>
+                    </div>
+                    
+                    <!-- User Dropdown -->
+                    <div class="d-flex align-items-center cursor-pointer avatar-glow">
+                        <img src="https://ui-avatars.com/api/?name=Super+Admin&background=4facfe&color=fff" alt="User" class="rounded-circle" width="36" height="36">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content-area">
+            
+            <div class="d-flex justify-content-between align-items-center section-block stagger-fade-up">
+                <h3 class="m-0 fw-bold text-dark">Tổng quan hệ thống</h3>
+                <button class="btn btn-glass-primary fw-bold rounded-pill px-4 py-2">
+                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Xuất báo cáo
+                </button>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stat-cards-row stagger-fade-up">
+                <!-- Stat 1: Revenue -->
+                <div class="stagger-fade-up">
+                    <div class="card stat-card glass-card border-0" data-color="--primary-glow">
+                        <div class="card-body position-relative overflow-hidden">
+                            <div class="glow-bg bg-primary-glow"></div>
+                            <div class="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                <div class="stat-icon icon-primary">
+                                    <i class="fa-solid fa-wallet"></i>
+                                </div>
+                                <span class="badge glass-badge-success fw-bold rounded-pill bounce-in">
+                                    <i class="fa-solid fa-arrow-trend-up me-1"></i>12%
+                                </span>
+                            </div>
+                            <div class="text-muted fw-medium mb-1 position-relative z-1">Tổng doanh thu (VNĐ)</div>
+                            <h2 class="fw-bold m-0 text-dark stat-value position-relative z-1"><span class="count-up" data-value="125000000">0</span> ₫</h2>
+                            <div class="sparkline mt-2 position-relative z-1"><canvas id="spark1" height="30"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stat 2: Students -->
+                <div class="stagger-fade-up">
+                    <div class="card stat-card glass-card border-0" data-color="--success-glow">
+                        <div class="card-body position-relative overflow-hidden">
+                            <div class="glow-bg bg-success-glow"></div>
+                            <div class="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                <div class="stat-icon icon-success">
+                                    <i class="fa-solid fa-user-graduate"></i>
+                                </div>
+                                <span class="badge glass-badge-success fw-bold rounded-pill bounce-in" style="animation-delay: 0.1s">
+                                    <i class="fa-solid fa-arrow-trend-up me-1"></i>8%
+                                </span>
+                            </div>
+                            <div class="text-muted fw-medium mb-1 position-relative z-1">Tổng học sinh</div>
+                            <h2 class="fw-bold m-0 text-dark stat-value position-relative z-1 count-up" data-value="4520">0</h2>
+                            <div class="sparkline mt-2 position-relative z-1"><canvas id="spark2" height="30"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stat 3: Teachers -->
+                <div class="stagger-fade-up">
+                    <div class="card stat-card glass-card border-0" data-color="--warning-glow">
+                        <div class="card-body position-relative overflow-hidden">
+                            <div class="glow-bg bg-warning-glow"></div>
+                            <div class="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                <div class="stat-icon icon-warning">
+                                    <i class="fa-solid fa-chalkboard-user"></i>
+                                </div>
+                                <span class="badge glass-badge-danger fw-bold rounded-pill bounce-in" style="animation-delay: 0.2s">
+                                    <i class="fa-solid fa-arrow-trend-down me-1"></i>2%
+                                </span>
+                            </div>
+                            <div class="text-muted fw-medium mb-1 position-relative z-1">Tổng giảng viên</div>
+                            <h2 class="fw-bold m-0 text-dark stat-value position-relative z-1 count-up" data-value="134">0</h2>
+                            <div class="sparkline mt-2 position-relative z-1"><canvas id="spark3" height="30"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stat 4: Reports -->
+                <div class="stagger-fade-up">
+                    <div class="card stat-card glass-card border-0" data-color="--danger-glow">
+                        <div class="card-body position-relative overflow-hidden">
+                            <div class="glow-bg bg-danger-glow"></div>
+                            <div class="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                <div class="stat-icon icon-danger">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <span class="badge glass-badge-danger fw-bold rounded-pill bounce-in" style="animation-delay: 0.3s">Cần xử lý</span>
+                            </div>
+                            <div class="text-muted fw-medium mb-1 position-relative z-1">Báo cáo cần xử lý</div>
+                            <h2 class="fw-bold m-0 text-dark stat-value position-relative z-1 count-up" data-value="28">0</h2>
+                            <div class="sparkline mt-2 position-relative z-1"><canvas id="spark4" height="30"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Row -->
+            <div class="chart-row stagger-fade-up">
+                <div class="chart-card">
+                    <div class="card border-0 shadow-none glass-card rounded-4 h-100 p-1 position-relative overflow-hidden">
+                        <div class="glow-bg bg-primary-glow" style="opacity: 0.05; width: 300px; height: 300px; right: -50px; top: -50px;"></div>
+                        <div class="card-header bg-transparent border-0 pt-4 pb-2 d-flex justify-content-between align-items-center position-relative z-1">
+                            <h5 class="card-title fw-bold m-0 text-dark">Doanh thu thống kê</h5>
+                            <select class="form-select form-select-sm glass-input rounded-pill fw-bold w-auto px-3 border-0 shadow-sm">
+                                <option value="7">7 ngày qua</option>
+                                <option value="30" selected>30 ngày qua</option>
+                                <option value="365">12 tháng qua</option>
+                            </select>
+                        </div>
+                        <div class="card-body position-relative z-1">
+                            <!-- Shimmer loader -->
+                            <div id="chartSkeleton" class="shimmer-loader w-100 rounded-4" style="height: 320px;"></div>
+                            
+                            <!-- Canvas for Chart.js -->
+                            <div class="chart-container w-100 d-none" id="chartContainer" style="height: 320px;">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Magic Donut Chart -->
+                <div class="donut-card">
+                    <div class="card border-0 shadow-none glass-card rounded-4 h-100 p-1 position-relative overflow-hidden d-flex flex-column">
+                        <div class="glow-bg bg-info-glow" style="opacity: 0.08; width: 200px; height: 200px; bottom: -50px; left: -50px;"></div>
+                        <div class="card-header bg-transparent border-0 pt-4 pb-0 text-center position-relative z-1">
+                            <h5 class="card-title fw-bold m-0 text-dark">Tỉ lệ hoàn thành</h5>
+                            <p class="text-muted small mt-1">Khóa học của học sinh</p>
+                        </div>
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center position-relative z-1 flex-grow-1">
+                            <div class="radial-progress-wrapper position-relative">
+                                <canvas id="completionChart" width="220" height="220"></canvas>
+                                <div class="radial-center position-absolute top-50 start-50 translate-middle text-center">
+                                    <h2 class="stat-value fw-bold text-dark m-0"><span class="count-up" data-value="76">0</span>%</h2>
+                                    <span class="text-muted small">Trung bình</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
