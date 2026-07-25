@@ -29,7 +29,7 @@ const renderCommentContent = (content, parentName) => {
 };
 
 // Recursive Component for rendering comments
-const CommentNode = ({ comment, onReply, authUser, parentName }) => {
+const CommentNode = ({ comment, onReply, onReport, authUser, parentName }) => {
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [replyContent, setReplyContent] = useState('');
 
@@ -66,6 +66,7 @@ const CommentNode = ({ comment, onReply, authUser, parentName }) => {
                     </div>
                     <div className="d-flex align-items-center gap-3 mt-1">
                         <span className="learn-comment-actions text-primary cursor-pointer fw-semibold" style={{ fontSize: '13px' }} onClick={handleOpenReply}>Phản hồi</span>
+                        <span className="learn-comment-actions text-danger cursor-pointer fw-semibold" style={{ fontSize: '13px' }} onClick={() => onReport(comment)}>Báo cáo</span>
                     </div>
                     
                     {/* Reply Form */}
@@ -96,7 +97,7 @@ const CommentNode = ({ comment, onReply, authUser, parentName }) => {
                     {comment.children && comment.children.length > 0 && (
                         <div className="mt-3">
                             {comment.children.map(child => (
-                                <CommentNode key={child.id} comment={child} onReply={onReply} authUser={authUser} parentName={comment.user?.name} />
+                                <CommentNode key={child.id} comment={child} onReply={onReply} onReport={onReport} authUser={authUser} parentName={comment.user?.name} />
                             ))}
                         </div>
                     )}
@@ -106,11 +107,17 @@ const CommentNode = ({ comment, onReply, authUser, parentName }) => {
     );
 };
 
-export default function CommentsPanel({ isOpen, onClose, lessonId, courseSlug }) {
+export default function CommentsPanel({ isOpen, onClose, lessonId, courseSlug, reportTopics = [] }) {
     const { auth } = usePage().props;
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(false);
+    
+    // Báo cáo state
+    const [reportingComment, setReportingComment] = useState(null);
+    const [reportReason, setReportReason] = useState('');
+    const [reportDetails, setReportDetails] = useState('');
+    const [isReporting, setIsReporting] = useState(false);
 
     useEffect(() => {
         if (isOpen && lessonId) {
@@ -139,12 +146,33 @@ export default function CommentsPanel({ isOpen, onClose, lessonId, courseSlug })
                 parent_id: parentId
             });
             if (res.data.success) {
-                // Refresh comments
                 fetchComments();
                 if (onSuccess) onSuccess();
             }
         } catch (error) {
             alert('Không thể gửi bình luận. Vui lòng thử lại!');
+        }
+    };
+
+    const handleReportSubmit = async (e) => {
+        e.preventDefault();
+        if (!reportReason) return;
+        setIsReporting(true);
+        try {
+            const res = await axios.post(route('frontend.course.comments.report', { comment: reportingComment.id }), {
+                reason: reportReason,
+                details: reportDetails,
+            });
+            if (res.data.success) {
+                alert('Cảm ơn bạn! Đã gửi báo cáo bình luận thành công.');
+                setReportingComment(null);
+                setReportReason('');
+                setReportDetails('');
+            }
+        } catch (error) {
+            alert('Có lỗi xảy ra khi gửi báo cáo, vui lòng thử lại.');
+        } finally {
+            setIsReporting(false);
         }
     };
 
@@ -213,6 +241,7 @@ export default function CommentsPanel({ isOpen, onClose, lessonId, courseSlug })
                             key={comment.id} 
                             comment={comment} 
                             onReply={handlePostComment}
+                            onReport={(c) => setReportingComment(c)}
                             authUser={auth?.user}
                         />
                     ))
@@ -220,6 +249,58 @@ export default function CommentsPanel({ isOpen, onClose, lessonId, courseSlug })
                     <div className="text-center text-muted py-4">Chưa có bình luận nào cho bài học này. Hãy là người đầu tiên thảo luận!</div>
                 )}
             </div>
+
+            {/* Modal Report */}
+            {reportingComment && (
+                <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1055 }} tabIndex="-1">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                            <div className="modal-header border-bottom-0 bg-light pb-2">
+                                <h5 className="modal-title fw-bold">Báo cáo bình luận</h5>
+                                <button type="button" className="btn-close" onClick={() => setReportingComment(null)}></button>
+                            </div>
+                            <form onSubmit={handleReportSubmit}>
+                                <div className="modal-body pt-0">
+                                    <p className="text-muted small mb-3">
+                                        Báo cáo bình luận của <strong>{reportingComment.user?.name}</strong>. Admin sẽ xem xét và xử lý.
+                                    </p>
+                                    <div className="mb-3">
+                                        <label className="form-label fw-semibold">Lý do báo cáo <span className="text-danger">*</span></label>
+                                        <select
+                                            className="form-select orange-input-focus"
+                                            value={reportReason}
+                                            onChange={(e) => setReportReason(e.target.value)}
+                                            required
+                                        >
+                                            <option value="">-- Chọn lý do --</option>
+                                            {reportTopics.map((t, idx) => (
+                                                <option key={idx} value={t.name}>{t.name}</option>
+                                            ))}
+                                            <option value="Khác">Khác</option>
+                                        </select>
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label fw-semibold">Chi tiết thêm (không bắt buộc)</label>
+                                        <textarea
+                                            className="form-control orange-input-focus"
+                                            rows="3"
+                                            placeholder="Mô tả rõ hơn về vi phạm..."
+                                            value={reportDetails}
+                                            onChange={(e) => setReportDetails(e.target.value)}
+                                        ></textarea>
+                                    </div>
+                                </div>
+                                <div className="modal-footer border-top-0 pt-0">
+                                    <button type="button" className="btn btn-light rounded-pill px-4" onClick={() => setReportingComment(null)}>Hủy</button>
+                                    <button type="submit" className="btn btn-danger rounded-pill px-4" disabled={isReporting}>
+                                        {isReporting ? 'Đang gửi...' : 'Gửi báo cáo'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
         </OverlayPanel>
     );
 }

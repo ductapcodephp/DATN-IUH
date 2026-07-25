@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Kalnoy\Nestedset\Collection;
 use Kalnoy\Nestedset\NodeTrait;
@@ -50,7 +49,6 @@ use Kalnoy\Nestedset\NodeTrait;
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment moveNode($key, $position)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment newModelQuery()
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment onlyTrashed()
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment orWhereAncestorOf(bool $id, bool $andSelf = false)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment orWhereDescendantOf($id)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment orWhereNodeBetween($values)
@@ -82,15 +80,13 @@ use Kalnoy\Nestedset\NodeTrait;
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereUpdatedAt($value)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment whereUserId($value)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment withDepth(string $as = 'depth')
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment withTrashed(bool $withTrashed = true)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Comment withoutRoot()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment withoutTrashed()
  *
  * @mixin \Eloquent
  */
 class Comment extends Model
 {
-    use HasFactory, NodeTrait, SoftDeletes;
+    use HasFactory, NodeTrait;
 
     protected $fillable = [
         'user_id',
@@ -156,5 +152,10 @@ class Comment extends Model
     public function countAllDescendants(): int
     {
         return $this->descendants()->count();
+    }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 }
