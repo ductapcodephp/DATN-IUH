@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Contact;
+
 use App\Http\Controllers\Controller;
 use App\Services\Admin\ContactService;
 use Inertia\Inertia;
@@ -17,7 +19,7 @@ class ContactController extends Controller
 
     public function index()
     {
-        $contacts = \App\Models\Contact::orderBy('id', 'desc')->get();
+        $contacts = Contact::orderBy('id', 'desc')->get();
         return Inertia::render('Admin/Contacts', [
             'contacts' => $contacts
         ]);
