@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\WithdrawalRequest;
+use Illuminate\Http\Request;
+
 use App\Http\Controllers\Controller;
 use App\Services\Admin\WithdrawalService;
 use Inertia\Inertia;
@@ -17,13 +20,13 @@ class WithdrawalController extends Controller
 
     public function index()
     {
-        $withdrawals = \App\Models\WithdrawalRequest::with('user')->orderBy('id', 'desc')->get();
+        $withdrawals = WithdrawalRequest::with('user')->orderBy('id', 'desc')->get();
         return Inertia::render('Admin/Withdrawals', [
             'withdrawals' => $withdrawals
         ]);
     }
 
-    public function approve(\Illuminate\Http\Request $request, $id)
+    public function approve(Request $request, $id)
     {
         $request->validate([
             'admin_note' => 'nullable|string|max:500'
@@ -37,7 +40,7 @@ class WithdrawalController extends Controller
         }
     }
 
-    public function reject(\Illuminate\Http\Request $request, $id)
+    public function reject(Request $request, $id)
     {
         $request->validate([
             'admin_note' => 'required|string|max:500'

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Finance;
 
+use App\Models\OnlinePayment;
+
 use App\DTO\Finance\WithdrawalData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Frontend\Dashboard\BankAccountRequest;
@@ -27,7 +29,7 @@ class WalletController extends Controller
         $filters = $request->only(['type', 'status', 'date_from', 'date_to', 'activeTab']);
         $transactions = $this->walletService->getWalletTransactions($userId, $filters);
         
-        $onlinePayments = \App\Models\OnlinePayment::where('user_id', $userId)
+        $onlinePayments = OnlinePayment::where('user_id', $userId)
             ->where('payment_gateway', '!=', 'wallet')
             ->orderBy('id', 'desc')
             ->paginate(15, ['*'], 'payments_page');

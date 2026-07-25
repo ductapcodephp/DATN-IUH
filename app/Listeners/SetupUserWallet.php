@@ -7,9 +7,6 @@ use Illuminate\Auth\Events\Login;
 
 class SetupUserWallet
 {
-    /**
-     * Create the event listener.
-     */
     public function __construct()
     {
         //

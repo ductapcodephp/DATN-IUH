@@ -12,17 +12,11 @@ use Illuminate\Support\Facades\Mail;
 
 class SendPaymentSuccessEmail implements ShouldQueue
 {
-    /**
-     * Create the event listener.
-     */
     public function __construct()
     {
         //
     }
 
-    /**
-     * Handle the event.
-     */
     public function handle(PaymentCompleted $event): void
     {
         $userId = $event->userId;

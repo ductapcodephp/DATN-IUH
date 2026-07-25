@@ -5,6 +5,7 @@ namespace App\Services\Finance\Payment\Pipes\Checkout;
 use App\DTO\Payment\CheckoutData;
 use App\Models\CouponUsage;
 use App\Models\Order;
+use App\Models\SystemSetting;
 use Closure;
 
 class CreateOrders
@@ -92,7 +93,9 @@ class CreateOrders
 
     private function resolveCommissionRate($item): float
     {
-        $commissionRate = 20;
+        $defaultCommission = (float) (SystemSetting::where('key', 'commission_rate')->value('value') ?? 20);
+        $commissionRate = $defaultCommission;
+        
         $seller = $item->course->seller ?? null;
 
         if (! $seller) {
