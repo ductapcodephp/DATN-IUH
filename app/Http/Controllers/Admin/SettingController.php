@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\SystemSetting;
+
 use App\Http\Controllers\Controller;
 use App\Services\Admin\SettingService;
 use Inertia\Inertia;
@@ -17,7 +19,7 @@ class SettingController extends Controller
 
     public function index()
     {
-        $settings = \App\Models\SystemSetting::all();
+        $settings = SystemSetting::all();
         return Inertia::render('Admin/Settings', [
             'settings' => $settings
         ]);

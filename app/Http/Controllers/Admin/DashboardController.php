@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Http\Request;
+
 use App\Http\Controllers\Controller;
 use App\Services\Admin\DashboardService;
 use Inertia\Inertia;
@@ -15,7 +17,7 @@ class DashboardController extends Controller
         $this->service = $service;
     }
 
-    public function index(\Illuminate\Http\Request $request)
+    public function index(Request $request)
     {
         $filters = $request->only(['type', 'start_date', 'end_date']);
         if (empty($filters['type']) && empty($filters['start_date'])) {
@@ -29,7 +31,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function getChartData(\Illuminate\Http\Request $request)
+    public function getChartData(Request $request)
     {
         $filters = $request->only(['type', 'start_date', 'end_date']);
         if (empty($filters['type']) && empty($filters['start_date'])) {
