@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Frontend\Dashboard;
 
+use Carbon\Carbon;
+
 use App\Http\Controllers\Controller;
 use App\Models\OnlinePayment;
 use App\Models\Order;
@@ -117,7 +119,7 @@ class UserVipController extends Controller
         if ($activeSub && $activeSub->vip_package_id == $package->id) {
             // Gia hạn gói hiện tại
             $activeSub->update([
-                'expires_at' => \Carbon\Carbon::parse($activeSub->expires_at)->addDays($package->duration_days),
+                'expires_at' => Carbon::parse($activeSub->expires_at)->addDays($package->duration_days),
             ]);
             $subscriptionId = $activeSub->id;
         } else {
@@ -137,7 +139,7 @@ class UserVipController extends Controller
         }
 
         if ($orderId) {
-            \App\Models\Order::where('id', $orderId)->update(['vip_subscription_id' => $subscriptionId]);
+            Order::where('id', $orderId)->update(['vip_subscription_id' => $subscriptionId]);
         }
     }
 }
