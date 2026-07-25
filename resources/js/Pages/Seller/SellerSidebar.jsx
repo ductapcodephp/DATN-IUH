@@ -22,7 +22,6 @@ export default function SellerSidebar() {
                 <i className="fa-solid fa-book-open"></i> Quản lý khóa học <span className="nav-badge">3</span>
             </Link>
 
-
             <Link
                 className={`nav-item ${route().current('seller.students.index') ? 'active' : ''}`}
                 href={route('seller.students.index')}
@@ -84,6 +83,13 @@ export default function SellerSidebar() {
                 href={route('seller.profile.notifications')}
             >
                 <i className="fa-regular fa-bell"></i> Cài đặt thông báo
+            </Link>
+
+            <Link
+                className={`nav-item ${route().current('seller.notifications.index') ? 'active' : ''}`}
+                href={route('seller.notifications.index')}
+            >
+                <i className="fa-solid fa-clock-rotate-left"></i> Lịch sử thông báo
             </Link>
 
             {/* 👇 THAY ĐỔI Ở ĐÂY: Thêm class dropup vào container dưới đáy */}

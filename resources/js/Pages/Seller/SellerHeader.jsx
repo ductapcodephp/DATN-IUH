@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 
 export default function SellerHeader() {
@@ -6,6 +6,19 @@ export default function SellerHeader() {
     const walletBalance = auth?.wallet?.balance_available || 0;
     const formatCurrency = (amount) =>
         new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+    const [unreadCount, setUnreadCount] = useState(auth?.unread_notifications_count || 0);
+
+    useEffect(() => {
+        setUnreadCount(auth?.unread_notifications_count || 0);
+    }, [auth?.unread_notifications_count]);
+
+    const handleMarkAsRead = () => {
+        if (unreadCount > 0) {
+            router.post(route('dashboard.notifications.mark-as-read'), {}, { preserveScroll: true, preserveState: true });
+            setUnreadCount(0);
+        }
+    };
 
     return (
         <>
@@ -109,11 +122,12 @@ export default function SellerHeader() {
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             style={{ position: 'relative' }}
+                            onClick={handleMarkAsRead}
                         >
                             <i className="fa-solid fa-bell"></i>
-                            {auth?.unread_notifications_count > 0 && (
+                            {unreadCount > 0 && (
                                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.6rem' }}>
-                                    {auth.unread_notifications_count}
+                                    {unreadCount}
                                 </span>
                             )}
                         </button>
@@ -121,10 +135,10 @@ export default function SellerHeader() {
                         <div className="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-0" style={{ width: '320px', maxHeight: '400px', overflowY: 'auto' }}>
                             <div className="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
                                 <h6 className="m-0 fw-bold">Thông báo</h6>
-                                {auth?.unread_notifications_count > 0 && (
+                                {unreadCount > 0 && (
                                     <button 
                                         className="btn btn-sm btn-link text-decoration-none p-0" 
-                                        onClick={() => router.post(route('notifications.mark-as-read'))}
+                                        onClick={() => router.post(route('dashboard.notifications.mark-as-read'))}
                                         style={{ fontSize: '0.8rem' }}
                                     >
                                         Đánh dấu đã đọc
@@ -132,8 +146,8 @@ export default function SellerHeader() {
                                 )}
                             </div>
                             <div className="list-group list-group-flush">
-                                {auth?.unread_notifications?.length > 0 ? (
-                                    auth.unread_notifications.map(notification => (
+                                {auth?.recent_notifications?.length > 0 ? (
+                                    auth.recent_notifications.map(notification => (
                                         <div key={notification.id} className="list-group-item list-group-item-action py-3">
                                             <div className="d-flex align-items-start gap-3">
                                                 <div className={`mt-1 ${notification.data.color}`}>
