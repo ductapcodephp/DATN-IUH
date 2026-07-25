@@ -25,7 +25,14 @@ class ProfileController extends Controller
 
     public function notifications(Request $request)
     {
-        return Inertia::render('Seller/Profile/Notifications');
+        $notifications = $request->user()
+            ->notifications()
+            ->where('type', 'like', 'App\Notifications\Seller\%')
+            ->paginate(10);
+
+        return Inertia::render('Seller/Profile/Notifications', [
+            'notifications' => $notifications
+        ]);
     }
 
     public function updateInfo(UpdateProfileInfoRequest $request)

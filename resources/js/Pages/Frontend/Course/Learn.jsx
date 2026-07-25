@@ -7,7 +7,7 @@ import axios from 'axios';
 import CommentsPanel from './Components/CommentsPanel';
 import NotesPanel from './Components/NotesPanel';
 
-export default function Learn({ course, userQuizResults = {}, courseProgress = 0, completedLessonIds = [], lessonProgresses = {} }) {
+export default function Learn({ course, userQuizResults = {}, courseProgress = 0, completedLessonIds = [], lessonProgresses = {}, reportTopics = [] }) {
     const { chapters } = course;
     const [activeLesson, setActiveLesson] = useState(null);
     const [localCompleted, setLocalCompleted] = useState(completedLessonIds); // nhận id khóa học đã mở khóa
@@ -683,6 +683,7 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
                 onClose={() => setShowCommentsPanel(false)} 
                 lessonId={activeLesson?.id}
                 courseSlug={course.slug}
+                reportTopics={reportTopics}
             />
             <NotesPanel isOpen={showNotesPanel} onClose={() => setShowNotesPanel(false)} activeLesson={activeLesson} />
 

@@ -24,6 +24,8 @@ use App\Repositories\User\UserRepository;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Repositories\Admin\AdminDashboardRepository;
 use App\Repositories\Admin\AdminDashboardRepositoryInterface;
+use App\Repositories\Shared\NotificationRepository;
+use App\Repositories\Shared\NotificationRepositoryInterface;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -69,6 +71,31 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AdminDashboardRepositoryInterface::class,
             AdminDashboardRepository::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\Seller\VipPackage\VipPackageRepositoryInterface::class,
+            \App\Repositories\Seller\VipPackage\VipPackageRepository::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\Admin\TopicRepositoryInterface::class,
+            \App\Repositories\Admin\TopicRepository::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\Seller\Comment\CommentRepositoryInterface::class,
+            \App\Repositories\Seller\Comment\CommentRepository::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\Admin\AdminUserRepositoryInterface::class,
+            \App\Repositories\Admin\AdminUserRepository::class
+        );
+
+        $this->app->bind(
+            NotificationRepositoryInterface::class,
+            NotificationRepository::class
         );
     }
 

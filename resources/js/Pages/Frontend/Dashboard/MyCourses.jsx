@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/Frontend/DashboardLayout';
 
 const statusConfig = {
@@ -8,7 +8,7 @@ const statusConfig = {
     not_started: { label: 'Chưa bắt đầu', color: '#6B7280', bg: '#f3f4f6', icon: 'fa-solid fa-clock' },
 };
 
-function CourseCard({ enrollment }) {
+function CourseCard({ enrollment, onReportClick }) {
     const course = enrollment.course;
     const progress = enrollment.progress ?? 0;
     const statusKey = progress === 100 ? 'completed' : progress > 0 ? 'in_progress' : 'not_started';
@@ -74,39 +74,82 @@ function CourseCard({ enrollment }) {
                     </div>
                 </div>
 
-                {/* Action Button */}
-                {progress === 100 ? (
-                    <Link
-                        href={route('frontend.course.learn', { slug: course?.slug })}
-                        className="btn w-100 fw-semibold"
+                {/* Action Buttons */}
+                <div className="d-flex gap-2">
+                    {progress === 100 ? (
+                        <Link
+                            href={route('frontend.course.learn', { slug: course?.slug })}
+                            className="btn flex-grow-1 fw-semibold"
+                            style={{
+                                background: '#f1f5f9', color: '#475569',
+                                borderRadius: '10px', fontSize: '0.85rem', border: 'none',
+                            }}
+                        >
+                            <i className="fa-solid fa-arrow-rotate-right me-2"></i>Xem lại bài học
+                        </Link>
+                    ) : (
+                        <Link
+                            href={route('frontend.course.learn', { slug: course?.slug })}
+                            className="btn flex-grow-1 fw-semibold text-white"
+                            style={{
+                                background: 'linear-gradient(135deg, #EA580C, #C2410C)',
+                                borderRadius: '10px', fontSize: '0.85rem', border: 'none',
+                            }}
+                        >
+                            <i className="fa-solid fa-play me-2"></i>
+                            {progress > 0 ? 'Học tiếp' : 'Bắt đầu học'}
+                        </Link>
+                    )}
+                    
+                    <button
+                        type="button"
+                        onClick={() => onReportClick(course)}
+                        className="btn btn-outline-danger"
                         style={{
-                            background: '#f1f5f9', color: '#475569',
-                            borderRadius: '10px', fontSize: '0.85rem', border: 'none',
+                            borderRadius: '10px', fontSize: '0.85rem', padding: '0.375rem 0.75rem',
                         }}
+                        title="Báo cáo khóa học"
                     >
-                        <i className="fa-solid fa-arrow-rotate-right me-2"></i>Xem lại bài học
-                    </Link>
-                ) : (
-                    <Link
-                        href={route('frontend.course.learn', { slug: course?.slug })}
-                        className="btn w-100 fw-semibold text-white"
-                        style={{
-                            background: 'linear-gradient(135deg, #EA580C, #C2410C)',
-                            borderRadius: '10px', fontSize: '0.85rem', border: 'none',
-                        }}
-                    >
-                        <i className="fa-solid fa-play me-2"></i>
-                        {progress > 0 ? 'Học tiếp' : 'Bắt đầu học'}
-                    </Link>
-                )}
+                        <i className="fa-regular fa-flag"></i>
+                    </button>
+                </div>
             </div>
         </div>
     );
 }
 
-export default function MyCourses({ courses, filters }) {
+export default function MyCourses({ courses, filters, reportTopics }) {
     const [search, setSearch] = useState(filters?.search ?? '');
     const [statusFilter, setStatusFilter] = useState(filters?.status ?? '');
+
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+
+    const { data: reportData, setData: setReportData, post: postReport, processing: reportProcessing, errors: reportErrors, reset: resetReport } = useForm({
+        reason: '',
+        details: ''
+    });
+
+    const handleReportClick = (course) => {
+        setSelectedCourse(course);
+        setShowReportModal(true);
+    };
+
+    const closeReportModal = () => {
+        setShowReportModal(false);
+        setSelectedCourse(null);
+        resetReport();
+    };
+
+    const submitReport = (e) => {
+        e.preventDefault();
+        postReport(route('frontend.course.report', { course: selectedCourse?.id }), {
+            onSuccess: () => {
+                closeReportModal();
+                alert('Báo cáo khóa học thành công!');
+            }
+        });
+    };
 
     const handleFilter = (e) => {
         e.preventDefault();
@@ -207,7 +250,7 @@ export default function MyCourses({ courses, filters }) {
                     <div className="row g-3 mb-4">
                         {(courses?.data ?? []).map((enrollment) => (
                             <div key={enrollment.id} className="col-md-6 col-xl-4">
-                                <CourseCard enrollment={enrollment} />
+                                <CourseCard enrollment={enrollment} onReportClick={handleReportClick} />
                             </div>
                         ))}
                     </div>
@@ -234,6 +277,65 @@ export default function MyCourses({ courses, filters }) {
                         </div>
                     )}
                 </>
+            )}
+
+            {/* Report Modal */}
+            {showReportModal && (
+                <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content" style={{ borderRadius: '12px' }}>
+                            <div className="modal-header border-bottom-0">
+                                <h5 className="modal-title fw-bold text-danger">
+                                    <i className="fa-solid fa-flag me-2"></i>
+                                    Báo cáo khóa học
+                                </h5>
+                                <button type="button" className="btn-close" onClick={closeReportModal}></button>
+                            </div>
+                            <form onSubmit={submitReport}>
+                                <div className="modal-body py-0">
+                                    <p className="text-muted" style={{ fontSize: '0.9rem' }}>
+                                        Bạn đang báo cáo khóa học: <strong className="text-dark">{selectedCourse?.title}</strong>
+                                    </p>
+
+                                    <div className="mb-3">
+                                        <label className="form-label fw-semibold" style={{ fontSize: '0.9rem' }}>Lý do báo cáo <span className="text-danger">*</span></label>
+                                        <select
+                                            className={`form-select ${reportErrors.reason ? 'is-invalid' : ''}`}
+                                            value={reportData.reason}
+                                            onChange={(e) => setReportData('reason', e.target.value)}
+                                            style={{ borderRadius: '8px' }}
+                                        >
+                                            <option value="">-- Chọn lý do --</option>
+                                            {reportTopics && reportTopics.map((topic) => (
+                                                <option key={topic.id} value={topic.name}>{topic.name}</option>
+                                            ))}
+                                        </select>
+                                        {reportErrors.reason && <div className="invalid-feedback">{reportErrors.reason}</div>}
+                                    </div>
+
+                                    <div className="mb-3">
+                                        <label className="form-label fw-semibold" style={{ fontSize: '0.9rem' }}>Chi tiết (Tùy chọn)</label>
+                                        <textarea
+                                            className={`form-control ${reportErrors.details ? 'is-invalid' : ''}`}
+                                            rows="3"
+                                            placeholder="Cung cấp thêm thông tin để chúng tôi có thể xử lý tốt hơn..."
+                                            value={reportData.details}
+                                            onChange={(e) => setReportData('details', e.target.value)}
+                                            style={{ borderRadius: '8px' }}
+                                        ></textarea>
+                                        {reportErrors.details && <div className="invalid-feedback">{reportErrors.details}</div>}
+                                    </div>
+                                </div>
+                                <div className="modal-footer border-top-0 pt-0">
+                                    <button type="button" className="btn btn-light" onClick={closeReportModal} style={{ borderRadius: '8px' }}>Hủy</button>
+                                    <button type="submit" className="btn btn-danger" disabled={reportProcessing} style={{ borderRadius: '8px' }}>
+                                        {reportProcessing ? 'Đang gửi...' : 'Gửi báo cáo'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             )}
         </DashboardLayout>
     );

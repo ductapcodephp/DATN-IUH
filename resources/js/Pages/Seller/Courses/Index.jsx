@@ -291,6 +291,14 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
                                                         <i className="fa-solid fa-star"></i>
                                                     </Link>
                                                     <Link
+                                                        href={route('seller.courses.comments.index', course.id)}
+                                                        className="action-btn"
+                                                        title="Quản lý bình luận"
+                                                        style={{ color: '#3b82f6' }}
+                                                    >
+                                                        <i className="fa-solid fa-comments"></i>
+                                                    </Link>
+                                                    <Link
                                                         href={route('seller.courses.curriculum.index', course.id)}
                                                         className="action-btn"
                                                         title="Soạn giáo trình"

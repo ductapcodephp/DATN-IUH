@@ -26,14 +26,14 @@ Dự án EduFlow là một ứng dụng Web tích hợp kiểu **Monolith hiện
 * **`app/Services/`**: Chứa tầng logic nghiệp vụ chính (Business Logic). Controller gọi đến Service, và Service sẽ sử dụng các Repository tương ứng để thao tác với DB.
 * **`routes/`**:
   * `web.php`: Khai báo toàn bộ định tuyến giao diện người dùng và Admin/Seller. Nhóm Front-end (khách) nằm trong prefix `/tech-education`, nhóm Seller nằm trong prefix `/seller` (bảo vệ bởi `role:seller,admin,root`).
-* **`quy tắc đặt đường dẫn`**:
-* cái gì use được ở đầu thì use không được kiểu App\... trong function
+* **Quy tắc Coding Standard (Chuẩn viết code)**:
+  * **Import Namespace (use)**: Bắt buộc phải import TẤT CẢ các class/interface bằng từ khóa `use` ở đầu file (ví dụ: `use App\Models\User;`, `use Illuminate\Http\Request;`). TUYỆT ĐỐI KHÔNG được viết full namespace (chứa dấu `\`) trực tiếp bên trong các hàm/phương thức. Mọi thứ có dấu `\` như `\Illuminate\...` hay `\App\...` đều phải đưa lên đầu file. Ví dụ: KHÔNG ĐƯỢC viết `public function store(\Illuminate\Http\Request $request)`, mà phải `use` ở đầu và gọi `public function store(Request $request)`.
+
 ### 1.2. Cấu trúc Frontend (`resources/js/`)
 Toàn bộ mã nguồn Frontend nằm trực tiếp trong thư mục `resources/js/` của dự án Laravel:
 * **`Pages/`**: Chứa các trang React chính được render qua InertiaJS.
   * `Pages/Frontend/`: Các trang giao diện công khai như Trang chủ (`Home/`), Danh sách khóa học (`Course/`), Giảng viên (`Instructor/`), Giỏ hàng (`Cart/`), v.v.
   * `Pages/Seller/`: Giao diện Dashboard và các trang quản trị của Giảng viên (Danh sách khóa học, Bài học, Video, Câu hỏi trắc nghiệm, Doanh thu, Đánh giá).
-  * `Pages/Auth/` & `Pages/Profile/`: Các trang xác thực và quản lý tài khoản cá nhân.
 * **`Components/`**: Chứa các thành phần UI dùng chung, độc lập và có khả năng tái sử dụng (Buttons, Modals, Forms, Inputs, Cards).
 * **`Layouts/`**: Các Layout bao bọc cấu trúc chung của trang:
   * `FrontendLayout.jsx`: Dành cho giao diện khách hàng học viên (chứa Header, Footer, Thanh tìm kiếm).
