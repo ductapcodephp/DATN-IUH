@@ -1,5 +1,16 @@
 <?php
 
+use App\Http\Controllers\Frontend\Dashboard\UserVipController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VipPackageController as AdminVipPackageController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\WithdrawalController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\TopicController;
+use App\Http\Controllers\Admin\ContactController as AdminContactController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Frontend\AboutController;
 use App\Http\Controllers\Frontend\BlogController;
@@ -27,8 +38,9 @@ use App\Http\Controllers\Seller\Courses\SellerCourseController;
 use App\Http\Controllers\Seller\ProfileController;
 use App\Http\Controllers\Seller\StudentController;
 use App\Http\Controllers\Seller\SellerDashboardController;
+use App\Http\Controllers\Seller\NotificationController as SellerNotificationController;
 use App\Http\Controllers\Shared\NotificationController;
-use App\Http\Controllers\Finance\RevenueController;
+use App\Http\Controllers\Seller\RevenueController;
 use App\Http\Controllers\Seller\VipPackageController;
 use App\Http\Controllers\Frontend\CommentController;
 use Illuminate\Support\Facades\Route;
@@ -68,8 +80,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
 
         // VIP Packages for User
-        Route::get('/vip-packages', [\App\Http\Controllers\Frontend\Dashboard\UserVipController::class, 'index'])->name('vip.index');
-        Route::post('/vip-packages/buy', [\App\Http\Controllers\Frontend\Dashboard\UserVipController::class, 'buy'])->name('vip.buy');
+        Route::get('/vip-packages', [UserVipController::class, 'index'])->name('vip.index');
+        Route::post('/vip-packages/buy', [UserVipController::class, 'buy'])->name('vip.buy');
     });
 
     // SHARED FINANCE ROUTES
@@ -131,7 +143,8 @@ Route::middleware('auth')->group(function () {
         });
         // 5. QUẢN LÝ PROFILE SELLER
         Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::get('profile/notifications', [ProfileController::class, 'notifications'])->name('profile.notifications');
+        Route::get('notifications', [SellerNotificationController::class, 'index'])->name('notifications.index');
+        Route::get('profile/settings', [ProfileController::class, 'notifications'])->name('profile.notifications'); // Trang setting email notification
         Route::put('profile/info', [ProfileController::class, 'updateInfo'])->name('profile.updateInfo');
         Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
         Route::put('profile/payment', [ProfileController::class, 'updatePayment'])->name('profile.updatePayment');
@@ -162,6 +175,7 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
     Route::get('/about', [AboutController::class, 'index'])->name('about.index');
     Route::get('/faqs', [FaqController::class, 'index'])->name('faq.index');
     Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
+    Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
     // VNPAY IPN Webhook (Server-to-Server) - BẮT BUỘC ĐỂ NGOÀI AUTH VÌ VNPAY KHÔNG CÓ SESSION
     Route::get('/payment/{gateway}/ipn', [PaymentController::class, 'gatewayIpn'])->name('payment.ipn');
@@ -197,22 +211,30 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
 });
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,root'])->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/chart-data', [\App\Http\Controllers\Admin\DashboardController::class, 'getChartData'])->name('dashboard.chart-data');
-    Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users');
-    Route::post('/users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
-    Route::get('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
-    Route::get('/users/{id}/chart-data', [\App\Http\Controllers\Admin\UserController::class, 'getChartData'])->name('users.chart-data');
-    Route::post('/users/{id}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
-    Route::get('/vip-packages', [\App\Http\Controllers\Admin\VipPackageController::class, 'index'])->name('vip-packages');
-    Route::post('/vip-packages', [\App\Http\Controllers\Admin\VipPackageController::class, 'store'])->name('vip-packages.store');
-    Route::put('/vip-packages/{id}', [\App\Http\Controllers\Admin\VipPackageController::class, 'update'])->name('vip-packages.update');
-    Route::delete('/vip-packages/{id}', [\App\Http\Controllers\Admin\VipPackageController::class, 'destroy'])->name('vip-packages.destroy');
-    Route::post('/vip-packages/{id}/toggle-status', [\App\Http\Controllers\Admin\VipPackageController::class, 'toggleStatus'])->name('vip-packages.toggle-status');
-    Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings');
-    Route::get('/withdrawals', [\App\Http\Controllers\Admin\WithdrawalController::class, 'index'])->name('withdrawals');
-    Route::post('/withdrawals/{id}/approve', [\App\Http\Controllers\Admin\WithdrawalController::class, 'approve'])->name('withdrawals.approve');
-    Route::post('/withdrawals/{id}/reject', [\App\Http\Controllers\Admin\WithdrawalController::class, 'reject'])->name('withdrawals.reject');
-    Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
-    Route::get('/contacts', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('contacts');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])->name('dashboard.chart-data');
+    Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
+    Route::get('/users/{id}/chart-data', [UserController::class, 'getChartData'])->name('users.chart-data');
+    Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::get('/vip-packages', [AdminVipPackageController::class, 'index'])->name('vip-packages');
+    Route::post('/vip-packages', [AdminVipPackageController::class, 'store'])->name('vip-packages.store');
+    Route::put('/vip-packages/{id}', [AdminVipPackageController::class, 'update'])->name('vip-packages.update');
+    Route::delete('/vip-packages/{id}', [AdminVipPackageController::class, 'destroy'])->name('vip-packages.destroy');
+    Route::post('/vip-packages/{id}/toggle-status', [AdminVipPackageController::class, 'toggleStatus'])->name('vip-packages.toggle-status');
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings');
+    Route::get('/withdrawals', [WithdrawalController::class, 'index'])->name('withdrawals');
+    Route::post('/withdrawals/{id}/approve', [WithdrawalController::class, 'approve'])->name('withdrawals.approve');
+    Route::post('/withdrawals/{id}/reject', [WithdrawalController::class, 'reject'])->name('withdrawals.reject');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    Route::get('/reports/{id}', [ReportController::class, 'show'])->name('reports.show');
+    Route::post('/reports/{id}/resolve', [ReportController::class, 'resolve'])->name('reports.resolve');
+    Route::post('/reports/{id}/dismiss', [ReportController::class, 'dismiss'])->name('reports.dismiss');
+    Route::get('/contacts', [AdminContactController::class, 'index'])->name('contacts');
+    Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/topics', [TopicController::class, 'index'])->name('topics.index');
+    Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');
+    Route::put('/topics/{id}', [TopicController::class, 'update'])->name('topics.update');
+    Route::delete('/topics/{id}', [TopicController::class, 'destroy'])->name('topics.destroy');
 });
