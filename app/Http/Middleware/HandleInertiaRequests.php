@@ -26,6 +26,8 @@ class HandleInertiaRequests extends Middleware
                 'wallet' => $request->user() ? Wallet::where('user_id', $request->user()->id)->first() : null,
                 'isUserVip' => $request->user() ? $request->user()->isUserVip() : false,
                 'isSellerVip' => $request->user() ? $request->user()->isSellerVip() : false,
+                'userVipBadge' => $request->user() ? $request->user()->getUserVipBadgeText() : null,
+                'sellerVipBadge' => $request->user() ? $request->user()->getSellerVipBadgeText() : null,
                 'seller_storage_limit' => $request->user() && $request->user()->isSeller() ? $request->user()->getSellerStorageLimitBytes() : 0,
                 'seller_storage_used' => $request->user() && $request->user()->isSeller() ? $request->user()->getSellerStorageUsedBytes() : 0,
                 'wishlisted_course_ids' => $request->user()

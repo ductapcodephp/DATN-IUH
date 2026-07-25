@@ -60,7 +60,7 @@ export default function OrderDetail({ order }) {
                         </h6>
                         <div className="d-flex gap-3">
                             <img
-                                src={order?.course?.thumbnail ? `/storage/${order.course.thumbnail}` : '/assets/frontend/img/default-course.png'}
+                                src={order?.course?.thumbnail ? (order.course.thumbnail.startsWith('/') ? order.course.thumbnail : `/storage/${order.course.thumbnail}`) : '/assets/frontend/img/default-course.png'}
                                 alt={order?.course?.title}
                                 style={{ width: '120px', height: '90px', objectFit: 'cover', borderRadius: '12px', flexShrink: 0 }}
                                 onError={(e) => { e.target.src = '/assets/frontend/img/default-course.png'; }}

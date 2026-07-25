@@ -139,7 +139,7 @@ export default function Profile({ profile }) {
             {activeTab === 'info' && (
                 <div className="db-profile-box">
                     <AvatarUpload
-                        currentAvatar={profile?.avatar ? `/storage/${profile.avatar}` : null}
+                        currentAvatar={profile?.avatar ? (profile.avatar.startsWith('http') || profile.avatar.startsWith('/') ? profile.avatar : `/storage/${profile.avatar}`) : null}
                         onAvatarChange={(file) => infoForm.setData('avatar', file)}
                     />
 

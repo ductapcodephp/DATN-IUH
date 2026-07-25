@@ -4,14 +4,15 @@ import SellerLayout from '@/Layouts/Seller/SellerLayout';
 import './settings.css';
 
 export default function Settings() {
+    const { auth } = usePage().props;
     const [activeTab, setActiveTab] = useState('general');
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
 
 
     const sellerInfo = {
-        name: 'Trần Văn Demo',
-        email: 'seller@example.com',
+        name: auth?.user?.name || 'Trần Văn Demo',
+        email: auth?.user?.email || 'seller@example.com',
         phone: '0987654321',
         website: 'https://demo-academy.com',
         facebook: 'facebook.com/demo',
@@ -195,7 +196,7 @@ export default function Settings() {
                                 <h3>Tài khoản & Dung lượng</h3>
                                 <div className="vip-badge-section animated-gradient">
                                     <div className="vip-badge pulse">
-                                        <i className="fas fa-crown" style={{color: '#8B6508'}}></i> Seller VIP
+                                        <i className="fas fa-crown" style={{color: '#8B6508'}}></i> {auth?.sellerVipBadge || 'Giảng viên VIP'}
                                     </div>
                                     <div className="vip-text-wrap">
                                         <h4>Đặc quyền VIP đã kích hoạt</h4>

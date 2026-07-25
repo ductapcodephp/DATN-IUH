@@ -116,7 +116,7 @@ export default function Orders({ orders, filters }) {
                                 <div className="d-flex flex-wrap align-items-center gap-3">
                                     {/* Course Thumbnail */}
                                     <img
-                                        src={order.course?.thumbnail ? `/storage/${order.course.thumbnail}` : '/assets/frontend/img/default-course.png'}
+                                        src={order.course?.thumbnail ? (order.course.thumbnail.startsWith('/') ? order.course.thumbnail : `/storage/${order.course.thumbnail}`) : '/assets/frontend/img/default-course.png'}
                                         alt={order.course?.title}
                                         style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '10px', flexShrink: 0 }}
                                         onError={(e) => { e.target.src = '/assets/frontend/img/default-course.png'; }}

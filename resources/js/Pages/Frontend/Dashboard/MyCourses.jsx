@@ -19,7 +19,7 @@ function CourseCard({ enrollment }) {
             {/* Thumbnail */}
             <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
                 <img
-                    src={course?.thumbnail ? `/storage/${course.thumbnail}` : '/assets/frontend/img/default-course.png'}
+                    src={course?.thumbnail ? (course.thumbnail.startsWith('/') ? course.thumbnail : `/storage/${course.thumbnail}`) : '/assets/frontend/img/default-course.png'}
                     alt={course?.title}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={(e) => { e.target.src = '/assets/frontend/img/default-course.png'; }}

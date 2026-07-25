@@ -21,10 +21,10 @@ const txTypeConfig = {
 const txStatusConfig = {
     pending:   { label: 'Đang xử lý', color: '#d97706', bg: '#fef3c7' },
     completed: { label: 'Thành công',  color: '#16a34a', bg: '#dcfce7' },
-    failed:    { label: 'Thất bại',   color: '#dc2626', bg: '#fee2e2' },
+    failed:    { label: 'Đã hủy',   color: '#dc2626', bg: '#fee2e2' },
 };
 
-export default function Wallet({ wallet, transactions, filters }) {
+export default function Wallet({ wallet, transactions, onlinePayments, filters }) {
     const [activeTab, setActiveTab] = useState(filters?.activeTab ?? 'wallet_history');
 
     const [type, setType]         = useState(filters?.type ?? '');
@@ -238,6 +238,21 @@ export default function Wallet({ wallet, transactions, filters }) {
                         <i className="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử ví
                     </button>
                 </li>
+                <li className="nav-item">
+                    <button 
+                        className={`nav-link fw-semibold px-4 py-2`}
+                        onClick={() => handleTabChange('bank_history')}
+                        style={{
+                            borderRadius: '12px', 
+                            background: activeTab === 'bank_history' ? '#f5f3ff' : 'transparent',
+                            color: activeTab === 'bank_history' ? '#7c3aed' : '#6B7280',
+                            border: activeTab === 'bank_history' ? '1px solid #ddd6fe' : '1px solid transparent',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        <i className="fa-solid fa-building-columns me-2"></i>Lịch sử NH
+                    </button>
+                </li>
             </ul>
 
             {/* Transactions */}
@@ -263,7 +278,7 @@ export default function Wallet({ wallet, transactions, filters }) {
                                 <option value="">Tất cả trạng thái</option>
                                 <option value="completed">Thành công</option>
                                 <option value="pending">Đang xử lý</option>
-                                <option value="failed">Thất bại</option>
+                                <option value="failed">Đã hủy</option>
                             </select>
                             <input type="date" className="form-control form-control-sm" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ width: 'auto', borderRadius: '8px', fontSize: '0.8rem' }} />
                             <input type="date" className="form-control form-control-sm" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ width: 'auto', borderRadius: '8px', fontSize: '0.8rem' }} />
@@ -320,8 +335,13 @@ export default function Wallet({ wallet, transactions, filters }) {
                                                 </div>
                                             </div>
                                             <div className="text-end">
-                                                <div style={{ fontWeight: 800, fontSize: '1rem', color: isCredit ? '#16a34a' : '#EA580C' }}>
-                                                    {txInfo.sign}{formatCurrency(tx.amount)}
+                                                <div style={{ 
+                                                    fontWeight: 800, 
+                                                    fontSize: '1rem', 
+                                                    color: tx.status === 'completed' ? (isCredit ? '#16a34a' : '#EA580C') : (tx.status === 'pending' ? '#d97706' : '#9CA3AF'),
+                                                    textDecoration: tx.status === 'failed' ? 'line-through' : 'none'
+                                                }}>
+                                                    {tx.status === 'completed' ? txInfo.sign : ''}{formatCurrency(tx.amount)}
                                                 </div>
                                                 <div style={{
                                                     display: 'inline-block', padding: '2px 8px', borderRadius: '20px',
@@ -348,6 +368,86 @@ export default function Wallet({ wallet, transactions, filters }) {
                                                     background: page === transactions.current_page ? '#7c3aed' : '#fff',
                                                     color: page === transactions.current_page ? '#fff' : '#4B5563',
                                                     border: `1px solid ${page === transactions.current_page ? '#7c3aed' : '#e2e8f0'}`,
+                                                }}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </>
+                )}
+
+                {activeTab === 'bank_history' && (
+                    <>
+                        {(onlinePayments?.data ?? []).length === 0 ? (
+                            <div className="text-center py-5">
+                                <i className="fa-solid fa-money-check-dollar" style={{ fontSize: '2.5rem', color: '#e2e8f0', marginBottom: '12px', display: 'block' }}></i>
+                                <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Chưa có giao dịch ngân hàng nào</p>
+                            </div>
+                        ) : (
+                            <>
+                                {(onlinePayments?.data ?? []).map((tx, i) => {
+                                    const statusInfo = txStatusConfig[tx.status] ?? txStatusConfig.pending;
+                                    
+                                    return (
+                                        <div
+                                            key={`bank_${tx.id}`}
+                                            className="d-flex align-items-center justify-content-between px-4 py-3"
+                                            style={{ borderBottom: i < (onlinePayments.data.length - 1) ? '1px solid #f8fafc' : 'none' }}
+                                        >
+                                            <div className="d-flex align-items-center gap-3">
+                                                <div style={{
+                                                    width: '42px', height: '42px', borderRadius: '12px',
+                                                    background: '#ecfdf5', display: 'flex', alignItems: 'center',
+                                                    justifyContent: 'center', flexShrink: 0,
+                                                }}>
+                                                    <i className="fa-solid fa-building-columns" style={{ color: '#059669' }}></i>
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontWeight: 600, color: '#1F2937', fontSize: '0.875rem' }}>Thanh toán {tx.payment_gateway.toUpperCase()}</div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>
+                                                        {new Date(tx.created_at).toLocaleString('vi-VN')}
+                                                        <span className="ms-2 text-muted">• Mã GD: {tx.transaction_code}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="text-end">
+                                                <div style={{ 
+                                                    fontWeight: 800, 
+                                                    fontSize: '1rem', 
+                                                    color: tx.status === 'completed' ? (tx.transaction_code.startsWith('DEP_') || tx.transaction_code.startsWith('VIP_') ? '#16a34a' : '#EA580C') : (tx.status === 'pending' ? '#d97706' : '#9CA3AF'),
+                                                    textDecoration: tx.status === 'failed' ? 'line-through' : 'none'
+                                                }}>
+                                                    {tx.status === 'completed' ? (tx.transaction_code.startsWith('DEP_') ? '+' : '-') : ''}{formatCurrency(tx.amount)}
+                                                </div>
+                                                <div style={{
+                                                    display: 'inline-block', padding: '2px 8px', borderRadius: '20px',
+                                                    background: statusInfo.bg, color: statusInfo.color,
+                                                    fontSize: '0.7rem', fontWeight: 600,
+                                                }}>
+                                                    {statusInfo.label}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Pagination */}
+                                {onlinePayments?.last_page > 1 && (
+                                    <div className="d-flex justify-content-center gap-2 p-3">
+                                        {Array.from({ length: onlinePayments.last_page }, (_, i) => i + 1).map((page) => (
+                                            <button
+                                                key={page}
+                                                onClick={() => router.get(route('finance.wallet.index'), { payments_page: page, activeTab: 'bank_history' })}
+                                                className="btn btn-sm fw-semibold"
+                                                style={{
+                                                    borderRadius: '8px', minWidth: '36px',
+                                                    background: page === onlinePayments.current_page ? '#7c3aed' : '#fff',
+                                                    color: page === onlinePayments.current_page ? '#fff' : '#4B5563',
+                                                    border: `1px solid ${page === onlinePayments.current_page ? '#7c3aed' : '#e2e8f0'}`,
                                                 }}
                                             >
                                                 {page}

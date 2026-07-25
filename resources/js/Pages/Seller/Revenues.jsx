@@ -24,7 +24,7 @@ export default function Revenues({ wallet, totalWithdrawn, transactions, bankAcc
     const openModal = () => {
         if (!bankAccounts || bankAccounts.length === 0) {
             alert('Vui lòng thêm tài khoản ngân hàng trước khi rút tiền.');
-            router.visit(route('seller.bank-accounts.index'));
+            router.visit(route('finance.bank-accounts.index'));
             return;
         }
         setModalOpen(true);
@@ -108,10 +108,16 @@ export default function Revenues({ wallet, totalWithdrawn, transactions, bankAcc
                                                     </span>
                                                 </div>
                                                 <small className="text-muted d-block mt-1">{tx.description}</small>
+                                                {tx.metadata?.admin_note && (
+                                                    <small className={`d-block mt-1 p-1 bg-light ${tx.status === 'failed' ? 'text-danger' : 'text-success'} rounded`} style={{ fontSize: '0.8rem', borderLeft: `3px solid ${tx.status === 'failed' ? '#dc3545' : '#198754'}` }}>
+                                                        <i className="fa-solid fa-note-sticky me-1"></i>
+                                                        <strong>{tx.status === 'failed' ? 'Lý do từ chối:' : 'Ghi chú duyệt:'}</strong> {tx.metadata.admin_note}
+                                                    </small>
+                                                )}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <strong className={tx.source === 'online' || tx.type === 'earning' ? 'text-success' : 'text-danger'}>
-                                                    {tx.source === 'online' || tx.type === 'earning' ? '+' : '-'}{formatCurrency(tx.amount)}
+                                                <strong className={['earning', 'deposit', 'refund'].includes(tx.type) ? 'text-success' : 'text-danger'}>
+                                                    {['earning', 'deposit', 'refund'].includes(tx.type) ? '+' : '-'}{formatCurrency(tx.amount)}
                                                 </strong>
                                             </td>
                                             <td className="px-4 py-3">{formatDate(tx.created_at)}</td>

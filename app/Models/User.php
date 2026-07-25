@@ -336,6 +336,34 @@ class User extends Authenticatable
             ->exists();
     }
 
+    public function getUserVipBadgeText(): ?string
+    {
+        $activeSub = $this->vipSubscriptions()
+            ->whereHas('vipPackage', fn ($q) => $q->where('role_type', 'user'))
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->with('vipPackage')
+            ->get()
+            ->sortByDesc(fn($sub) => $sub->vipPackage->priority_level ?? 0)
+            ->first();
+            
+        return $activeSub && $activeSub->vipPackage->badge_text ? $activeSub->vipPackage->badge_text : null;
+    }
+
+    public function getSellerVipBadgeText(): ?string
+    {
+        $activeSub = $this->vipSubscriptions()
+            ->whereHas('vipPackage', fn ($q) => $q->where('role_type', 'seller'))
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->with('vipPackage')
+            ->get()
+            ->sortByDesc(fn($sub) => $sub->vipPackage->priority_level ?? 0)
+            ->first();
+            
+        return $activeSub && $activeSub->vipPackage->badge_text ? $activeSub->vipPackage->badge_text : null;
+    }
+
     public function getSellerStorageLimitBytes(): int
     {
         $activeSub = $this->vipSubscriptions()

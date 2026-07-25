@@ -69,6 +69,7 @@ class Order extends Model
         'course_id',
         'online_payment_id',
         'vip_package_id',
+        'vip_subscription_id',
         'coupon_id',
         'amount_original',
         'discount_amount',
@@ -112,6 +113,11 @@ class Order extends Model
     public function vipPackage(): BelongsTo
     {
         return $this->belongsTo(VipPackage::class);
+    }
+
+    public function vipSubscription(): BelongsTo
+    {
+        return $this->belongsTo(VipSubscription::class);
     }
 
     public function coupon(): BelongsTo

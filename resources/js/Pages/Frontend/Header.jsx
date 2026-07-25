@@ -16,6 +16,7 @@ export default function Header() {
     const getAvatarUrl = (avatarPath) => {
         if (!avatarPath) return '/assets/frontend/img/default-avatar.jpg';
         if (avatarPath.startsWith('http')) return avatarPath;
+        if (avatarPath.startsWith('/')) return avatarPath;
         return `/storage/${avatarPath}`;
     };
 
@@ -213,7 +214,7 @@ export default function Header() {
 
                             {showDropdown && (
                                 <div className="search-dropdown show position-absolute bg-white border rounded shadow-sm mt-1" style={{ top: "100%", zIndex: 1050, right: 0, width: "450px", maxWidth: "90vw", overflow: "hidden" }}>
-                                    
+
                                     {isSearching && (
                                         <div className="text-center p-3 text-muted">
                                             <i className="fa-solid fa-spinner fa-spin me-2"></i>
@@ -230,12 +231,12 @@ export default function Header() {
                                                     className="list-group-item list-group-item-action d-flex align-items-center gap-2 border-bottom-0 py-2"
                                                     onClick={() => setShowDropdown(false)}
                                                 >
-                                                    <img 
-                                                        src={getAvatarUrl(course.thumbnail)} 
-                                                        alt={course.title}
-                                                        className="rounded object-fit-cover shadow-sm"
-                                                        style={{ width: "50px", height: "50px" }}
-                                                        onError={(e) => { e.target.src = "/assets/frontend/img/default-course.png"; }}
+                                                    <img
+                                                        src={getAvatarUrl(user.avatar)}
+                                                        alt="Avatar"
+                                                        className="rounded-circle object-fit-cover"
+                                                        width="36"
+                                                        height="36"
                                                     />
                                                     <div className="d-flex flex-column overflow-hidden text-truncate w-100">
                                                         <span className="fw-medium text-truncate text-dark font-sm mb-0">{course.title}</span>
@@ -271,12 +272,18 @@ export default function Header() {
                             </Link>
 
                             {user ? (
+
                                 <div className="nav-item dropdown">
                                     <a className="nav-link dropdown-toggle d-flex align-items-center gap-2 p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <img src={getAvatarUrl(user.avatar)} alt="Avatar" className="rounded-circle object-fit-cover" width="36" height="36" />
                                         <span className="fw-semibold text-dark d-none d-md-inline-block">{user.name}</span>
                                         <div className="d-none d-md-block">
-                                            <VipBadge isUserVip={auth?.isUserVip} isSellerVip={auth?.isSellerVip} />
+                                            <VipBadge 
+                                                isUserVip={auth?.isUserVip} 
+                                                isSellerVip={auth?.isSellerVip} 
+                                                userVipBadge={auth?.userVipBadge} 
+                                                sellerVipBadge={auth?.sellerVipBadge} 
+                                            />
                                         </div>
                                     </a>
                                     <ul className="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2 p-2" aria-labelledby="userDropdown">

@@ -66,6 +66,7 @@ export default function DashboardLayout({ children, title, activeKey }) {
     const getAvatarUrl = (avatarPath) => {
         if (!avatarPath) return '/assets/frontend/img/default-avatar.jpg';
         if (avatarPath.startsWith('http')) return avatarPath;
+        if (avatarPath.startsWith('/')) return avatarPath;
         return `/storage/${avatarPath}`;
     };
 

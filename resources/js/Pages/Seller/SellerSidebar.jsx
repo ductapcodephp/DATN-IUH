@@ -45,7 +45,7 @@ export default function SellerSidebar() {
                 className={`nav-item ${route().current('seller.revenues.index') ? 'active' : ''}`}
                 href={route('seller.revenues.index')}
             >
-                <i className="fa-solid fa-money-bill-transfer"></i> Doanh thu & Rút tiền
+                <i className="fa-solid fa-money-bill-transfer"></i> Ví tiền & Quản lý rút tiền
             </Link>
 
             <Link
