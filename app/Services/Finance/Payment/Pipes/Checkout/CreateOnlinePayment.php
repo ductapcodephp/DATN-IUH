@@ -13,17 +13,13 @@ class CreateOnlinePayment
      */
     public function handle(CheckoutData $data, Closure $next)
     {
-        $data->onlinePayment = OnlinePayment::updateOrCreate(
-            [
-                'user_id' => $data->userId,
-                'status' => 'pending',
-            ],
-            [
-                'payment_gateway' => $data->gatewayName,
-                'transaction_code' => $data->transactionCode,
-                'amount' => $data->finalAmount,
-            ]
-        );
+        $data->onlinePayment = OnlinePayment::create([
+            'user_id' => $data->userId,
+            'status' => 'pending',
+            'payment_gateway' => $data->gatewayName,
+            'transaction_code' => $data->transactionCode,
+            'amount' => $data->finalAmount,
+        ]);
 
         return $next($data);
     }

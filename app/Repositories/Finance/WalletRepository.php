@@ -152,6 +152,7 @@ class WalletRepository implements WalletRepositoryInterface
                 'amount',
                 'status',
                 'description',
+                'metadata',
                 'created_at',
                 DB::raw("'wallet' as source")
             )
@@ -166,10 +167,12 @@ class WalletRepository implements WalletRepositoryInterface
                 'amount',
                 'status',
                 DB::raw("CONCAT('Thanh toán qua cổng ', payment_gateway) as description"),
+                DB::raw("NULL as metadata"),
                 'created_at',
                 DB::raw("'online' as source")
             )
-            ->where('user_id', $userId);
+            ->where('user_id', $userId)
+            ->where('status', 'completed');
 
         if (! empty($filters['date_from'])) {
             $walletQuery->whereDate('created_at', '>=', $filters['date_from']);
@@ -183,7 +186,15 @@ class WalletRepository implements WalletRepositoryInterface
         $unifiedQuery = $walletQuery->union($onlineQuery)->orderBy('created_at', 'desc');
 
         // Paginate using query builder
-        return $unifiedQuery->paginate(10);
+        $paginator = $unifiedQuery->paginate(10);
+        $paginator->getCollection()->transform(function ($item) {
+            if (isset($item->metadata) && is_string($item->metadata)) {
+                $item->metadata = json_decode($item->metadata, true);
+            }
+            return $item;
+        });
+        
+        return $paginator;
     }
 
     public function processWithdrawal(WithdrawalData $data): WalletTransaction
@@ -209,7 +220,7 @@ class WalletRepository implements WalletRepositoryInterface
             $wallet->balance -= $data->amount;
             $wallet->save();
 
-            return WalletTransaction::create([
+            $transaction = WalletTransaction::create([
                 'user_id' => $data->userId,
                 'wallet_id' => $wallet->id,
                 'type' => WalletTransaction::TYPE_WITHDRAWAL,
@@ -225,6 +236,17 @@ class WalletRepository implements WalletRepositoryInterface
                     'branch' => $bankAccount->branch,
                 ],
             ]);
+
+            \App\Models\WithdrawalRequest::create([
+                'user_id' => $data->userId,
+                'amount' => $data->amount,
+                'bank_name' => $bankAccount->bank_name,
+                'account_number' => $bankAccount->account_number,
+                'account_name' => $bankAccount->account_name,
+                'status' => 'pending',
+            ]);
+
+            return $transaction;
         });
     }
 }

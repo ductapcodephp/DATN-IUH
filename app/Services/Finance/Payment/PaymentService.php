@@ -56,7 +56,8 @@ class PaymentService
 
         if ($data->gatewayName === 'wallet') {
             // Run IPN pipeline manually to complete the order and split revenue
-            $ipnData = new IpnData($data->onlinePayment, [
+            $ipnData = new IpnData([
+                'transaction_code' => $data->transactionCode,
                 'status' => 'success',
                 'gateway_transaction_id' => 'WALLET_'.time(),
                 'raw_response' => 'Wallet internal payment',

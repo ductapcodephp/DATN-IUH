@@ -26,11 +26,17 @@ class StripeGateway implements PaymentGatewayInterface
                     'transaction_code' => $transactionCode,
                     'status' => 'success',
                 ]),
-                'cancel_url' => route('frontend.cart.index', [
-                    'gateway' => 'stripe',
-                    'transaction_code' => $transactionCode,
-                    'status' => 'failed',
-                ]),
+                'cancel_url' => str_starts_with($transactionCode, 'DEP_') || str_starts_with($transactionCode, 'VIP_')
+                    ? route('frontend.payment.return', [
+                        'gateway' => 'stripe',
+                        'transaction_code' => $transactionCode,
+                        'status' => 'failed',
+                    ])
+                    : route('frontend.cart.index', [
+                        'gateway' => 'stripe',
+                        'transaction_code' => $transactionCode,
+                        'status' => 'failed',
+                    ]),
                 'line_items' => [
                     [
                         'price_data' => [

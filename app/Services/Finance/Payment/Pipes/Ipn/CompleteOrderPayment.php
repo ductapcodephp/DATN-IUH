@@ -104,19 +104,34 @@ class CompleteOrderPayment
             if ($order->vip_package_id) {
                 $package = VipPackage::find($order->vip_package_id);
                 if ($package) {
-                    VipSubscription::where('user_id', $order->user_id)
-                        ->whereHas('vipPackage', fn ($q) => $q->where('role_type', $package->role_type)->where('package_type', $package->package_type))
-                        ->active()
-                        ->update(['status' => 'cancelled']);
+                    $query = VipSubscription::where('user_id', $order->user_id)
+                        ->whereHas('vipPackage', fn ($q) => $q->where('role_type', $package->role_type));
+                        
+                    if ($package->role_type === 'seller') {
+                        $query->whereHas('vipPackage', fn ($q) => $q->where('package_type', $package->package_type));
+                    }
+                    
+                    $activeSub = $query->active()->first();
 
-                    VipSubscription::create([
-                        'user_id' => $order->user_id,
-                        'vip_package_id' => $package->id,
-                        'order_id' => $order->id,
-                        'starts_at' => now(),
-                        'expires_at' => now()->addDays($package->duration_days),
-                        'status' => 'active',
-                    ]);
+                    if ($activeSub && $activeSub->vip_package_id == $package->id) {
+                        $activeSub->update([
+                            'expires_at' => \Carbon\Carbon::parse($activeSub->expires_at)->addDays($package->duration_days),
+                        ]);
+                        $order->update(['vip_subscription_id' => $activeSub->id]);
+                    } else {
+                        if ($activeSub) {
+                            $activeSub->update(['status' => 'cancelled']);
+                        }
+
+                        $newSub = VipSubscription::create([
+                            'user_id' => $order->user_id,
+                            'vip_package_id' => $package->id,
+                            'starts_at' => now(),
+                            'expires_at' => now()->addDays($package->duration_days),
+                            'status' => 'active',
+                        ]);
+                        $order->update(['vip_subscription_id' => $newSub->id]);
+                    }
                 }
             }
         }

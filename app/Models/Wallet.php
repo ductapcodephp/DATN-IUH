@@ -99,8 +99,9 @@ class Wallet extends Model
         return DB::transaction(function () use ($amount, $orderId, $description) {
             $lockedWallet = self::where('id', $this->id)->lockForUpdate()->first();
 
-            // Cộng vào balance_pending
+            // Cộng vào balance_pending và balance tổng
             $lockedWallet->increment('balance_pending', $amount);
+            $lockedWallet->increment('balance', $amount);
             $lockedWallet->refresh();
 
             return WalletTransaction::create([
@@ -134,10 +135,9 @@ class Wallet extends Model
             // Trừ khỏi balance_pending
             $lockedWallet->decrement('balance_pending', (float) $pendingTx->amount);
 
-            // Cộng seller_amount vào balance_available và balance chính
+            // Cộng seller_amount vào balance_available (tiền chuyển từ pending sang available nên balance tổng không đổi)
             $availableBefore = (float) $lockedWallet->fresh()->balance_available;
             $lockedWallet->increment('balance_available', $sellerAmount);
-            $lockedWallet->increment('balance', $sellerAmount);
 
             $walletAfterRelease = $lockedWallet->fresh();
 

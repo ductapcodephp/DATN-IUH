@@ -58,6 +58,7 @@ class ReleaseSellerEarnings extends Command
                 // Trừ lại pending balance của seller
                 if ($transaction->wallet) {
                     $transaction->wallet->decrement('balance_pending', $transaction->amount);
+                    $transaction->wallet->decrement('balance', $transaction->amount);
                 }
 
                 $this->warn("Đã hủy giải phóng thu nhập #{$transaction->id} vì đơn hàng đã Refund.");

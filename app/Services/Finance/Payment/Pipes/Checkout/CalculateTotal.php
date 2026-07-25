@@ -26,7 +26,7 @@ class CalculateTotal
             throw new Exception('Số tiền thanh toán không hợp lệ.');
         }
 
-        $data->transactionCode = strtoupper($data->gatewayName).'_'.time().'_'.Str::random(5);
+        $data->transactionCode = 'ORD_'.strtoupper($data->gatewayName).'_'.time().'_'.Str::random(5);
 
         return $next($data);
     }
