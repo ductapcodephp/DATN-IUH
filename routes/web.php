@@ -195,3 +195,24 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
         Route::post('/courses/{slug}/learn/lesson/{lessonId}/comments', [CommentController::class, 'addComment'])->name('course.comments.add');
  });
 });
+// Admin routes
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,root'])->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/chart-data', [\App\Http\Controllers\Admin\DashboardController::class, 'getChartData'])->name('dashboard.chart-data');
+    Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users');
+    Route::post('/users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::get('/users/{id}/chart-data', [\App\Http\Controllers\Admin\UserController::class, 'getChartData'])->name('users.chart-data');
+    Route::post('/users/{id}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::get('/vip-packages', [\App\Http\Controllers\Admin\VipPackageController::class, 'index'])->name('vip-packages');
+    Route::post('/vip-packages', [\App\Http\Controllers\Admin\VipPackageController::class, 'store'])->name('vip-packages.store');
+    Route::put('/vip-packages/{id}', [\App\Http\Controllers\Admin\VipPackageController::class, 'update'])->name('vip-packages.update');
+    Route::delete('/vip-packages/{id}', [\App\Http\Controllers\Admin\VipPackageController::class, 'destroy'])->name('vip-packages.destroy');
+    Route::post('/vip-packages/{id}/toggle-status', [\App\Http\Controllers\Admin\VipPackageController::class, 'toggleStatus'])->name('vip-packages.toggle-status');
+    Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings');
+    Route::get('/withdrawals', [\App\Http\Controllers\Admin\WithdrawalController::class, 'index'])->name('withdrawals');
+    Route::post('/withdrawals/{id}/approve', [\App\Http\Controllers\Admin\WithdrawalController::class, 'approve'])->name('withdrawals.approve');
+    Route::post('/withdrawals/{id}/reject', [\App\Http\Controllers\Admin\WithdrawalController::class, 'reject'])->name('withdrawals.reject');
+    Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
+    Route::get('/contacts', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('contacts');
+});

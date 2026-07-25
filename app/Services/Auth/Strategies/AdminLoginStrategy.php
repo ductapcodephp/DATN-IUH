@@ -11,6 +11,6 @@ class AdminLoginStrategy implements LoginStrategyInterface
     {
         Log::warning("Admin [ID: {$user->id}] đăng nhập vào lúc ".now());
 
-        return route('frontend.home');
+        return route('admin.dashboard');
     }
 }

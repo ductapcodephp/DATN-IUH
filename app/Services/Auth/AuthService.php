@@ -53,14 +53,14 @@ class AuthService
     {
         $user = User::query()->where('email', $credentials['email'])->first();
 
+        if ($user && ! $user->is_active) {
+            $this->recordLoginAttempt($credentials['email'], $context, false, 'account_disabled');
+            throw new Exception('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+        }
+
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             $this->recordLoginAttempt($credentials['email'], $context, false, 'invalid_credentials');
             throw new Exception('Thông tin đăng nhập không chính xác.');
-        }
-
-        if (! $user->is_active) {
-            $this->recordLoginAttempt($credentials['email'], $context, false, 'account_disabled');
-            throw new Exception('Tài khoản của bạn đã bị khóa.');
         }
 
         Auth::login($user, $remember);

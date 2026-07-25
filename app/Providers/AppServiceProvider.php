@@ -22,6 +22,8 @@ use App\Repositories\Shared\ReviewRepository;
 use App\Repositories\Shared\ReviewRepositoryInterface;
 use App\Repositories\User\UserRepository;
 use App\Repositories\User\UserRepositoryInterface;
+use App\Repositories\Admin\AdminDashboardRepository;
+use App\Repositories\Admin\AdminDashboardRepositoryInterface;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -62,6 +64,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             DashboardRepositoryInterface::class,
             DashboardRepository::class
+        );
+
+        $this->app->bind(
+            AdminDashboardRepositoryInterface::class,
+            AdminDashboardRepository::class
         );
     }
 
