@@ -44,7 +44,7 @@ jobs:
           docker pull ductapdevops/datn-devops:latest
           
           # 2. Tắt các container cũ đang chạy
-          docker-compose down
+          docker compose down
           
           # 3. Khởi động lại container bằng Image mới
-          docker-compose up -d
+          docker compose up -d
