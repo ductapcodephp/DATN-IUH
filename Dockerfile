@@ -20,7 +20,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Cài đặt Redis extension cho PHP
-RUN pecl install redis && docker-php-ext-enable redis
+RUN pecl channel-update pecl.php.net && pecl install redis && docker-php-ext-enable redis
 
 # Cài đặt Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
