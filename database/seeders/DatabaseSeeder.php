@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         
         $faker = Faker::create('vi_VN');
 
@@ -94,8 +94,10 @@ class DatabaseSeeder extends Seeder
             VipPackageSeeder::class,
         ]);
 
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+
         // 4. Categories
-        // Category::truncate();
+        Category::truncate();
         $categoriesData = ['Lập trình', 'Thiết kế', 'Marketing', 'Ngoại ngữ', 'Kinh doanh', 'Kỹ năng mềm'];
         $categories = [];
         foreach ($categoriesData as $index => $catName) {
@@ -203,6 +205,6 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
     }
 }
