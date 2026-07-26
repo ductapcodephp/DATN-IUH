@@ -40,9 +40,7 @@ class DatabaseSeeder extends Seeder
         
         SystemWallet::truncate();
         SystemWallet::create([
-            'balance' => 0,
-            'total_in' => 0,
-            'total_out' => 0
+            'balance' => 0
         ]);
 
         // 2. Users (Admin, Sellers, Users)
@@ -59,7 +57,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'is_active' => true,
         ]);
-        Wallet::create(['user_id' => $admin->id, 'balance' => 0, 'balance_pending' => 0, 'balance_available' => 0]);
+        Wallet::create(['user_id' => $admin->id, 'balance' => 0]);
 
         $sellers = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -72,7 +70,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
                 'is_active' => true,
             ]);
-            Wallet::create(['user_id' => $seller->id, 'balance' => 1000000, 'balance_pending' => 0, 'balance_available' => 1000000]);
+            Wallet::create(['user_id' => $seller->id, 'balance' => 1000000]);
             $sellers[] = $seller;
         }
 
@@ -87,7 +85,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
                 'is_active' => true,
             ]);
-            Wallet::create(['user_id' => $user->id, 'balance' => 500000, 'balance_pending' => 0, 'balance_available' => 500000]);
+            Wallet::create(['user_id' => $user->id, 'balance' => 500000]);
             $users[] = $user;
         }
 
@@ -176,11 +174,27 @@ class DatabaseSeeder extends Seeder
                 // Reviews for published courses
                 if ($course->status == 'published') {
                     $numReviews = rand(2, 5);
-                    for ($r = 0; $r < $numReviews; $r++) {
-                        $user = $faker->randomElement($users);
+                    $reviewUsers = collect($users)->random($numReviews);
+                    foreach ($reviewUsers as $user) {
+                        $order = Order::create([
+                            'user_id' => $user->id,
+                            'course_id' => $course->id,
+                            'amount_original' => $course->price,
+                            'amount_paid' => $course->price,
+                            'commission_rate' => 10,
+                            'status' => 'completed',
+                        ]);
+
+                        CourseEnrollment::create([
+                            'course_id' => $course->id,
+                            'student_id' => $user->id,
+                            'seller_id' => $course->seller_id,
+                        ]);
+
                         Review::create([
                             'course_id' => $course->id,
                             'user_id' => $user->id,
+                            'order_id' => $order->id,
                             'rating' => rand(4, 5),
                             'content' => $faker->sentence,
                         ]);
