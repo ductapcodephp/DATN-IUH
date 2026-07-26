@@ -2,19 +2,15 @@ version: '3.8'
 
 services:
   app:
-    # Kéo trực tiếp Image mà mày vừa push lên Hub về chạy
     image: ductapdevops/datn-devops:v1
     container_name: laravel_app
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
-      # Dùng volume 'app_code' để share file tĩnh (thư mục public) cho Nginx
       - app_code:/var/www/html
-      # Giữ lại file cấu hình PHP nếu trên server mày vẫn copy thư mục docker/ lên
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     depends_on:
-      - mysql
-      - redis
+      - redis      
     networks:
       - laravel
 
@@ -25,7 +21,6 @@ services:
     ports:
       - "8000:80"
     volumes:
-      # Nginx sẽ đọc chung thư mục 'app_code' với App để lấy các file CSS/JS/Images
       - app_code:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
@@ -33,26 +28,11 @@ services:
     networks:
       - laravel
 
-  mysql:
-    image: mysql:8.0
-    container_name: laravel_mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-root}
-      MYSQL_USER: ${DB_USERNAME:-root}
-    # Đã TẮT ports 3306:3306 để bảo mật server, Laravel vẫn gọi được qua mạng nội bộ
-    volumes:
-      - dbdata:/var/lib/mysql
-    networks:
-      - laravel
 
   redis:
     image: redis:alpine
     container_name: laravel_redis
     restart: always
-    # Đã TẮT ports 6379:6379 để tránh bị hack Redis trên server thực tế
     volumes:
       - redisdata:/data
     networks:
@@ -63,7 +43,5 @@ networks:
     driver: bridge
 
 volumes:
-  dbdata:
   redisdata:
-  # Khai báo volume mới để share code
   app_code:

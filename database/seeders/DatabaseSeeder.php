@@ -2,159 +2,193 @@
 
 namespace Database\Seeders;
 
-use App\Enums\UserRole;
+use App\Models\User;
 use App\Models\Category;
 use App\Models\Course;
-use App\Models\User;
-use App\Models\Coupon;
+use App\Models\Chapter;
+use App\Models\Lesson;
+use App\Models\Order;
+use App\Models\CourseEnrollment;
+use App\Models\Review;
+use App\Models\Wallet;
+use App\Models\VipPackage;
+use App\Models\SystemWallet;
+use App\Models\SystemSetting;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
         $faker = Faker::create('vi_VN');
 
-        // 1. TẠO DANH MỤC MẪU (Sửa lỗi thiếu category_id của khóa học)
-        $categories = collect();
-        $categoryNames = ['Lập trình Web', 'Thiết kế đồ họa', 'Marketing Online'];
-
-        foreach ($categoryNames as $name) {
-            $categories->push(Category::query()->create([
-                'name' => $name,
-                'slug' => Str::slug($name) . '-' . uniqid(),
-                'is_active' => true,
-            ]));
-        }
-
-        // 2. TẠO TÀI KHOẢN ADMIN: MANG TẤT CẢ CÁC ROLE TRONG HỆ THỐNG
-        User::query()->create([
-            'name' => 'Super Admin',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('123'),
-            'roles' => [
-                UserRole::ROOT->value,
-                UserRole::ADMIN->value,
-                UserRole::SELLER->value,
-                UserRole::USER->value
-            ],
-            'current_role' => UserRole::ROOT->value,
-            'avatar'=>'/assets/frontend/img/default-avatar.jpg',
-            'is_active' => true,
+        // 1. System Settings & Wallets
+        SystemSetting::truncate();
+        SystemSetting::create([
+            'key' => 'site_name',
+            'value' => 'Hệ thống học trực tuyến',
+        ]);
+        
+        SystemWallet::truncate();
+        SystemWallet::create([
+            'balance' => 0,
+            'total_in' => 0,
+            'total_out' => 0
         ]);
 
-        // 3. TẠO HỌC VIÊN NGẪU NHIÊN (Chỉ có role user mặc định)
-        for ($i = 0; $i < 30; $i++) {
-            User::query()->create([
+        // 2. Users (Admin, Sellers, Users)
+        User::truncate();
+        Wallet::truncate();
+        $password = Hash::make('123');
+
+        $admin = User::create([
+            'name' => 'Admin',
+            'email' => 'admin@gmail.com',
+            'password' => $password,
+            'roles' => ['admin'],
+            'current_role' => 'admin',
+            'email_verified_at' => now(),
+            'is_active' => true,
+        ]);
+        Wallet::create(['user_id' => $admin->id, 'balance' => 0, 'balance_pending' => 0, 'balance_available' => 0]);
+
+        $sellers = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $seller = User::create([
                 'name' => $faker->name,
-                'email' => $faker->unique()->safeEmail,
-                'password' => Hash::make('123'),
-                'roles' => [UserRole::USER->value],
-                'current_role' => UserRole::USER->value,
-                'avatar'=>'/assets/frontend/img/default-avatar.jpg',
+                'email' => "seller{$i}@gmail.com",
+                'password' => $password,
+                'roles' => ['seller', 'user'],
+                'current_role' => 'seller',
+                'email_verified_at' => now(),
                 'is_active' => true,
+            ]);
+            Wallet::create(['user_id' => $seller->id, 'balance' => 1000000, 'balance_pending' => 0, 'balance_available' => 1000000]);
+            $sellers[] = $seller;
+        }
+
+        $users = [];
+        for ($i = 1; $i <= 20; $i++) {
+            $user = User::create([
+                'name' => $faker->name,
+                'email' => "user{$i}@gmail.com",
+                'password' => $password,
+                'roles' => ['user'],
+                'current_role' => 'user',
+                'email_verified_at' => now(),
+                'is_active' => true,
+            ]);
+            Wallet::create(['user_id' => $user->id, 'balance' => 500000, 'balance_pending' => 0, 'balance_available' => 500000]);
+            $users[] = $user;
+        }
+
+        // 3. VIP Packages
+        $this->call([
+            VipPackageSeeder::class,
+        ]);
+
+        // 4. Categories
+        Category::truncate();
+        $categoriesData = ['Lập trình', 'Thiết kế', 'Marketing', 'Ngoại ngữ', 'Kinh doanh', 'Kỹ năng mềm'];
+        $categories = [];
+        foreach ($categoriesData as $index => $catName) {
+            $categories[] = Category::create([
+                'name' => $catName,
+                'slug' => Str::slug($catName),
+                'description' => 'Khóa học về ' . $catName,
+                'is_active' => true,
+                'sort_order' => $index,
             ]);
         }
 
-        // 4. TẠO 10 SELLER (Mỗi người mang cả 2 role: USER và SELLER)
-        for ($i = 0; $i < 10; $i++) {
-            $seller = User::query()->create([
-                'name' => $faker->name,
-                'email' => $faker->unique()->safeEmail,
-                'password' => Hash::make('123'),
-                'roles' => [UserRole::USER->value, UserRole::SELLER->value], // Đủ cả 2 quyền để switch
-                'current_role' => UserRole::SELLER->value,
-                'is_active' => true,
-            ]);
+        // 5. Courses, Chapters, Lessons
+        Course::truncate();
+        Chapter::truncate();
+        Lesson::truncate();
+        Review::truncate();
+        
+        $courses = [];
+        $levels = ['beginner', 'intermediate', 'advanced'];
+        $statuses = ['published', 'published', 'draft']; // higher chance of published
 
-            // Chuẩn bị danh sách tiêu đề khóa học thực tế
-            $courseTopics = [
-                'Lập trình Web Frontend với ReactJS và TailwindCSS',
-                'Khóa học Fullstack Laravel & VueJS Thực chiến',
-                'Mastering UI/UX Design cho người mới bắt đầu',
-                'Digital Marketing Toàn tập: Từ con số 0 đến Chuyên gia',
-                'Lập trình Python cơ bản đến phân tích dữ liệu',
-                'SEO Thực chiến: Đưa Website lên top Google nhanh chóng',
-                'Thiết kế đồ họa chuyên nghiệp với Adobe Illustrator',
-                'Xây dựng API bảo mật cao với Node.js và Express',
-                'Phát triển ứng dụng Mobile với React Native',
-                'Nghệ thuật giao tiếp và thuyết trình trước đám đông'
-            ];
-
-            // 5. TẠO 5 KHÓA HỌC CHO MỖI SELLER (Tổng 50 khóa)
-            for ($j = 0; $j < 5; $j++) {
-                $baseTitle = $faker->randomElement($courseTopics);
-                $title = $baseTitle . ' - Phần ' . rand(1, 5);
-                $isFree = $faker->boolean(20); // 20% tỷ lệ khóa học miễn phí
-                $isVip = $faker->boolean(10);  // 10% tỷ lệ khóa học VIP
-                
-                $thumbnails = [
-                    '/assets/img/course-1.jpg',
-                    '/assets/img/course-2.jpg',
-                    '/assets/img/course-3.jpg',
-                    '/assets/frontend/img/default-course.png'
-                ];
-
-                Course::query()->create([
+        foreach ($sellers as $seller) {
+            $numCourses = rand(3, 5);
+            for ($c = 0; $c < $numCourses; $c++) {
+                $category = $faker->randomElement($categories);
+                $title = 'Khóa học ' . $faker->catchPhrase;
+                $course = Course::create([
                     'seller_id' => $seller->id,
+                    'category_id' => $category->id,
                     'title' => $title,
-                    'slug' => Str::slug($title) . '-' . Str::random(5),
-                    'description' => 'Đây là khóa học tuyệt vời giúp bạn nắm vững các kiến thức cốt lõi và ứng dụng thực tế. Nội dung được biên soạn bài bản, chi tiết, phù hợp với mọi đối tượng học viên mong muốn nâng cao kỹ năng thực chiến.',
-                    'thumbnail' => $faker->randomElement($thumbnails),
-                    'price' => $isFree ? 0 : $faker->randomElement([299000, 499000, 999000]),
-                    'original_price' => $isFree ? null : $faker->randomElement([1200000, 1500000, 2000000]),
-                    'level' => $faker->randomElement(['beginner', 'intermediate', 'advanced']),
-                    'status' => 'published',
-                    'is_free' => $isFree,
-                    'total_lessons' => rand(10, 50),
-                    'total_duration_seconds' => rand(3600, 36000),
-                    'is_vip' => $isVip,
-                    'vip_expires_at' => $isVip ? now()->addDays(rand(3, 14)) : null,
-                    'requirements' => [
-                        'Máy tính có kết nối Internet ổn định',
-                        'Tinh thần tự học, kiên nhẫn và đam mê',
-                        'Không yêu cầu quá nhiều kiến thức đầu vào'
-                    ],
-                    'outcomes' => [
-                        'Nắm vững toàn bộ kiến thức từ cơ bản đến nâng cao',
-                        'Tự tin xây dựng dự án thực tế và đi làm ngay',
-                        'Có tư duy giải quyết vấn đề độc lập'
-                    ],
+                    'slug' => Str::slug($title) . '-' . uniqid(),
+                    'description' => $faker->paragraphs(3, true),
+                    'price' => rand(10, 100) * 10000,
+                    'original_price' => rand(120, 200) * 10000,
+                    'level' => $faker->randomElement($levels),
+                    'status' => $faker->randomElement($statuses),
+                    'is_free' => false,
+                    'requirements' => json_encode(['Yêu cầu 1', 'Yêu cầu 2']),
+                    'outcomes' => json_encode(['Kết quả 1', 'Kết quả 2']),
                 ]);
+                $courses[] = $course;
+
+                // Chapters
+                $numChapters = rand(3, 7);
+                $totalLessons = 0;
+                for ($ch = 1; $ch <= $numChapters; $ch++) {
+                    $chapter = Chapter::create([
+                        'course_id' => $course->id,
+                        'title' => 'Chương ' . $ch . ': ' . $faker->sentence(4),
+                        'description' => $faker->paragraph,
+                        'sort_order' => $ch,
+                        'is_published' => true,
+                    ]);
+
+                    // Lessons
+                    $numLessons = rand(2, 6);
+                    $totalLessons += $numLessons;
+                    for ($l = 1; $l <= $numLessons; $l++) {
+                        Lesson::create([
+                            'chapter_id' => $chapter->id,
+                            'course_id' => $course->id,
+                            'title' => 'Bài ' . $l . ': ' . $faker->sentence(6),
+                            'description' => $faker->paragraph,
+                            'sort_order' => $l,
+                            'type' => $faker->randomElement(['video', 'document', 'quiz_only']),
+                            'is_preview' => ($ch == 1 && $l == 1) ? true : false,
+                            'is_published' => true,
+                        ]);
+                        // Skipping Videos as requested
+                    }
+                }
+                
+                $course->update(['total_lessons' => $totalLessons]);
+                
+                // Reviews for published courses
+                if ($course->status == 'published') {
+                    $numReviews = rand(2, 5);
+                    for ($r = 0; $r < $numReviews; $r++) {
+                        $user = $faker->randomElement($users);
+                        Review::create([
+                            'course_id' => $course->id,
+                            'user_id' => $user->id,
+                            'rating' => rand(4, 5),
+                            'content' => $faker->sentence,
+                        ]);
+                    }
+                }
             }
         }
 
-        $this->call(ReviewSeeder::class);
-
-        // 6. TẠO MÃ GIẢM GIÁ MẪU
-        Coupon::query()->create([
-            'code' => 'GIAM200K',
-            'type' => 'fixed',
-            'value' => 200000,
-            'min_order_amount' => 500000,
-            'max_uses' => 100,
-            'used_count' => 0,
-            'starts_at' => now(),
-            'expires_at' => now()->addDays(30),
-            'is_active' => true,
-        ]);
-
-        Coupon::query()->create([
-            'code' => 'GIAM10PT',
-            'type' => 'percent',
-            'value' => 10,
-            'max_discount_amount' => 500000,
-            'min_order_amount' => 0,
-            'max_uses' => 50,
-            'used_count' => 0,
-            'starts_at' => now(),
-            'expires_at' => now()->addDays(30),
-            'is_active' => true,
-        ]);
-
-        $this->command->info('🎉 Gộp file thành công! Đã nạp: 3 Danh mục, 1 Siêu Admin, 30 Học viên, 10 Giảng viên đa vai trò sở hữu 50 Khóa học và 2 Mã giảm giá!');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }
