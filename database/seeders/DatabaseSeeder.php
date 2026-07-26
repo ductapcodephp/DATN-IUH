@@ -95,7 +95,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 4. Categories
-        Category::truncate();
+        // Category::truncate();
         $categoriesData = ['Lập trình', 'Thiết kế', 'Marketing', 'Ngoại ngữ', 'Kinh doanh', 'Kỹ năng mềm'];
         $categories = [];
         foreach ($categoriesData as $index => $catName) {
