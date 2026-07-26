@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main 
-
+  workflow_dispatch:
 jobs:
   # --- GIAI ĐOẠN 1: CHẠY TRÊN SERVER CỦA GITHUB ---
   build-and-push:
