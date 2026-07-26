@@ -355,8 +355,6 @@ export default function Wallet({ wallet, transactions, filters }) {
                         )}
                     </>
                 )}
-
-                )}
             </div>
 
             {/* Deposit Modal */}
