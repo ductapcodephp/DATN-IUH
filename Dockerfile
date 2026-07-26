@@ -39,7 +39,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # 3. Cài đặt thư viện Node và build frontend (Vite/Mix)
-RUN npm install && npm run build
-
+RUN npm install --legacy-peer-deps
+RUN npm run build
 # 4. Phân quyền cho Nginx/PHP-FPM có thể ghi file vào storage và cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
