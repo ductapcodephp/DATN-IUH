@@ -30,6 +30,7 @@
         "chart.js": "^4.5.1",
         "countup.js": "^2.10.1",
         "react-chartjs-2": "^5.3.1",
+        "react-is": "^19.2.8",
         "recharts": "^3.10.0",
         "sweetalert2": "^11.26.25",
         "video.js": "^8.23.9",
