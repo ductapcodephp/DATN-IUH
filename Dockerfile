@@ -22,7 +22,7 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 # Cài đặt Redis extension cho PHP
 RUN pecl channel-update pecl.php.net && pecl install redis && docker-php-ext-enable redis
 
-# Cài đặt Composer
+# Cài đặt Composer (Đã được chuyển xuống đây, trước khi thực thi composer install)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Thiết lập thư mục làm việc
@@ -32,8 +32,8 @@ WORKDIR /var/www/html
 # PHẦN THÊM MỚI DÀNH CHO CI/CD (ĐÓNG GÓI CODE)
 # ==========================================
 
-# 1. Copy toàn bộ source code từ máy vào trong Image
-COPY . .
+# 1. Copy toàn bộ source code vào container (Chỉ cần dùng 1 dòng lệnh này)
+COPY . /var/www/html
 
 # 2. Cài đặt thư viện PHP (Tối ưu hóa autoloader, bỏ các gói Dev)
 RUN composer install --no-dev --optimize-autoloader
@@ -41,5 +41,6 @@ RUN composer install --no-dev --optimize-autoloader
 # 3. Cài đặt thư viện Node và build frontend (Vite/Mix)
 RUN npm install --legacy-peer-deps
 RUN npm run build
+
 # 4. Phân quyền cho Nginx/PHP-FPM có thể ghi file vào storage và cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
