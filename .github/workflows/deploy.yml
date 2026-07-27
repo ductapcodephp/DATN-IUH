@@ -44,8 +44,14 @@ jobs:
       # Bước 2: Kéo code mới về
       - name: Checkout code (Lấy file docker-compose.yml)
         uses: actions/checkout@v4
-
+        with:
+          clean: false
       # Bước 3: Triển khai ứng dụng
+      - name: Dọn dẹp file rác nhưng giữ lại file cấu hình quan trọng
+        run: |
+          git clean -ffdx \
+            -e .env \
+            -e docker/mysql/data      
       - name: Triển khai ứng dụng (Pull & Run)
         run: |
           # 1. Kéo Image mới nhất từ Docker Hub về
