@@ -11,6 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
         // Đăng ký Middleware kiểm tra thiết bị của mình vào nhóm web ở đây
         $middleware->web(append: [
             \App\Http\Middleware\CheckDeviceSession::class,
