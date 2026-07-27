@@ -236,7 +236,7 @@ export default function Login() {
 
                     <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#3A5E77' }}>
                         Chưa có tài khoản?{' '}
-                        <Link href="/register" style={{ color: '#4285F4', fontWeight: 'bold', textDecoration: 'none' }}>
+                        <Link href={route('register')} style={{ color: '#4285F4', fontWeight: 'bold', textDecoration: 'none' }}>
                             Đăng ký ngay
                         </Link>
                     </p>

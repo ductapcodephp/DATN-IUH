@@ -21,7 +21,7 @@ export default function Dashboard() {
 
                             {/* NÚT ĐĂNG XUẤT CHUẨN BẢO MẬT BẮN REQUEST POST */}
                             <Link
-                                href="/logout"
+                                href={route('logout')}
                                 method="post"
                                 as="button"
                                 className="inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"

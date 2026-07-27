@@ -42,7 +42,7 @@ export default function Settings() {
 
                 <div className="settings-header">
                     <div className="breadcrumb">
-                        <Link href="/seller/dashboard">Dashboard</Link>
+                        <Link href={route('seller.dashboard')}>Dashboard</Link>
                         <span className="separator"><i className="fas fa-chevron-right"></i></span>
                         <span className="current">Settings</span>
                     </div>

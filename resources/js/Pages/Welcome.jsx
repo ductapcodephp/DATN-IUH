@@ -3,7 +3,7 @@ import { router, Head } from '@inertiajs/react';
 
 export default function Welcome({ auth }) {
     const handleLogout = () => {
-        router.post('/logout');
+        router.post(route('logout'));
     };
 
     return (

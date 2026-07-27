@@ -46,23 +46,23 @@ export default function Coupons({ coupons, courses }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (isEdit) {
-            put(`/seller/coupons/${editId}/update`, {
+            put(route('seller.coupons.update', editId), {
                 onSuccess: () => setShowModal(false),
             });
         } else {
-            post('/seller/coupons/store', {
+            post(route('seller.coupons.store'), {
                 onSuccess: () => setShowModal(false),
             });
         }
     };
     const handleDelete = (id) => {
         if (confirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')) {
-            router.delete(`/seller/coupons/${id}/destroy`);
+            router.delete(route('seller.coupons.destroy', id));
         }
     };
 
     const handleToggleStatus = (id) => {
-        router.patch(`/seller/coupons/${id}/toggle-status`, {}, {
+        router.patch(route('seller.coupons.toggle-status', id), {}, {
             preserveScroll: true
         });
     };
