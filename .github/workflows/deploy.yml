@@ -6,6 +6,7 @@ on:
     branches:
       - main 
   workflow_dispatch:
+
 jobs:
   # --- GIAI ĐOẠN 1: CHẠY TRÊN SERVER CỦA GITHUB ---
   build-and-push:
@@ -26,18 +27,25 @@ jobs:
         with:
           context: .
           push: true
-          # Tao dùng tag 'latest' để luôn ghi đè bản mới nhất mỗi khi push code
+          # Dùng tag 'latest' để luôn ghi đè bản mới nhất
           tags: ductapdevops/datn-devops:latest 
 
   # --- GIAI ĐOẠN 2: CHẠY TRÊN CON UBUNTU CỦA MÀY ---
   deploy:
     name: Deploy to Ubuntu Server
     needs: build-and-push # Bắt buộc phải đợi Giai đoạn 1 thành công mới chạy
-    runs-on: self-hosted  # Đây chính là thằng 'Mật vụ' (Runner) mày vừa cài
+    runs-on: self-hosted   # Thằng Self-hosted Runner trên Ubuntu
     steps:
-      - name: Checkout code (Để lấy file docker-compose.yml)
+      # Bước 1: Fix quyền trước để Checkout không bị dính Permission Denied
+      - name: Fix permissions
+        run: |
+          sudo chown -R ductapdevops:ductapdevops ${{ github.workspace }} || true
+
+      # Bước 2: Kéo code mới về
+      - name: Checkout code (Lấy file docker-compose.yml)
         uses: actions/checkout@v4
 
+      # Bước 3: Triển khai ứng dụng
       - name: Triển khai ứng dụng (Pull & Run)
         run: |
           # 1. Kéo Image mới nhất từ Docker Hub về
@@ -46,5 +54,5 @@ jobs:
           # 2. Tắt các container cũ đang chạy
           docker compose down
           
-          # 3. Khởi động lại container bằng Image mới
+          # 3. Khởi động lại container bằng Image mới ở chế độ ngầm (-d)
           docker compose up -d
