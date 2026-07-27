@@ -46,6 +46,9 @@ use App\Http\Controllers\Frontend\CommentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::get('/', function () {
+    return redirect()->route('frontend.home');
+});
 // ROUTES CHO KHÁCH (CHƯA ĐĂNG NHẬP)
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
