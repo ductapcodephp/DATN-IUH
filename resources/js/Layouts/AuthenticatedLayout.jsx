@@ -3,13 +3,19 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const { url } = usePage();
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
+
+    // Đóng menu mobile khi chuyển trang
+    useEffect(() => {
+        setShowingNavigationDropdown(false);
+    }, [url]);
 
     return (
         <div className="min-h-screen bg-gray-100">

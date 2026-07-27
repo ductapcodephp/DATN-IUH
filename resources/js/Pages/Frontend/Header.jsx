@@ -27,6 +27,8 @@ export default function Header() {
         return url.startsWith(`/tech-education${path}`);
     };
 
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -61,6 +63,22 @@ export default function Header() {
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery]);
 
+    // Đóng menu mobile khi chuyển trang (URL thay đổi)
+    useEffect(() => {
+        setIsMobileMenuOpen(false); // Dùng state React để đóng
+
+        // Đóng các dropdown nếu đang mở
+        const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+        dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show');
+            const toggle = dropdown.previousElementSibling;
+            if (toggle) {
+                toggle.classList.remove('show');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }, [url]);
+
     const handleSearchSubmit = (e) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
             setShowDropdown(false);
@@ -79,17 +97,16 @@ export default function Header() {
                 <button
                     className="navbar-toggler"
                     type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mainNavbar"
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     aria-controls="mainNavbar"
-                    aria-expanded="false"
+                    aria-expanded={isMobileMenuOpen ? "true" : "false"}
                     aria-label="Mở menu điều hướng"
                 >
                     <i className="fa-solid fa-bars fs-4"></i>
                 </button>
 
 
-                <div className="collapse navbar-collapse" id="mainNavbar">
+                <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} id="mainNavbar">
 
                     <ul className="navbar-nav main-nav mb-3 mb-lg-0 gap-lg-3">
 
