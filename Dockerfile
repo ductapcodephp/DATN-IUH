@@ -28,9 +28,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Thiết lập thư mục làm việc
 WORKDIR /var/www/html
 
-# ==========================================
-# PHẦN THÊM MỚI DÀNH CHO CI/CD (ĐÓNG GÓI CODE)
-# ==========================================
 
 # 1. Copy toàn bộ source code vào container (Chỉ cần dùng 1 dòng lệnh này)
 COPY . /var/www/html
