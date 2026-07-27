@@ -45,4 +45,5 @@ networks:
 
 volumes:
   redisdata:
-  app_public: 
+  app_public:
+  app_storage:
