@@ -17,18 +17,23 @@ export default function Login() {
         const morphScript = document.createElement('script');
         morphScript.src = "https://assets.codepen.io/16327/MorphSVGPlugin3.min.js";
         morphScript.async = true;
-        document.body.appendChild(morphScript);
 
         const yetiScript = document.createElement('script');
         yetiScript.src = "/assets/login/js/login.js";
         yetiScript.async = true;
 
+        // Chờ GSAP load xong thì load MorphSVGPlugin
         gsapScript.onload = () => {
+            document.body.appendChild(morphScript);
+        };
+
+        // Chờ MorphSVGPlugin load xong thì mới load file login.js
+        morphScript.onload = () => {
             document.body.appendChild(yetiScript);
         };
 
         return () => {
-            document.body.removeChild(gsapScript);
+            if (document.body.contains(gsapScript)) document.body.removeChild(gsapScript);
             if (document.body.contains(morphScript)) document.body.removeChild(morphScript);
             if (document.body.contains(yetiScript)) document.body.removeChild(yetiScript);
         };
