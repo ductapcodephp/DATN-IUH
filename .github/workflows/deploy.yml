@@ -1,6 +1,5 @@
 name: CI/CD Pipeline cho Laravel
 
-# Kịch bản này sẽ tự động chạy mỗi khi mày push code lên nhánh 'main'
 on:
   push:
     branches:
@@ -27,26 +26,22 @@ jobs:
         with:
           context: .
           push: true
-          # Dùng tag 'latest' để luôn ghi đè bản mới nhất
           tags: ductapdevops/datn-devops:latest 
 
-  # --- GIAI ĐOẠN 2: CHẠY TRÊN CON UBUNTU CỦA MÀY ---
+  # --- GIAI ĐOẠN 2: CHẠY TRÊN SERVER UNBUTU ---
   deploy:
     name: Deploy to Ubuntu Server
-    needs: build-and-push # Bắt buộc phải đợi Giai đoạn 1 thành công mới chạy
-    runs-on: self-hosted   # Thằng Self-hosted Runner trên Ubuntu
+    needs: build-and-push 
+    runs-on: self-hosted   
     steps:
-      # Bước 1: Fix quyền trước để Checkout không bị dính Permission Denied
       - name: Fix permissions
         run: |
           sudo chown -R ductapdevops:ductapdevops ${{ github.workspace }} || true
 
-      # Bước 2: Kéo code mới về
       - name: Checkout code (Lấy file docker-compose.yml)
         uses: actions/checkout@v4
         with:
           clean: false
-      # Bước 3: Triển khai ứng dụng
       - name: Dọn dẹp file rác nhưng giữ lại file cấu hình quan trọng
         run: |
           git clean -ffdx \
@@ -54,11 +49,8 @@ jobs:
             -e docker/mysql/data      
       - name: Triển khai ứng dụng (Pull & Run)
         run: |
-          # 1. Kéo Image mới nhất từ Docker Hub về
           docker pull ductapdevops/datn-devops:latest
           
-          # 2. Tắt các container cũ đang chạy
           docker compose down
           
-          # 3. Khởi động lại container bằng Image mới ở chế độ ngầm (-d)
           docker compose up -d
