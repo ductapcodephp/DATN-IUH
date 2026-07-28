@@ -26,6 +26,10 @@ use App\Repositories\Admin\AdminDashboardRepository;
 use App\Repositories\Admin\AdminDashboardRepositoryInterface;
 use App\Repositories\Shared\NotificationRepository;
 use App\Repositories\Shared\NotificationRepositoryInterface;
+use App\Repositories\CMS\Page\PageRepository;
+use App\Repositories\CMS\Page\PageRepositoryInterface;
+use App\Repositories\CMS\Block\BlockRepository;
+use App\Repositories\CMS\Block\BlockRepositoryInterface;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -96,6 +100,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             NotificationRepositoryInterface::class,
             NotificationRepository::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\CMS\Page\PageRepositoryInterface::class,
+            \App\Repositories\CMS\Page\PageRepository::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\CMS\Block\BlockRepositoryInterface::class,
+            \App\Repositories\CMS\Block\BlockRepository::class
         );
     }
 

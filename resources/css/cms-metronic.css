@@ -1,0 +1,323 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f5f8fa;
+    color: #3f4254;
+    margin: 0;
+}
+
+.cms-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.cms-sidebar {
+    width: 265px;
+    background-color: #1e1e2d;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.cms-sidebar-header {
+    height: 75px;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.cms-sidebar-logo {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+}
+
+.cms-sidebar-logo span {
+    color: #009ef7;
+}
+
+.cms-sidebar-menu {
+    padding: 20px 0;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.cms-menu-heading {
+    color: #494b74;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin: 10px 25px 5px 25px;
+}
+
+.cms-nav-item {
+    margin: 0 15px 2px 15px;
+}
+
+.cms-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    color: #9899ac;
+    text-decoration: none;
+    border-radius: 0.475rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.cms-nav-link:hover, .cms-nav-link.active {
+    background-color: #1b1b28;
+    color: #ffffff;
+}
+
+.cms-nav-link.active .cms-nav-icon,
+.cms-nav-link:hover .cms-nav-icon {
+    color: #009ef7;
+}
+
+.cms-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    margin-right: 10px;
+    color: #494b74;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+/* Header */
+.cms-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cms-header {
+    height: 75px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    border-bottom: 1px solid #eff2f5;
+}
+
+.cms-page-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #181c32;
+    margin: 0;
+}
+
+/* Content */
+.cms-content {
+    padding: 30px;
+    flex-grow: 1;
+}
+
+/* Cards */
+.metronic-card {
+    background-color: #ffffff;
+    border-radius: 0.65rem;
+    box-shadow: 0px 0px 20px 0px rgba(76, 87, 125, 0.02);
+    border: 0;
+    margin-bottom: 30px;
+}
+
+.metronic-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2.25rem;
+    border-bottom: 1px solid #eff2f5;
+}
+
+.metronic-card-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #181c32;
+    margin: 0;
+}
+
+.metronic-card-body {
+    padding: 2rem 2.25rem;
+}
+
+/* Table */
+.metronic-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.metronic-table th {
+    color: #a1a5b7;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    padding: 1rem 0.75rem;
+    border-bottom: 1px dashed #eff2f5;
+    text-align: left;
+}
+
+.metronic-table td {
+    padding: 1.25rem 0.75rem;
+    color: #3f4254;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-bottom: 1px dashed #eff2f5;
+    vertical-align: middle;
+}
+
+.metronic-table tr:last-child td {
+    border-bottom: 0;
+}
+
+/* Buttons */
+.btn-metronic-primary {
+    background-color: #009ef7;
+    color: #ffffff;
+    border: 0;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.475rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-metronic-primary:hover {
+    background-color: #008be1;
+    color: #ffffff;
+}
+
+.btn-metronic-light {
+    background-color: #f5f8fa;
+    color: #7e8299;
+    border: 0;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.475rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-metronic-light:hover {
+    background-color: #e4e6ef;
+    color: #3f4254;
+}
+
+.btn-metronic-icon {
+    background-color: #f5f8fa;
+    color: #7e8299;
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.475rem;
+    transition: all 0.3s;
+    text-decoration: none;
+    border: none;
+}
+
+.btn-metronic-icon:hover {
+    background-color: #e4e6ef;
+    color: #009ef7;
+}
+
+/* Inputs */
+.metronic-input {
+    background-color: #f5f8fa;
+    border: 1px solid #f5f8fa;
+    color: #5e6278;
+    border-radius: 0.475rem;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    width: 100%;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.metronic-input:focus {
+    background-color: #eff2f5;
+    border-color: #eff2f5;
+    outline: 0;
+    color: #3f4254;
+}
+
+.metronic-label {
+    font-weight: 600;
+    color: #3f4254;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.metronic-required {
+    color: #f1416c;
+}
+
+/* Badges */
+.metronic-badge {
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.475rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+.metronic-badge-light-primary {
+    background-color: #e1f0ff;
+    color: #009ef7;
+}
+.metronic-badge-light-success {
+    background-color: #e8fff3;
+    color: #50cd89;
+}
+
+/* Tabs */
+.metronic-nav-tabs {
+    display: flex;
+    border-bottom: 1px solid #eff2f5;
+    gap: 2rem;
+}
+
+.metronic-nav-link {
+    background: transparent;
+    border: 0;
+    padding: 1rem 0;
+    color: #a1a5b7;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.metronic-nav-link:hover {
+    color: #009ef7;
+}
+
+.metronic-nav-link.active {
+    color: #009ef7;
+    border-bottom-color: #009ef7;
+}

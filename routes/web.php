@@ -267,3 +267,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,root'])-
     Route::put('/topics/{id}', [TopicController::class, 'update'])->name('topics.update');
     Route::delete('/topics/{id}', [TopicController::class, 'destroy'])->name('topics.destroy');
 });
+
+// CMS Routes
+Route::prefix('cms')->name('cms.')->group(function () {
+    Route::resource('page', \App\Http\Controllers\CMS\PageController::class);
+    
+    // Block Routes
+    Route::get('page/{page}/blocks', [\App\Http\Controllers\CMS\BlockController::class, 'index'])->name('block.index');
+    Route::post('page/{page}/blocks', [\App\Http\Controllers\CMS\BlockController::class, 'store'])->name('block.store');
+    Route::put('blocks/{block}', [\App\Http\Controllers\CMS\BlockController::class, 'update'])->name('block.update');
+    Route::delete('blocks/{block}', [\App\Http\Controllers\CMS\BlockController::class, 'destroy'])->name('block.destroy');
+    Route::post('blocks/reorder', [\App\Http\Controllers\CMS\BlockController::class, 'reorder'])->name('block.reorder');
+});
