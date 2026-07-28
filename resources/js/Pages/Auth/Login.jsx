@@ -22,12 +22,10 @@ export default function Login() {
         yetiScript.src = "/assets/login/js/login.js";
         yetiScript.async = true;
 
-        // Chờ GSAP load xong thì load MorphSVGPlugin
         gsapScript.onload = () => {
             document.body.appendChild(morphScript);
         };
 
-        // Chờ MorphSVGPlugin load xong thì mới load file login.js
         morphScript.onload = () => {
             document.body.appendChild(yetiScript);
         };
