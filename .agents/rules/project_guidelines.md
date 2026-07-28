@@ -27,7 +27,7 @@ Dự án EduFlow là một ứng dụng Web tích hợp kiểu **Monolith hiện
 * **`routes/`**:
   * `web.php`: Khai báo toàn bộ định tuyến giao diện người dùng và Admin/Seller. Nhóm Front-end (khách) nằm trong prefix `/tech-education`, nhóm Seller nằm trong prefix `/seller` (bảo vệ bởi `role:seller,admin,root`).
 * **Quy tắc Coding Standard (Chuẩn viết code)**:
-  * **Import Namespace (use)**: Bắt buộc phải import TẤT CẢ các class/interface bằng từ khóa `use` ở đầu file (ví dụ: `use App\Models\User;`, `use Illuminate\Http\Request;`). TUYỆT ĐỐI KHÔNG được viết full namespace (chứa dấu `\`) trực tiếp bên trong các hàm/phương thức. Mọi thứ có dấu `\` như `\Illuminate\...` hay `\App\...` đều phải đưa lên đầu file. Ví dụ: KHÔNG ĐƯỢC viết `public function store(\Illuminate\Http\Request $request)`, mà phải `use` ở đầu và gọi `public function store(Request $request)`.
+  * **Import Namespace (use)**: Bắt buộc phải import TẤT CẢ các class/interface bằng từ khóa `use` ở đầu file. Không được để full đường dẫn namespace (chứa dấu `\`) trực tiếp bên trong các class, hàm/phương thức, mảng, hay định tuyến (routes) **trừ khi bắt buộc**. **Bất kể cái gì, kể cả khi nó không bắt đầu từ App (ví dụ \Illuminate\..., \Exception...), cũng phải use lên đầu file**. Ví dụ: KHÔNG ĐƯỢC viết `public function store(\Illuminate\Http\Request $request)` hay `Route::get('/', [\App\Http\Controllers\Admin\AdminSellerController::class, 'index'])`, mà phải `use` ở đầu và gọi `public function store(Request $request)` và `[AdminSellerController::class, 'index']`.
 
 ### 1.2. Cấu trúc Frontend (`resources/js/`)
 Toàn bộ mã nguồn Frontend nằm trực tiếp trong thư mục `resources/js/` của dự án Laravel:
@@ -149,6 +149,7 @@ Hệ thống sử dụng các biến CSS (`:root`) thống nhất tại `resourc
 * **Quy tắc về Git**: **TUYỆT ĐỐI KHÔNG** tự ý chạy các lệnh `git commit`, `git push` hoặc tự động triển khai mã lên Github. Chỉ được thực hiện commit/push khi sếp đưa ra yêu cầu rõ ràng bằng lời nói (Ví dụ: *"commit và push code lên github cho tao"*).
 * **Định dạng file trả về**: Khi sửa đổi hoặc hoàn thành các chức năng, hãy liệt kê danh sách các tệp đã cập nhật ở cuối phản hồi. Mỗi tệp phải là một liên kết click được theo định dạng: `[tên_file.ext](file:///C:/VsCode/DATN/backend-api/...)` (sử dụng đường dẫn tuyệt đối với dấu gạch chéo `/`).
 * **Không để lại mã giả lập (No placeholders)**: Khi viết code, luôn hoàn thành các hàm và giao diện đầy đủ chức năng, không viết mã mẫu bị cắt xén, không để lại comment `// TO-DO: implement later` trừ khi có hướng dẫn cụ thể.
+* **Quy tắc về file cấu hình hệ thống**: TUYỆT ĐỐI KHÔNG được tự ý chỉnh sửa các tệp `.github/workflows/deploy.yml`, `docker-compose unbutu.yml`, và `Dockerfile` trừ khi có yêu cầu rõ ràng, cụ thể từ sếp. (Được phép chỉnh sửa `docker-compose.yml`).
 
 ---
 
