@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Finance;
 
+use Exception;
 use App\Models\OnlinePayment;
 
 use App\DTO\Finance\WithdrawalData;
@@ -137,7 +138,7 @@ class WalletController extends Controller
             $this->walletService->processWithdrawal($withdrawalData);
 
             return back()->with('success', 'Yêu cầu rút tiền đã được tạo thành công và đang chờ duyệt.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return back()->withErrors(['amount' => $e->getMessage()]);
         }
     }

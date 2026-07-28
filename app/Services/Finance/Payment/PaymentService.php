@@ -2,9 +2,10 @@
 
 namespace App\Services\Finance\Payment;
 
+use Illuminate\Support\Facades\Log;
 use App\DTO\Payment\CheckoutData;
 use App\DTO\Payment\IpnData;
-use App\Exceptions\PaymentException;
+use AppExceptions\PaymentException;
 use App\Models\OnlinePayment;
 use App\Models\Wallet;
 use App\Services\Finance\Payment\Pipes\Checkout\ApplyCoupons;
@@ -115,10 +116,10 @@ class PaymentService
                 $ipnDto = IpnData::fromCallback($callbackData);
                 $this->handleGatewayIpn($gatewayName, $ipnDto);
             } catch (PaymentException $e) {
-                \Log::error('Payment Exception in Return: '.$e->getMessage());
+                Log::error('Payment Exception in Return: '.$e->getMessage());
                 throw $e;
             } catch (Exception $e) {
-                \Log::error('Exception in Return: '.$e->getMessage());
+                Log::error('Exception in Return: '.$e->getMessage());
                 throw $e;
             }
         }

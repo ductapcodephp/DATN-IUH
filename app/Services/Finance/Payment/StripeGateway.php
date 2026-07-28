@@ -2,6 +2,7 @@
 
 namespace App\Services\Finance\Payment;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -12,7 +13,7 @@ class StripeGateway implements PaymentGatewayInterface
         $secretKey = env('STRIPE_SECRET');
 
         if (empty($secretKey)) {
-            throw new \Exception('Chưa cấu hình STRIPE_SECRET trong file .env');
+            throw new Exception('Chưa cấu hình STRIPE_SECRET trong file .env');
         }
 
         $response = Http::withToken($secretKey)
@@ -55,7 +56,7 @@ class StripeGateway implements PaymentGatewayInterface
             return $response->json('url');
         }
 
-        throw new \Exception('Lỗi tạo link thanh toán Stripe: '.$response->body());
+        throw new Exception('Lỗi tạo link thanh toán Stripe: '.$response->body());
     }
 
     public function handleCallback(Request $request): array

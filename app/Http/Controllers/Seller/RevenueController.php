@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Seller;
 
+use Exception;
 use App\Models\WithdrawalRequest;
 use App\Models\SystemSetting;
 use App\Models\User;
@@ -71,7 +72,7 @@ class RevenueController extends Controller
             }
 
             return back()->with('success', 'Ğã g?i yêu c?u rút ti?n thành công. Admin s? duy?t trong vòng 24h.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }

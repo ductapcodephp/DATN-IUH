@@ -2,6 +2,7 @@
 
 namespace App\Services\Finance\Payment\Pipes\Ipn;
 
+use Carbon\Carbon;
 use App\DTO\Payment\IpnData;
 use App\Events\PaymentCompleted;
 use App\Models\CourseEnrollment;
@@ -115,7 +116,7 @@ class CompleteOrderPayment
 
                     if ($activeSub && $activeSub->vip_package_id == $package->id) {
                         $activeSub->update([
-                            'expires_at' => \Carbon\Carbon::parse($activeSub->expires_at)->addDays($package->duration_days),
+                            'expires_at' => Carbon::parse($activeSub->expires_at)->addDays($package->duration_days),
                         ]);
                         $order->update(['vip_subscription_id' => $activeSub->id]);
                     } else {

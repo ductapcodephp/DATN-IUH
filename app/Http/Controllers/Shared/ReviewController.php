@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Shared;
 
+use App\Models\Report;
+use App\Models\SystemSetting;
+use App\Models\User;
+use App\Enums\UserRole;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\Admin\NewReportNotification;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Review;
@@ -134,17 +140,17 @@ class ReviewController extends Controller
 
         $this->reviewService->updateReview($review->id, ['is_reported' => true]);
 
-        $report = \App\Models\Report::create([
+        $report = Report::create([
             'reporter_id' => auth()->id(),
-            'reportable_type' => \App\Models\Review::class,
+            'reportable_type' => Review::class,
             'reportable_id' => $review->id,
             'reason' => $request->input('reason', 'Vi ph?m ti�u chu?n c?ng d?ng'),
             'status' => 'pending',
         ]);
 
-        if (\App\Models\SystemSetting::where('key', 'notify_new_report')->value('value') == '1') {
-            $admins = \App\Models\User::whereIn('current_role', [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::ROOT])->get();
-            \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\Admin\NewReportNotification($report));
+        if (SystemSetting::where('key', 'notify_new_report')->value('value') == '1') {
+            $admins = User::whereIn('current_role', [UserRole::ADMIN, UserRole::ROOT])->get();
+            Notification::send($admins, new NewReportNotification($report));
         }
 
         return back()->with('success', 'Đã báo cáo vi phạm lên Ban Quản trị.');

@@ -2,6 +2,7 @@
 
 namespace App\Services\Finance\Payment;
 
+use Exception;
 use App\Models\CourseEnrollment;
 use App\Models\CourseProgress;
 use App\Models\Order;
@@ -98,7 +99,7 @@ class RefundService
     {
         $eligibility = $this->checkRefundEligibility($order, $user);
         if (! $eligibility['status']) {
-            throw new \Exception($eligibility['message']);
+            throw new Exception($eligibility['message']);
         }
 
         return DB::transaction(function () use ($order, $user) {
@@ -124,7 +125,7 @@ class RefundService
                     'REFUND_'.$order->id
                 );
             } else {
-                throw new \Exception('Không tìm thấy ví của học viên để hoàn tiền.');
+                throw new Exception('Không tìm thấy ví của học viên để hoàn tiền.');
             }
 
             // Trừ tiền khỏi ví hệ thống (do đã hoàn lại cho khách)

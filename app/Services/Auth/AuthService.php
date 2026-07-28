@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Auth;
 
+use Illuminate\Support\Str;
 use App\Enums\UserRole;
 use App\Models\LoginAttempt;
 use App\Models\RefreshToken;
@@ -104,5 +105,41 @@ class AuthService
             'successful' => $successful,
             'failure_reason' => $reason,
         ]);
+    }
+
+    /**
+     * Xử lý nghiệp vụ đăng nhập với Google
+     */
+    public function handleGoogleUser($googleUser): User
+    {
+        return DB::transaction(function () use ($googleUser) {
+            $user = User::query()->where('google_id', $googleUser->id)->first();
+            if ($user) {
+                return $user;
+            }
+
+            // Check if email already exists
+            $userByEmail = User::query()->where('email', $googleUser->email)->first();
+            if ($userByEmail) {
+                // Link google account to existing user
+                $userByEmail->update([
+                    'google_id' => $googleUser->id,
+                    'avatar' => $userByEmail->avatar ?? $googleUser->avatar,
+                ]);
+                return $userByEmail;
+            }
+
+            // Create new user
+            return User::query()->create([
+                'name' => $googleUser->name,
+                'email' => $googleUser->email,
+                'password' => Hash::make(Str::random(24)),
+                'google_id' => $googleUser->id,
+                'avatar' => $googleUser->avatar,
+                'roles' => [UserRole::USER->value],
+                'current_role' => UserRole::USER,
+                'is_active' => true,
+            ]);
+        });
     }
 }

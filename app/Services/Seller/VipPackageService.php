@@ -2,6 +2,7 @@
 
 namespace App\Services\Seller;
 
+use Exception;
 use App\Repositories\Seller\VipPackage\VipPackageRepositoryInterface;
 use App\DTO\Seller\VipPackage\BuyVipData;
 use App\Models\WalletTransaction;
@@ -33,7 +34,7 @@ class VipPackageService
         if ($data->paymentMethod === 'wallet') {
             $wallet = $this->repository->findWalletByUserId($userId);
             if (!$wallet || $wallet->balance_available < $package->price) {
-                throw new \Exception('S? du ví không d? d? mua gói VIP này.');
+                throw new Exception('S? du ví không d? d? mua gói VIP này.');
             }
 
             $order = $this->repository->createOrder([

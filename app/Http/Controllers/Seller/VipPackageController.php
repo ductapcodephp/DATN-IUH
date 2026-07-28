@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Seller;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\DTO\Seller\VipPackage\BuyVipData;
 use App\Services\Seller\VipPackageService;
@@ -40,7 +41,7 @@ class VipPackageController extends Controller
             }
 
             return Inertia::location($result['url']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }

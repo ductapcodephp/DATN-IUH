@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Frontend\Dashboard;
 
+use Exception;
 use App\Repositories\Frontend\Dashboard\ProfileRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 
@@ -38,7 +39,7 @@ class ProfileService
     {
         $user = $this->profileRepository->getProfile($userId);
         if (! Hash::check($currentPassword, $user->password)) {
-            throw new \Exception('Mật khẩu hiện tại không chính xác.');
+            throw new Exception('Mật khẩu hiện tại không chính xác.');
         }
 
         return $this->profileRepository->updatePassword($userId, Hash::make($newPassword));

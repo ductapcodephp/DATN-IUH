@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Frontend\Dashboard;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Frontend\Dashboard\ChangePasswordRequest;
 use App\Http\Requests\Frontend\Dashboard\UpdateProfileRequest;
@@ -63,7 +64,7 @@ class ProfileController extends Controller
             );
 
             return back()->with('success', 'Đã đổi mật khẩu thành công!');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return back()->withErrors(['current_password' => $e->getMessage()]);
         }
     }
