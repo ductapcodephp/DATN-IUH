@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -107,6 +108,33 @@ class AuthController extends Controller
         Cookie::queue(Cookie::forget('refresh_token'));
 
         return redirect()->route('login')->with('success', 'Đăng xuất thành công!');
+    }
+
+    public function redirectToGoogle(): RedirectResponse
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback(Request $request): RedirectResponse
+    {
+        $context = $this->extractRequestContext($request);
+
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            $user = $this->authService->handleGoogleUser($googleUser);
+
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            UserLoggedIn::dispatch($user, $context);
+
+            return redirect()->intended(route($user->redirectRoute()))->with('success', 'Đăng nhập bằng Google thành công!');
+        } catch (Exception $e) {
+            Log::error('Google Login Error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return redirect()->route('login')->withErrors(['email' => 'Đăng nhập Google thất bại. Vui lòng thử lại.']);
+        }
     }
 
     /**

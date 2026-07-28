@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\WithdrawalController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TopicController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
+use App\Http\Controllers\Admin\AdminSellerController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 
 use App\Http\Controllers\Auth\AuthController;
@@ -43,18 +44,29 @@ use App\Http\Controllers\Shared\NotificationController;
 use App\Http\Controllers\Seller\RevenueController;
 use App\Http\Controllers\Seller\VipPackageController;
 use App\Http\Controllers\Frontend\CommentController;
+use App\Http\Controllers\Seller\SellerProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::get('', function () {
+    return redirect()->route('frontend.home');
+});
 Route::get('/', function () {
+    return redirect()->route('frontend.home');
+});
+Route::get('/home', function () {
     return redirect()->route('frontend.home');
 });
 // ROUTES CHO KHÁCH (CHƯA ĐĂNG NHẬP)
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:3,60');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+
+    // Google Auth Routes
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 });
 
 // ROUTES YÊU CẦU ĐĂNG NHẬP (AUTH)
@@ -87,6 +99,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/vip-packages/buy', [UserVipController::class, 'buy'])->name('vip.buy');
     });
 
+    // Seller Application
+    Route::prefix('apply-seller')->name('apply-seller.')->group(function () {
+        Route::get('/', [SellerProfileController::class, 'showApplyForm'])->name('show');
+        Route::post('/', [SellerProfileController::class, 'apply'])->name('submit')->middleware('throttle:3,1');
+    });
+
     // SHARED FINANCE ROUTES
     Route::prefix('finance')->name('finance.')->middleware('auth')->group(function () {
         Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
@@ -96,7 +114,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/bank-accounts/{bankAccountId}', [WalletController::class, 'deleteBankAccount'])->name('bank-accounts.destroy');
         Route::patch('/bank-accounts/{bankAccountId}/set-default', [WalletController::class, 'setDefaultBankAccount'])->name('bank-accounts.set-default');
         Route::post('/wallet/activate', [WalletController::class, 'activate'])->name('wallet.activate');
-        Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
+        Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw')->middleware('throttle:2,10');
     });
 
     // SELLER ROUTES
@@ -154,7 +172,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
         Route::get('revenues', [RevenueController::class, 'index'])->name('revenues.index');
-        Route::post('revenues/withdraw', [RevenueController::class, 'withdraw'])->name('revenues.withdraw');
+        Route::post('revenues/withdraw', [RevenueController::class, 'withdraw'])->name('revenues.withdraw')->middleware('throttle:2,10');
         Route::get('courses/{course}/reviews', [ReviewController::class, 'index'])->name('courses.reviews.index');
         Route::patch('reviews/{review}/report', [ReviewController::class, 'report'])->name('reviews.report');
         Route::post('reviews/{review}/reply', [ReviewController::class, 'reply'])->name('reviews.reply');
@@ -169,7 +187,7 @@ Route::middleware('auth')->group(function () {
 });
 Route::prefix('tech-education')->name('frontend.')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
-    Route::get('/courses/search-suggestions', [CourseController::class, 'searchSuggestions'])->name('course.search-suggestions');
+    Route::get('/courses/search-suggestions', [CourseController::class, 'searchSuggestions'])->name('course.search-suggestions')->middleware('throttle:60,1');
     Route::get('/courses', [CourseController::class, 'index'])->name('course.index');
     Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('course.detail');
     Route::get('/instructors', [InstructorController::class, 'index'])->name('instructor.index');
@@ -178,7 +196,7 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
     Route::get('/about', [AboutController::class, 'index'])->name('about.index');
     Route::get('/faqs', [FaqController::class, 'index'])->name('faq.index');
     Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
-    Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+    Route::post('/contact', [ContactController::class, 'store'])->name('contact.store')->middleware('throttle:3,10');
 
     // VNPAY IPN Webhook (Server-to-Server) - BẮT BUỘC ĐỂ NGOÀI AUTH VÌ VNPAY KHÔNG CÓ SESSION
     Route::get('/payment/{gateway}/ipn', [PaymentController::class, 'gatewayIpn'])->name('payment.ipn');
@@ -186,17 +204,17 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
     // Cart routes (Requires Authentication)
     Route::middleware('auth')->group(function () {
         Route::post('/courses/{slug}/enroll-free', [CourseController::class, 'enrollFreeCourse'])->name('course.enroll-free');
-        Route::post('/courses/{slug}/review', [ReviewController::class, 'submitReview'])->name('course.review');
+        Route::post('/courses/{slug}/review', [ReviewController::class, 'submitReview'])->name('course.review')->middleware('throttle:15,1');
         Route::put('/courses/reviews/{review}', [ReviewController::class, 'updateReview'])->name('course.review.update');
         Route::delete('/courses/reviews/{review}', [ReviewController::class, 'deleteReview'])->name('course.review.delete');
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
-        Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
+        Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process')->middleware('throttle:5,1');
         Route::post('/wallet/deposit', [PaymentController::class, 'deposit'])->name('wallet.deposit');
         Route::post('/payment/retry/{id}', [PaymentController::class, 'retry'])->name('payment.retry');
         Route::get('/payment/{gateway}/return', [PaymentController::class, 'gatewayReturn'])->name('payment.return');
-        Route::post('/cart/apply-coupons', [CartController::class, 'applyCoupons'])->name('cart.apply-coupons');
+        Route::post('/cart/apply-coupons', [CartController::class, 'applyCoupons'])->name('cart.apply-coupons')->middleware('throttle:5,1');
         // Wishlist route
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
         Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
@@ -209,13 +227,21 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
 
         // Course Comments
         Route::get('/courses/{slug}/learn/lesson/{lessonId}/comments', [CommentController::class, 'getComments'])->name('course.comments.get');
-        Route::post('/courses/{slug}/learn/lesson/{lessonId}/comments', [CommentController::class, 'addComment'])->name('course.comments.add');
+        Route::post('/courses/{slug}/learn/lesson/{lessonId}/comments', [CommentController::class, 'addComment'])->name('course.comments.add')->middleware('throttle:15,1');
  });
 });
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,root'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])->name('dashboard.chart-data');
+    
+    // Seller Approval
+    Route::prefix('sellers')->name('sellers.')->group(function () {
+        Route::get('/pending', [AdminSellerController::class, 'indexPending'])->name('pending');
+        Route::post('/{id}/approve', [AdminSellerController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [AdminSellerController::class, 'reject'])->name('reject');
+    });
+
     Route::get('/users', [UserController::class, 'index'])->name('users');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');

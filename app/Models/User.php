@@ -145,6 +145,9 @@ class User extends Authenticatable
         'bank_name',
         'bank_account_no',
         'bank_account_name',
+        'google_id',
+        'google_token',
+        'google_refresh_token',
     ];
 
     protected $hidden = [
@@ -216,6 +219,11 @@ class User extends Authenticatable
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class);
+    }
+
+    public function sellerProfile(): HasOne
+    {
+        return $this->hasOne(SellerProfile::class);
     }
 
     public function bankAccounts(): HasMany

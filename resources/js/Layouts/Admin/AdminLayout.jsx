@@ -5,7 +5,8 @@ import '../../../css/admin-style.css';
 export default function AdminLayout({ children }) {
     const { url, props } = usePage();
     const { auth } = props;
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false); // For mobile
+    const [isCollapsed, setIsCollapsed] = useState(false); // For desktop
     const [unreadCount, setUnreadCount] = useState(auth?.unread_notifications_count || 0);
 
     useEffect(() => {
@@ -23,8 +24,12 @@ export default function AdminLayout({ children }) {
         setSidebarOpen(!sidebarOpen);
     };
 
+    const toggleDesktopSidebar = () => {
+        setIsCollapsed(!isCollapsed);
+    };
+
     return (
-        <div className={`app-layout ${sidebarOpen ? 'sidebar-open' : ''}`}>
+        <div className={`app-layout ${sidebarOpen ? 'sidebar-open' : ''} ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
             {/* Ambient Background Blobs */}
             <div className="ambient-blob blob-1"></div>
             <div className="ambient-blob blob-2"></div>
@@ -33,7 +38,13 @@ export default function AdminLayout({ children }) {
             {/* Sidebar */}
             <aside className="sidebar glass-panel" id="sidebar" style={{ transform: sidebarOpen ? 'translateX(0)' : '' }}>
                 <div className="sidebar-header">
-                    <h3 className="sidebar-logo m-0 glow-text">EduFlow<span className="text-primary-glow">Admin</span></h3>
+                    <h3 className="sidebar-logo m-0 glow-text">
+                        {!isCollapsed ? (
+                            <>EduFlow<span className="text-primary-glow">Admin</span></>
+                        ) : (
+                            <span>E<span className="text-primary-glow">F</span></span>
+                        )}
+                    </h3>
                     <button className="btn btn-icon sidebar-toggle d-lg-none text-white" onClick={toggleSidebar}>
                         <i className="fa-solid fa-xmark"></i>
                     </button>
@@ -58,6 +69,12 @@ export default function AdminLayout({ children }) {
                             <Link href={route('admin.vip-packages')} className={`nav-link ${route().current('admin.vip-packages*') ? 'active' : ''}`}>
                                 <span className="nav-icon"><i className="fa-solid fa-crown"></i></span>
                                 <span className="nav-text">Gói VIP</span>
+                            </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link href={route('admin.sellers.pending')} className={`nav-link ${route().current('admin.sellers*') ? 'active' : ''}`}>
+                                <span className="nav-icon"><i className="fa-solid fa-user-check"></i></span>
+                                <span className="nav-text">Duyệt Giảng viên</span>
                             </Link>
                         </li>
                         <li className="nav-item">
@@ -123,6 +140,9 @@ export default function AdminLayout({ children }) {
                         <div className="d-flex align-items-center gap-3">
                             <button className="btn btn-icon text-dark d-lg-none" onClick={toggleSidebar}>
                                 <i className="fa-solid fa-bars fs-4"></i>
+                            </button>
+                            <button className="btn btn-icon text-dark d-none d-lg-block" onClick={toggleDesktopSidebar}>
+                                <i className={`fa-solid ${isCollapsed ? 'fa-indent' : 'fa-outdent'} fs-4`}></i>
                             </button>
                             <nav aria-label="breadcrumb" className="d-none d-md-block">
                                 <ol className="breadcrumb m-0">
