@@ -1,3 +1,4 @@
+version: '3.8'
 
 services:
   app:
@@ -33,14 +34,10 @@ services:
     image: redis:alpine
     container_name: laravel_redis
     restart: always
-    ports:
-      - "6379:6379"
     volumes:
       - redisdata:/data
     networks:
       - laravel
-
-
 
 networks:
   laravel:
