@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Head, router, useForm } from '@inertiajs/react';
-import CmsLayout from '@/Layouts/CMS/CmsLayout';
+import CmsLayout from '@/Layouts/CMS/CMSLayout';
 import FormModal from '@/Components/FormModal';
 import Swal from 'sweetalert2';
 
@@ -43,7 +43,7 @@ export default function CategoryIndex({ categories = [] }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         if (editingCategory) {
             put(route('cms.categories.update', editingCategory.id), {
                 preserveScroll: true,
@@ -89,7 +89,7 @@ export default function CategoryIndex({ categories = [] }) {
     return (
         <CmsLayout>
             <Head title="Danh mục Bài viết" />
-            
+
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 className="wow-title m-0">Danh mục Bài viết</h2>
@@ -125,8 +125,8 @@ export default function CategoryIndex({ categories = [] }) {
                                         </td>
                                         <td>{cat.sort_order}</td>
                                         <td className="text-center">
-                                            {cat.is_active ? 
-                                                <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Hiển thị</span> : 
+                                            {cat.is_active ?
+                                                <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Hiển thị</span> :
                                                 <span className="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">Ẩn</span>
                                             }
                                         </td>
@@ -152,9 +152,9 @@ export default function CategoryIndex({ categories = [] }) {
                 </div>
             </div>
 
-            <FormModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+            <FormModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
                 title={editingCategory ? "Sửa Chuyên mục" : "Thêm Chuyên mục Mới"}
                 onSubmit={handleSubmit}
                 submitText={editingCategory ? "Cập nhật" : "Tạo mới"}
