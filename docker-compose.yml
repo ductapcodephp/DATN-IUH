@@ -1,3 +1,4 @@
+version: '3.8'
 
 services:
   app:
@@ -15,6 +16,34 @@ services:
     networks:
       - laravel
 
+  queue:
+      image: ductapdevops/datn-devops:latest
+      container_name: laravel_queue
+      restart: unless-stopped
+      working_dir: /var/www/html
+      command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+      volumes:
+        - ./.env:/var/www/html/.env
+        - app_storage:/var/www/html/storage
+      depends_on:
+        - app
+        - redis
+      networks:
+        - laravel
+  scheduler:
+      image: ductapdevops/datn-devops:latest
+      container_name: laravel_scheduler
+      restart: unless-stopped
+      working_dir: /var/www/html
+      command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
+      volumes:
+        - ./.env:/var/www/html/.env
+        - app_storage:/var/www/html/storage
+      depends_on:
+        - app
+        - redis
+      networks:
+        - laravel
   web:
     image: nginx:alpine
     container_name: laravel_nginx
@@ -33,14 +62,10 @@ services:
     image: redis:alpine
     container_name: laravel_redis
     restart: always
-    ports:
-      - "6379:6379"
     volumes:
       - redisdata:/data
     networks:
       - laravel
-
-
 
 networks:
   laravel:
