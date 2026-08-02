@@ -26,6 +26,12 @@ Dự án được xây dựng với tư duy kỹ thuật chuẩn Enterprise, gi�
    - Chia nhỏ quy trình thanh toán (Check số dư -> Trừ tiền -> Tạo đơn -> Lưu lịch sử) thành các bước (Pipes) nối tiếp nhau, dễ dàng thêm/bớt luồng xử lý (ví dụ: áp dụng Coupon) mà vẫn đảm bảo mã nguồn tuân thủ Single Responsibility (SRP).
 7. **Bảo mật & Tối ưu hiệu năng (Performance Optimization)**:
    - Áp dụng Soft Delete để bảo toàn dữ liệu lịch sử. Eager Loading (N+1 Query prevention) được áp dụng triệt để. Cấu hình Redis Caching cho các truy vấn nặng tại Trang chủ. 
+8. **Lưu trữ Đám mây & Streaming Video (Cloud Storage & CDN)**:
+   - Tích hợp Cloudflare R2 (hoặc AWS S3) làm giải pháp lưu trữ Object Storage chuyên dụng cho các Video bài giảng có dung lượng lớn. Tối ưu chi phí băng thông, đảm bảo tốc độ tải video nhanh và ổn định nhờ sức mạnh của CDN toàn cầu thay vì lưu trữ trực tiếp trên Local Server.
+9. **Xác thực và Cấp quyền linh hoạt (OAuth 2.0 & JWT)**:
+   - Tích hợp Đăng nhập một chạm qua mạng xã hội (Google, Facebook) thông qua tiêu chuẩn OAuth 2.0 (Laravel Socialite). Xây dựng cơ chế cấp phát Refresh Token/Access Token thủ công cho API nếu cần thiết.
+10. **Quản trị Máy chủ Linux & Triển khai thực tế (DevOps)**:
+    - Tự tay cấu hình và triển khai (Deploy) toàn bộ hệ thống lên môi trường thật (Ubuntu Server). Quản lý và xử lý các vấn đề thực tế như thiết lập Environment, build assets Frontend trên production, thiết lập cấu hình Nginx/Apache, xử lý lỗi CORS và SSL/HTTPS.
 
 ## 3. Mô tả Nghiệp vụ Hệ thống (Business Logic)
 Hệ thống cung cấp một hệ sinh thái học tập hoàn chỉnh với 3 phân hệ người dùng chính: **Admin (Quản trị viên)**, **Seller (Giảng viên)**, và **User (Học viên)**.
