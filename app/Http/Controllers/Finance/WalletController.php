@@ -35,7 +35,6 @@ class WalletController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(15, ['*'], 'payments_page');
 
-        // Chuyển các giao dịch nạp tiền/VIP đang pending thành failed để hiển thị cho user (do user thường bấm back trình duyệt)
         $onlinePayments->getCollection()->transform(function ($payment) {
             if ($payment->status === 'pending' && (str_starts_with($payment->transaction_code, 'DEP_') || str_starts_with($payment->transaction_code, 'VIP_'))) {
                 $payment->status = 'failed';

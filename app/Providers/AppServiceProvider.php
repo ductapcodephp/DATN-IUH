@@ -111,6 +111,16 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\CMS\Block\BlockRepositoryInterface::class,
             \App\Repositories\CMS\Block\BlockRepository::class
         );
+
+        $this->app->bind(
+            \App\Repositories\Frontend\Blog\BlogRepositoryInterface::class,
+            \App\Repositories\Frontend\Blog\BlogRepository::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\Frontend\Faq\FaqRepositoryInterface::class,
+            \App\Repositories\Frontend\Faq\FaqRepository::class
+        );
     }
 
     public function boot(): void

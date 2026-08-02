@@ -46,7 +46,7 @@ body {
 }
 
 .stat-value {
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Roboto", sans-serif;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.03em;
 }

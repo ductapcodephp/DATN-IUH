@@ -22,10 +22,33 @@ class PageRepository implements PageRepositoryInterface
         return CorePage::with(['post.socialSharing'])->where('id', $id)->firstOrFail();
     }
 
+    private function generateUniqueSlug(string $name, ?int $ignorePostId = null): string
+    {
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $counter = 1;
+
+        $query = CorePost::where('slug', $slug);
+        if ($ignorePostId) {
+            $query->where('id', '!=', $ignorePostId);
+        }
+
+        while ($query->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+            $query = CorePost::where('slug', $slug);
+            if ($ignorePostId) {
+                $query->where('id', '!=', $ignorePostId);
+            }
+        }
+
+        return $slug;
+    }
+
     public function store(PageData $data): CorePage
     {
         return DB::transaction(function () use ($data) {
-            $slug = Str::slug($data->title);
+            $slug = $this->generateUniqueSlug($data->name);
             
             $post = CorePost::create([
                 'title' => $data->title,
@@ -67,7 +90,7 @@ class PageRepository implements PageRepositoryInterface
             $post = $page->post;
             
             if (!$data->keep_slug) {
-                $slug = Str::slug($data->title);
+                $slug = $this->generateUniqueSlug($data->name, $post->id);
             } else {
                 $slug = $post->slug;
             }

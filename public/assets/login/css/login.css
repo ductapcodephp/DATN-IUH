@@ -13,7 +13,7 @@ body {
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); /* Nền gradient nhẹ sang trọng */
   position: relative;
   font-size: 16px;
-  font-family: 'Inter', "Source Sans Pro", sans-serif;
+  font-family: "Roboto", sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }

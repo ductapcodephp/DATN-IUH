@@ -9,14 +9,12 @@ use Illuminate\Console\Command;
 class CheckExpiringVipSubscriptions extends Command
 {
     /**
-     * The name and signature of the console command.
      *
      * @var string
      */
     protected $signature = 'vip:check-expiring';
 
     /**
-     * The console command description.
      *
      * @var string
      */

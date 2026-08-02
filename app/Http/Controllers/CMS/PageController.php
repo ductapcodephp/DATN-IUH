@@ -76,6 +76,35 @@ class PageController extends Controller
         ]);
 
         $data = PageData::fromRequest($request);
+        
+        // Enforce keep_slug for non-root users
+        $user = auth()->user();
+        if ($user->current_role !== \App\Enums\UserRole::ROOT) {
+            $data = new PageData(
+                name: $data->name,
+                title: $data->title,
+                slug: $data->slug,
+                sub_title: $data->sub_title,
+                description: $data->description,
+                content: $data->content,
+                thumbnail: $data->thumbnail,
+                published: $data->published,
+                tags: $data->tags,
+                language: $data->language,
+                css: $data->css,
+                custom_css: $data->custom_css,
+                google_title: $data->google_title,
+                google_description: $data->google_description,
+                facebook_title: $data->facebook_title,
+                facebook_description: $data->facebook_description,
+                facebook_thumbnail: $data->facebook_thumbnail,
+                google_tag: $data->google_tag,
+                is_hot: $data->is_hot,
+                is_new: $data->is_new,
+                keep_slug: true
+            );
+        }
+
         $this->pageService->updatePage($id, $data);
 
         return redirect()->route('cms.page.index')->with('success', 'Cập nhật trang thành công!');

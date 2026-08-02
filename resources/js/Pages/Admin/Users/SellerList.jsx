@@ -66,7 +66,7 @@ export default function SellerList({ sellers }) {
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-end">
-                                        <Link href={`/admin/users/sellers/${seller.id}/toggle-status`} method="post" as="button" className={`btn btn-sm rounded-pill px-3 ${seller.status === 'active' ? 'btn-outline-danger' : 'btn-outline-success'}`}>
+                                        <Link href={route('admin.users.toggle-status', seller.id)} method="post" as="button" className={`btn btn-sm rounded-pill px-3 ${seller.status === 'active' ? 'btn-outline-danger' : 'btn-outline-success'}`}>
                                             {seller.status === 'active' ? <><i className="fa-solid fa-lock me-2"></i> Chặn</> : <><i className="fa-solid fa-unlock me-2"></i> Mở chặn</>}
                                         </Link>
                                     </td>

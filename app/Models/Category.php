@@ -102,6 +102,13 @@ class Category extends Model
         'slug',
         'description',
         'image',
+        'type',
+        'icon',
+        'color',
+        'sort_order',
+        'is_active',
+        'is_approved',
+        'requested_by',
         'parent_id',
     ];
 
@@ -112,6 +119,11 @@ class Category extends Model
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class);
+    }
+
+    public function faqs(): HasMany
+    {
+        return $this->hasMany(Faq::class);
     }
 
     public function scopeActive($query)

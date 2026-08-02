@@ -56,25 +56,40 @@ export default function CMSLayout({ children }) {
                         <span className="wow-nav-text">Quản lý Trang</span>
                     </Link>
                     
-                    <a href="#" className="wow-nav-link">
+                    <Link href={route('cms.categories.index')} className={`wow-nav-link ${route().current('cms.categories*') ? 'active' : ''}`}>
+                        <span className="wow-nav-icon"><i className="fa-solid fa-folder-tree"></i></span>
+                        <span className="wow-nav-text">Danh mục Bài viết</span>
+                    </Link>
+                    
+                    <Link href={route('cms.article.index')} className={`wow-nav-link ${route().current('cms.article*') ? 'active' : ''}`}>
                         <span className="wow-nav-icon"><i className="fa-solid fa-file-pen"></i></span>
                         <span className="wow-nav-text">Bài viết (Blog)</span>
-                    </a>
+                    </Link>
                     
-                    <a href="#" className="wow-nav-link">
+                    <Link href={route('cms.faqs')} className={`wow-nav-link ${route().current('cms.faqs*') ? 'active' : ''}`}>
+                        <span className="wow-nav-icon"><i className="fa-solid fa-circle-question"></i></span>
+                        <span className="wow-nav-text">FAQ</span>
+                    </Link>
+                    
+                    <Link href={route('cms.topics.index')} className={`wow-nav-link ${route().current('cms.topics*') ? 'active' : ''}`}>
+                        <span className="wow-nav-icon"><i className="fa-solid fa-tags"></i></span>
+                        <span className="wow-nav-text">Quản lý Chủ đề</span>
+                    </Link>
+                    
+                    <Link href={route('cms.media.index')} className={`wow-nav-link ${route().current('cms.media*') ? 'active' : ''}`}>
                         <span className="wow-nav-icon"><i className="fa-solid fa-images"></i></span>
                         <span className="wow-nav-text">Thư viện Ảnh</span>
-                    </a>
+                    </Link>
                     
-                    <a href="#" className="wow-nav-link">
+                    <Link href={route('cms.menu.index')} className={`wow-nav-link ${route().current('cms.menu*') ? 'active' : ''}`}>
                         <span className="wow-nav-icon"><i className="fa-solid fa-sitemap"></i></span>
                         <span className="wow-nav-text">Cấu hình Menu</span>
-                    </a>
+                    </Link>
                     
-                    <a href="#" className="wow-nav-link">
+                    <Link href={route('cms.settings.index')} className={`wow-nav-link ${route().current('cms.settings*') ? 'active' : ''}`}>
                         <span className="wow-nav-icon"><i className="fa-solid fa-gear"></i></span>
                         <span className="wow-nav-text">Cài đặt chung</span>
-                    </a>
+                    </Link>
                 </div>
             </aside>
 

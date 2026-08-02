@@ -23,12 +23,15 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+        "@ckeditor/ckeditor5-react": "^11.2.0",
         "@fingerprintjs/fingerprintjs": "^5.2.0",
         "@hello-pangea/dnd": "^18.0.1",
         "@popperjs/core": "^2.11.8",
         "bootstrap": "^5.3.8",
         "chart.js": "^4.5.1",
         "countup.js": "^2.10.1",
+        "lucide-react": "^1.28.0",
         "react-chartjs-2": "^5.3.1",
         "react-is": "^19.2.8",
         "recharts": "^3.10.0",

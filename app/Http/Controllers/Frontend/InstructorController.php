@@ -16,16 +16,7 @@ class InstructorController extends Controller
         $this->instructorService = $instructorService;
     }
 
-    public function index(Request $request)
-    {
-        $filters = $request->only(['search', 'sort']);
-        $instructors = $this->instructorService->getAllInstructors($filters, 12);
 
-        return Inertia::render('Frontend/Instructor/Index', [
-            'instructors' => $instructors,
-            'filters' => $filters,
-        ]);
-    }
 
     public function show($id)
     {

@@ -8,6 +8,7 @@ use App\DTO\Seller\Course\CourseData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Courses\StoreCourseRequest;
 use App\Http\Requests\Seller\Courses\UpdateCourseRequest;
+use App\Models\Category;
 use App\Models\Course;
 use App\Services\Seller\Courses\CourseService;
 use Illuminate\Http\RedirectResponse;
@@ -37,8 +38,13 @@ class SellerCourseController extends Controller
 
     public function create(): Response
     {
+        $categories = Category::where('is_active', true)
+            ->where('type', 'course')
+            ->get(['id', 'name']);
+
         return Inertia::render('Seller/Courses/Create', [
             'parentCourses' => $this->courseService->getParentCourses(),
+            'categories' => $categories,
         ]);
     }
 
@@ -55,9 +61,14 @@ class SellerCourseController extends Controller
     {
         $this->authorizeAccess($course);
 
+        $categories = Category::where('is_active', true)
+            ->where('type', 'course')
+            ->get(['id', 'name']);
+
         return Inertia::render('Seller/Courses/Edit', [
             'course' => $course,
             'parentCourses' => $this->courseService->getParentCourses((int) $course->id),
+            'categories' => $categories,
         ]);
     }
 
@@ -85,5 +96,23 @@ class SellerCourseController extends Controller
         if ((int) $course->seller_id !== (int) auth()->id()) {
             abort(403, 'Bạn không có quyền thao tác trên khóa học này.');
         }
+    }
+
+    public function requestCategory(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        Category::create([
+            'name' => $request->name,
+            'slug' => \Illuminate\Support\Str::slug($request->name),
+            'type' => 'course',
+            'is_active' => true,
+            'is_approved' => false,
+            'requested_by' => auth()->id(),
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }

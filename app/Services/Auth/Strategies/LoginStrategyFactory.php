@@ -13,6 +13,7 @@ class LoginStrategyFactory
             UserRole::USER => new UserLoginStrategy,
             UserRole::SELLER => new SellerLoginStrategy,
             UserRole::ADMIN, UserRole::ROOT => new AdminLoginStrategy,
+            UserRole::CMS => new CmsLoginStrategy,
             default => throw new InvalidArgumentException("Không tìm thấy chiến lược login cho role: {$role->value}"),
         };
     }

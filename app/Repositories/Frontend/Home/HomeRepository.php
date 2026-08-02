@@ -7,14 +7,17 @@ use App\Models\User;
 
 class HomeRepository implements HomeRepositoryInterface
 {
-    public function getVipCourses()
+    public function getSponsoredCourses()
     {
         return Course::query()
+            ->select('courses.*', 'course_ads.id as ad_id', 'course_ads.bid_price')
+            ->join('course_ads', 'courses.id', '=', 'course_ads.course_id')
             ->with(['seller:id,name,avatar'])
-            ->published()
-            ->vip()
-            ->inRandomOrder()
-            ->limit(4)
+            ->where('course_ads.status', 'active')
+            ->whereRaw('course_ads.spent_today < course_ads.daily_budget')
+            ->where('courses.status', 'published')
+            ->orderByRaw('(RAND() * course_ads.bid_price) DESC')
+            ->limit(5)
             ->get();
     }
 

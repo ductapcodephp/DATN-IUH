@@ -1,15 +1,18 @@
 import React from "react";
 
-export default function CategorySection() {
+export default function CategorySection({ block }) {
     return (
         <section className="py-5 bg-surface">
 
             <div className="container">
-
-                <h2 className="section-title mb-4">
-                    Danh mục hàng đầu
-                </h2>
-
+                <div className="text-center mb-5">
+                    <h2 className="section-title mb-2">
+                        {block?.title || 'Danh mục hàng đầu'}
+                    </h2>
+                    <p className="text-muted">
+                        {block?.sub_title || 'Khám phá các khóa học theo chủ đề yêu thích của bạn.'}
+                    </p>
+                </div>
 
                 <div className="row g-4">
 

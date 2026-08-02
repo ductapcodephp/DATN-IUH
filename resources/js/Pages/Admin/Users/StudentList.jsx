@@ -67,7 +67,7 @@ export default function StudentList({ students }) {
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-end">
-                                        <Link href={`/admin/users/students/${student.id}/toggle-status`} method="post" as="button" className={`btn btn-sm rounded-pill px-3 ${student.status === 'active' ? 'btn-outline-danger' : 'btn-outline-success'}`}>
+                                        <Link href={route('admin.users.toggle-status', student.id)} method="post" as="button" className={`btn btn-sm rounded-pill px-3 ${student.status === 'active' ? 'btn-outline-danger' : 'btn-outline-success'}`}>
                                             {student.status === 'active' ? <><i className="fa-solid fa-lock me-2"></i> Chặn</> : <><i className="fa-solid fa-unlock me-2"></i> Mở chặn</>}
                                         </Link>
                                     </td>

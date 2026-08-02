@@ -1,58 +1,134 @@
-# Dự án Tốt nghiệp: Hệ thống Nền tảng Học trực tuyến (E-Learning Platform) - EduFlow
+# Dự án Tốt nghiệp: EduFlow - Nền tảng Học trực tuyến (E-Learning Marketplace)
 
 ## 1. Thông tin tổng quan
 - **Tên dự án**: EduFlow - Nền tảng chia sẻ và học tập trực tuyến
-- **Mô hình**: Monolithic Application (Monolith hiện đại)
+- **Mô hình**: Monolithic Application (Monolith hiện đại) theo mô hình Marketplace (C2C)
 - **Công nghệ cốt lõi**:
-  - **Backend**: Laravel 12 (PHP 8.2), MySQL, Redis
-  - **Frontend**: ReactJS (kết nối qua InertiaJS), Bootstrap 5, Vanilla CSS
-  - **Kiến trúc**: Layered Architecture, Repository Pattern, Event-Driven, Pipeline Pattern, DTO (Data Transfer Object).
+  - **Backend**: Laravel 12 (PHP 8.2), MySQL, Redis (Predis)
+  - **Frontend**: ReactJS (kết nối qua InertiaJS), Bootstrap 5
+  - **Cloud Storage**: Cloudflare R2 (S3-compatible Object Storage)
+  - **Payment Gateway**: VNPay
+  - **Kiến trúc**: Layered Architecture, Repository Pattern, Event-Driven, Pipeline Pattern, DTO Pattern, Write-Behind Cache
 - **Vai trò tham gia**: Fullstack Developer / Software Engineer
 
-## 2. Các điểm "Ăn tiền" (Technical Highlights) đưa vào CV
-Dự án được xây dựng với tư duy kỹ thuật chuẩn Enterprise, giải quyết các bài toán thực tế của hệ thống lớn:
+---
 
-1. **Kiến trúc Monolith hiện đại với InertiaJS**: 
-   - Hợp nhất hoàn hảo sức mạnh Routing, Middleware, Authentication của Laravel với trải nghiệm Single Page Application (SPA) mượt mà của ReactJS mà không cần xây dựng RESTful API công khai, giảm thiểu độ trễ (latency).
-2. **Kiến trúc Phân tầng (Layered Architecture) & Repository Pattern**: 
-   - Tách biệt rõ ràng 4 tầng: `Presentation (Controller)` -> `Business Logic (Service)` -> `Data Access (Repository)` -> `Database (Eloquent)`. Đảm bảo code lỏng lẻo (loose coupling), dễ dàng bảo trì và mở rộng hoặc thay thế Database Engine mà không ảnh hưởng logic.
-3. **Data Transfer Object (DTO) Pattern với PHP 8.2 Readonly Class**: 
-   - Xóa bỏ việc truyền Array thô trong hệ thống. Dữ liệu từ Request được đóng gói chặt chẽ qua DTO trước khi đẩy vào Service, đảm bảo Type Safety và tính toàn vẹn dữ liệu.
-4. **Chống Race Condition & Xử lý Giao dịch Tài chính An toàn**: 
-   - Xây dựng hệ thống Ví điện tử (Wallet) và tính năng Rút tiền (Withdrawal) an toàn tuyệt đối. Áp dụng Pessimistic Locking (`lockForUpdate()`) kết hợp Database Transactions (`DB::transaction`) để giải quyết triệt để lỗi Double-spending khi có nhiều request đồng thời (Concurrency).
-5. **Event-Driven Architecture & Queue (Kiến trúc Hướng Sự Kiện)**:
-   - Các tác vụ nặng hoặc phụ trợ (Gửi Email thông báo vi phạm, Cộng tiền ví, Ghi Log) được tách hoàn toàn khỏi luồng chính bằng mô hình Observer (Event/Listener). Sử dụng Laravel Queue để xử lý bất đồng bộ, giúp tốc độ phản hồi của API đạt mức mili-giây.
-6. **Pipeline Pattern cho Xử lý Thanh toán**:
-   - Chia nhỏ quy trình thanh toán (Check số dư -> Trừ tiền -> Tạo đơn -> Lưu lịch sử) thành các bước (Pipes) nối tiếp nhau, dễ dàng thêm/bớt luồng xử lý (ví dụ: áp dụng Coupon) mà vẫn đảm bảo mã nguồn tuân thủ Single Responsibility (SRP).
-7. **Bảo mật & Tối ưu hiệu năng (Performance Optimization)**:
-   - Áp dụng Soft Delete để bảo toàn dữ liệu lịch sử. Eager Loading (N+1 Query prevention) được áp dụng triệt để. Cấu hình Redis Caching cho các truy vấn nặng tại Trang chủ. 
-8. **Lưu trữ Đám mây & Streaming Video (Cloud Storage & CDN)**:
-   - Tích hợp Cloudflare R2 (hoặc AWS S3) làm giải pháp lưu trữ Object Storage chuyên dụng cho các Video bài giảng có dung lượng lớn. Tối ưu chi phí băng thông, đảm bảo tốc độ tải video nhanh và ổn định nhờ sức mạnh của CDN toàn cầu thay vì lưu trữ trực tiếp trên Local Server.
-9. **Xác thực và Cấp quyền linh hoạt (OAuth 2.0 & JWT)**:
-   - Tích hợp Đăng nhập một chạm qua mạng xã hội (Google, Facebook) thông qua tiêu chuẩn OAuth 2.0 (Laravel Socialite). Xây dựng cơ chế cấp phát Refresh Token/Access Token thủ công cho API nếu cần thiết.
-10. **Quản trị Máy chủ Linux & Triển khai thực tế (DevOps)**:
-    - Tự tay cấu hình và triển khai (Deploy) toàn bộ hệ thống lên môi trường thật (Ubuntu Server). Quản lý và xử lý các vấn đề thực tế như thiết lập Environment, build assets Frontend trên production, thiết lập cấu hình Nginx/Apache, xử lý lỗi CORS và SSL/HTTPS.
+## 2. Các điểm kỹ thuật nổi bật (Technical Highlights cho CV)
 
-## 3. Mô tả Nghiệp vụ Hệ thống (Business Logic)
-Hệ thống cung cấp một hệ sinh thái học tập hoàn chỉnh với 3 phân hệ người dùng chính: **Admin (Quản trị viên)**, **Seller (Giảng viên)**, và **User (Học viên)**.
+### ⚡ 2.1. Direct Upload Architecture — Cloudflare R2 Object Storage
+> **Bài toán**: Video bài giảng dung lượng lớn (hàng trăm MB → GB). Upload qua server PHP sẽ nghẽn RAM, tốn băng thông gấp đôi, và timeout.
 
-### 3.1. Phân hệ Học viên (User)
-- **Học tập & Tương tác**: Đăng ký tham gia khóa học miễn phí/trả phí. Theo dõi tiến trình học (Progress), tham gia bài giảng Video, làm bài tập trắc nghiệm. Đánh giá (Review) và Bình luận (Comment) tương tác.
-- **Thanh toán & Ví**: Tích hợp Ví cá nhân. Mua khóa học bằng số dư, nhập mã giảm giá (Coupon).
-- **Gói VIP (Subscription)**: Mua gói VIP (có thời hạn) để học thả ga các khóa học độc quyền không cần mua lẻ.
+- Thiết kế kiến trúc **Client-Side Direct Upload** bỏ qua hoàn toàn Application Server.
+- Server chỉ sinh **Presigned Upload URL** (TTL 30 phút) bằng `Storage::disk('r2')->temporaryUploadUrl()` — browser gửi `PUT` binary trực tiếp lên Cloudflare R2.
+- Sau khi upload xong, frontend gọi API **Confirm Upload** để server lưu metadata (`r2_key`, `duration_seconds`, `size_bytes`, `mime_type`) vào MySQL.
+- Triển khai **Seller Storage Quota**: Mỗi Seller có giới hạn dung lượng upload theo gói VIP (`SUM(videos.size_bytes) vs max_storage_gb`), kiểm tra trước khi sinh Presigned URL.
+- **Signed URL Streaming**: Video không public, mỗi lần học viên xem bài sẽ sinh URL tạm (TTL 4 giờ) qua `temporaryUrl()` trên Model Accessor — chống hotlink/copy link trái phép.
 
-### 3.2. Phân hệ Giảng viên (Seller)
-- **Quản lý Khóa học**: Dashboard chuyên nghiệp. Tạo mới, thiết kế lộ trình (Chương, Bài học, Video), định giá và phát hành khóa học.
-- **Báo cáo Doanh thu & Rút tiền**: Theo dõi tổng doanh thu, số dư thực nhận sau khi chia sẻ hoa hồng (Commission) với nền tảng. Yêu cầu rút tiền về tài khoản ngân hàng.
-- **Tương tác**: Phản hồi bình luận học viên, quản lý khuyến mãi (Coupons) cho khóa học của mình.
+### ⚡ 2.2. Redis Write-Behind Cache — Video Progress Tracking + Anti-Cheat
+> **Bài toán**: Frontend gửi progress mỗi 10-30 giây/user. Hàng nghìn DB writes/phút nếu ghi thẳng MySQL. Đồng thời cần chống gian lận tiến độ.
 
-### 3.3. Phân hệ Quản trị (Admin)
-- **Kiểm duyệt & Quản lý**: Kiểm duyệt các khóa học mới trước khi publish. Quản lý toàn bộ danh sách User, Seller. Cài đặt các tham số hệ thống.
-- **Hệ thống Gói VIP**: Quản lý, cấu hình giá, thời hạn, đặc quyền của từng Gói VIP.
-- **Xử lý Báo cáo Vi phạm (Report System)**: 
-  - Cộng đồng có thể báo cáo (Report) khóa học, bình luận, đánh giá vi phạm (Spam, bản quyền).
-  - Admin duyệt báo cáo: Chấp nhận (Xóa mềm hoặc xóa cứng đối tượng, đồng thời hệ thống tự động gửi Email cảnh báo cho tác giả) hoặc Từ chối (gửi Email giải thích cho người báo cáo). Toàn bộ xử lý bất đồng bộ qua Queue.
-- **Duyệt Rút tiền**: Xét duyệt yêu cầu rút tiền của Seller, đảm bảo đối soát đúng số dư ví trước khi giải ngân.
+- Áp dụng **Write-Behind (Write-Back) Cache Pattern**: Progress updates ghi vào Redis trước (`Redis::setex()`, TTL 1 giờ), sau đó dispatch `UpdateVideoProgressJob` **delay 30 giây** để batch-persist xuống MySQL.
+- **Anti-Cheat Validation** ngay tại Service layer:
+  - Mỗi lần ping, progress chỉ được tăng tối đa **25 giây** (`$maxJumpAllowed = 25`). Nếu user hack gửi `watched_seconds` lớn → bị reject, giữ nguyên giá trị cũ.
+  - Ping đầu tiên nếu `watched > 25s` → reset về 0 (chống skip-to-end).
+  - Lesson phải xem ≥ **70%** video mới tính hoàn thành. Quiz phải đúng **100%** câu hỏi mới pass.
+- **ShouldBeUnique**: Job implement `ShouldBeUnique` với `uniqueId = "{userId}_{lessonId}"` và `uniqueFor = 3600` → dù frontend gửi 100 pings, chỉ **1 job duy nhất** chạy cho mỗi user-lesson.
+- **Dual-Read Strategy**: `getProgress()` đọc Redis trước (data mới nhất), fallback DB nếu Redis miss → UX mượt, user luôn thấy progress realtime.
+
+### ⚡ 2.3. Redis — Unified Infrastructure Backbone (5 mục đích)
+> Redis không chỉ là cache — nó là **trung tâm hạ tầng** phục vụ 5 concern khác nhau:
+
+1. **Cache Layer** (`CACHE_STORE=redis`): Giảm tải query nặng.
+2. **Queue Backend** (`QUEUE_CONNECTION=redis`): Xử lý bất đồng bộ toàn bộ background jobs.
+3. **Session Storage** (`SESSION_DRIVER=redis`): Lưu HTTP session, giảm I/O disk.
+4. **Single-Device Session Enforcement** (`user_session:{id}`, TTL 24h): Middleware `CheckDeviceSession` kiểm tra device_id + token hash mỗi request qua Redis thay vì query DB. Chỉ sync `last_used_at` vào MySQL mỗi **10 phút** → giảm cực kỳ nhiều DB writes.
+5. **Rate Limiting** (`throttle:X,Y`): Redis atomic `INCR` + `EXPIRE` bảo vệ login (5/phút), register (3/60 phút), checkout (5/phút), withdraw (2/10 phút), search (60/phút).
+
+### ⚡ 2.4. Event-Driven Architecture + Laravel Queue (Named Queue Isolation)
+> **Bài toán**: Tách side-effects ra khỏi luồng chính, đảm bảo API response nhanh mili-giây.
+
+- **7 Events** (`PaymentCompleted`, `ReportResolved`, `ReportDismissed`, `SellerApplied`, `SellerApproved`, `SellerRejected`, `UserRegistered`, `UserLoggedIn`) trigger **12+ Queued Listeners** xử lý bất đồng bộ.
+- Ví dụ fan-out: `PaymentCompleted` → đồng thời gửi email xác nhận + tạo enrollment notification + cập nhật statistics.
+- **6 Queued Notifications** (database channel) cho Admin: Report mới, Withdrawal request mới, Contact mới, Comment report mới.
+- **6 Mailables** gửi email qua Queue: Payment success, Report resolved/dismissed, Seller application received/approved/rejected.
+- **Scheduled Commands**:
+  - `everyMinute()`: Hủy payment pending >1 phút, hoàn coupon usage.
+  - `dailyAt('01:00')`: Giải ngân earnings Seller sau thời gian chờ (chống refund).
+  - `dailyAt('02:00')`: Cảnh báo VIP sắp hết hạn (3 ngày trước).
+
+### ⚡ 2.5. Pipeline Pattern — Payment Processing (VNPay IPN)
+> **Bài toán**: Quy trình thanh toán nhiều bước, cần dễ mở rộng và tuân thủ SRP.
+
+- Chia quy trình xử lý IPN callback thành các **Pipes** nối tiếp: `ValidateSignature → FindPayment → CheckDuplicate → CompletePayment → UpdateStatus`.
+- Mỗi Pipe chỉ làm 1 việc (Single Responsibility). Thêm/bớt bước dễ dàng (ví dụ: thêm Fraud Detection Pipe) mà không sửa code cũ.
+- Pipe `CompleteOrderPayment` / `CompleteDepositPayment` xử lý cộng tiền ví, tạo enrollment, chia hoa hồng, fire `PaymentCompleted` event.
+
+### ⚡ 2.6. Chống Race Condition — Pessimistic Locking cho Giao dịch Tài chính
+> **Bài toán**: Nhiều request đồng thời trừ tiền ví → double-spending.
+
+- Tất cả giao dịch ví (mua khóa học, rút tiền, cộng thưởng, chia hoa hồng) sử dụng `lockForUpdate()` + `DB::transaction()`.
+- Wallet bị khóa row-level trong MySQL → request đồng thời phải chờ → chống triệt để lỗi double-spending.
+- Hệ thống Wallet kép: **User Wallet** (nạp/mua) + **System Wallet** (hoa hồng nền tảng) + **Seller Wallet** (doanh thu bán khóa).
+
+### ⚡ 2.7. Layered Architecture + Repository Pattern + DTO
+- Phân tầng rõ ràng: `Controller → DTO → Service → Repository → Eloquent Model`.
+- **DTO Pattern** (PHP 8.2 `readonly class`): Dữ liệu từ Request đóng gói chặt chẽ qua DTO trước khi vào Service — đảm bảo Type Safety, không truyền array thô.
+- **Repository Pattern**: Tách Data Access khỏi Business Logic — có thể swap database engine mà không ảnh hưởng Service layer.
+
+### ⚡ 2.8. OAuth 2.0 + Custom Token Management + Single-Device Auth
+- Đăng nhập một chạm qua **Google/Facebook** (Laravel Socialite + OAuth 2.0).
+- Hệ thống **Refresh Token/Access Token** tự xây dựng (không dùng Passport/Sanctum token).
+- **Single-Device Login**: Middleware `CheckDeviceSession` dùng Redis lưu session hiện tại → đăng nhập thiết bị mới sẽ revoke session cũ. Verify mỗi request chỉ tốn **O(1) Redis GET** thay vì database query.
+
+### ⚡ 2.9. DevOps & Deployment thực tế
+- Tự cấu hình và deploy lên **Ubuntu Server** (VPS thực tế).
+- Setup: Nginx, PHP-FPM, MySQL, Redis, SSL/HTTPS, Supervisor (queue workers).
+- Build frontend assets (Vite) trên production.
+- Cấu hình CORS, environment variables, log rotation.
 
 ---
-*Bản tóm tắt này đã cô đọng những yếu tố thể hiện bạn là một lập trình viên có tư duy phân tích hệ thống lớn, quan tâm đến kiến trúc phần mềm, bảo mật dữ liệu và hiệu năng.*
+
+## 3. Mô tả Nghiệp vụ Hệ thống
+
+### 3.1. Phân hệ Học viên (User)
+- Đăng ký/đăng nhập (truyền thống + OAuth Google/Facebook).
+- Duyệt, tìm kiếm, mua khóa học (Ví nội bộ / VNPay). Áp mã Coupon.
+- Xem video streaming (Signed URL từ R2). Theo dõi tiến độ realtime (Redis cache).
+- Làm Quiz. Nhận chứng chỉ khi hoàn thành 100%.
+- Đánh giá (≥80% progress), bình luận, ghi chú video, báo cáo vi phạm.
+- Mua gói VIP học thả ga.
+
+### 3.2. Phân hệ Giảng viên (Seller)
+- Đăng ký Seller → Admin duyệt (queued email thông báo).
+- Dashboard quản lý khóa học: Tạo Course → Chapter → Lesson → Upload video trực tiếp lên R2.
+- Quản lý dung lượng storage (quota theo VIP tier).
+- Theo dõi doanh thu, chia hoa hồng với nền tảng. Yêu cầu rút tiền → Admin duyệt.
+- Tạo/quản lý Coupon.
+
+### 3.3. Phân hệ Quản trị (Admin)
+- Kiểm duyệt khóa học, Seller application (approve/reject).
+- Xử lý Report vi phạm → Resolve (xóa + email cảnh báo) / Dismiss (email giải thích). Toàn bộ qua Queue.
+- Quản lý VIP Packages, System Wallet, Commission settings.
+- Duyệt Withdrawal Request → đối soát số dư → giải ngân.
+- Dashboard thống kê toàn nền tảng.
+
+---
+
+## 4. Tóm tắt Stack kỹ thuật cho CV
+
+| Hạng mục | Công nghệ / Pattern |
+|---|---|
+| **Backend Framework** | Laravel 12, PHP 8.2 |
+| **Frontend** | ReactJS, InertiaJS |
+| **Database** | MySQL (Pessimistic Locking, Transactions) |
+| **Cache/Queue/Session** | Redis (Predis) — unified backbone |
+| **Object Storage** | Cloudflare R2 (S3-compatible, Presigned URL, Signed URL) |
+| **Payment** | VNPay (Pipeline Pattern IPN Processing) |
+| **Auth** | OAuth 2.0 (Google/Facebook), Custom JWT-like Token, Single-Device Enforcement |
+| **Architecture** | Layered, Repository Pattern, Event-Driven, Pipeline, Write-Behind Cache, DTO |
+| **DevOps** | Ubuntu Server, Nginx, Supervisor, SSL/HTTPS, Vite Build |
+| **Anti-Cheat** | Redis-buffered progress + time-jump validation |
+| **Performance** | Eager Loading (N+1 prevention), Redis caching, Queue async processing, Lazy DB sync |
+
+---
+*Bản tóm tắt thể hiện tư duy kiến trúc hệ thống lớn, xử lý concurrency, tối ưu hiệu năng, và giải quyết bài toán thực tế ở quy mô production.*

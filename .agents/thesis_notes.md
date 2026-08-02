@@ -344,4 +344,43 @@ Nếu hệ thống tự động hoàn tiền mà không có cơ chế kiểm so�
 
 **👉 Kết luận cho Luận án:**
 Việc xử lý hoàn tiền không chỉ là một nghiệp vụ `CRUD` đơn thuần (đổi trạng thái `order` thành `refunded`), mà nó phản ánh **Business Logic** và **Domain Knowledge** sâu sắc của đội ngũ thiết kế. Sự kết hợp giữa giới hạn thời gian, đối soát tiến độ (`course_progress`), giới hạn tần suất hành vi, và kiến trúc **Ví nội bộ (Wallet)** đã tạo ra một hệ thống phòng thủ tự động toàn diện, chống thất thoát doanh thu và tối ưu hóa chi phí vận hành trong môi trường kinh doanh E-learning đầy tính rủi ro.
-  
+
+---
+
+## 8. THUẬT TOÁN QUẢNG CÁO CPC (COST-PER-CLICK) VÀ XẾP HẠNG BẰNG TRỌNG SỐ NGẪU NHIÊN (WEIGHTED RANDOM SAMPLING)
+
+### 8.1. Bài toán kinh doanh (Monetization Strategy)
+Mô hình doanh thu của EduFlow không chỉ dừng lại ở việc ăn chia phần trăm (commission). Để khai thác tối đa lợi nhuận, hệ thống cung cấp **5 vị trí đặc quyền (Featured Slots)** trên Trang chủ dành riêng cho Khóa học nổi bật.
+**Vấn đề đặt ra:**
+- Nếu bán đứt 5 vị trí này dưới dạng "Gói VIP cố định" (Fixed Price VIP Subscription), hệ thống sẽ bị "chạm trần doanh thu" (Revenue Capping). Số lượng Giảng viên (Seller) trong nền tảng có thể lên tới hàng ngàn, nhưng chỉ có 5 người được hiển thị. Những người còn lại sẽ không có cơ hội tiếp cận vị trí này.
+- Nếu cứ 5 người mua xong thì khóa tính năng, UX sẽ rất tệ cho các Seller khác, và Platform mất đi cơ hội kiếm thêm tiền.
+
+### 8.2. Giải pháp Kiến trúc & Thuật toán
+Thay vì bán vị trí cố định, hệ thống thiết kế lại theo mô hình **Đấu thầu Quảng Cáo CPC (Cost Per Click)** tương tự như Shopee/Tiki/Google Ads, cho phép *hàng trăm* Seller cùng tham gia đấu giá 5 vị trí này.
+
+**Cách thức hoạt động:**
+1. Mỗi Seller nạp tiền vào Ví, sau đó phân bổ ngân sách cho Chiến dịch Quảng cáo của một khóa học (Daily Budget) và thiết lập Giá thầu (Bid Price) cho mỗi lượt click (VD: 5.000đ/click).
+2. Khi học viên truy cập trang chủ, hệ thống không lấy 5 người có giá thầu cao nhất tuyệt đối (Top K), vì làm vậy những người bid thấp sẽ **không bao giờ** xuất hiện, gây nản lòng cho Seller ngân sách thấp.
+3. Thay vào đó, hệ thống sử dụng thuật toán **Weighted Random Sampling (Lấy mẫu ngẫu nhiên có trọng số)** tại cấp độ Database.
+
+### 8.3. Triển khai thuật toán trong Database (SQL)
+Thay vì load toàn bộ data lên RAM để tính toán (gây quá tải), việc tính toán trọng số được offload trực tiếp xuống SQL Engine thông qua câu lệnh:
+`ORDER BY (RAND() * bid_price) DESC LIMIT 5`
+
+**Giải thích toán học (Bảo vệ luận án):**
+Hàm `RAND()` trong MySQL sinh ra một số thập phân phân phối đều từ 0.0 đến 1.0.
+Khi lấy `RAND()` nhân với `bid_price`, ta đang tạo ra một dải điểm ngẫu nhiên (Random Score) từ `0` đến `bid_price`.
+- Seller A bid 10.000đ -> Dải điểm từ 0 đến 10.000.
+- Seller B bid 2.000đ -> Dải điểm từ 0 đến 2.000.
+- Xác suất để B vượt qua A là vùng diện tích mà (Score B > Score A). Về mặt thống kê, A vẫn chiếm ưu thế thắng khoảng 80% số lần (đảm bảo quyền lợi cho người trả nhiều tiền), nhưng B vẫn có ~20% cơ hội lọt Top (đảm bảo tính công bằng và khuyến khích Seller nhỏ).
+
+### 8.4. Xử lý Tracking Click và Chống Thất Thoát Ngân Sách
+Khi học viên click vào quảng cáo, luồng dữ liệu không đi thẳng tới trang Chi tiết khóa học mà đi qua 1 Gateway (AdTrackingController).
+**Luồng xử lý:**
+1. Kiểm tra trạng thái chiến dịch (`active` và `campaign_balance > 0`).
+2. Mở Database Transaction, tính toán trừ tiền: `campaign_balance -= bid_price`.
+3. Kiểm tra ngay lập tức xem sau khi trừ tiền, chiến dịch đã chạm hạn mức ngày (Daily Budget) chưa. Nếu chạm, cập nhật trạng thái `status = 'out_of_budget'` ngay trong cùng Transaction để tránh việc quảng cáo tiếp tục xuất hiện ở Request sau.
+4. Chuyển hướng người dùng (Redirect 302) đến URL Khóa học thật sự.
+
+**👉 Kết luận cho Luận án:**
+Bằng cách áp dụng **CPC Bidding** và **Weighted Random Sampling**, hệ thống đã giải quyết triệt để bài toán thắt cổ chai về không gian hiển thị, tối ưu hóa lợi nhuận phi tuyến tính (Uncapped Revenue) từ vô hạn Seller. Việc sử dụng SQL Engine để xử lý Random có Trọng số thay vì Code Application Level là một minh chứng cho khả năng thiết kế thuật toán tối ưu tài nguyên Server của kiến trúc sư phần mềm.

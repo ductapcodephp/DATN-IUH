@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
+-->
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CKEditor Sample</title>
+	<script src="../ckeditor.js"></script>
+	<script src="js/sample.js"></script>
+	<link rel="stylesheet" href="css/samples.css">
+	<link rel="stylesheet" href="toolbarconfigurator/lib/codemirror/neo.css">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<meta name="description" content="Try the latest sample of CKEditor 4 and learn more about customizing your WYSIWYG editor with endless possibilities.">
+</head>
+<body id="main">
+
+<nav class="navigation-a">
+	<div class="grid-container">
+		<ul class="navigation-a-left grid-width-70">
+			<li><a href="https://ckeditor.com/ckeditor-4/">CKEditor 4</a></li>
+			<li><a href="https://n1ed.com/">N1ED</a></li>
+			<li><a href="https://flmngr.com/">Flmngr</a></li>
+		</ul>
+		<ul class="navigation-a-right grid-width-30">
+			<li><a href="https://flmngr.com/doc/install-ckeditor-plugin">Install docs</a></li>
+		</ul>
+	</div>
+</nav>
+
+<header class="header-a">
+	<div class="grid-container">
+		<h1 class="header-a-logo grid-width-30">
+			<a href="index.html"><img src="img/logo.svg" onerror="this.src='img/logo.png'; this.onerror=null;" alt="CKEditor Sample"></a>
+		</h1>
+
+		<nav class="navigation-b grid-width-70">
+			<ul>
+				<li><a href="https://flmngr.com/dashboard" class="button-a button-a-background">Visual configuration</a></li>
+			</ul>
+		</nav>
+	</div>
+</header>
+
+<main>
+	<div class="adjoined-top">
+		<div class="grid-container">
+			<div class="content grid-width-100">
+
+				<div style="margin:20px auto; text-align: center;font-size: 18px;">
+					<a href="sample-full.html" style="color:white;padding:3px 7px">CKEditor with N1ED content builder</a>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<b style="background-color: rgb(29 167 243);padding:3px 7px">CKEditor with file manager only</b>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div class="adjoined-bottom" style="margin-bottom: 40px">
+		<div class="grid-container">
+			<div class="grid-width-100">
+				<div id="editor">
+					<h1>Hello world!</h1>
+					<p>I'm an instance of <a href="https://ckeditor.com">CKEditor</a>.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</main>
+
+<footer class="footer-a grid-container">
+	<div class="grid-container">
+		<p class="grid-width-100" id="copy">
+			CKEditor 4: Copyright &copy; 2003-2023, <a class="samples" href="https://cksource.com/">CKSource</a> Holding sp. z o.o. All rights reserved.
+			<br/>
+			<a href="https://n1ed.com">N1ED content builder</a> and <a href="https://flmngr.com">Flmngr file manager</a> that come as CKEditor 4 plugins are the products of <a href="https://edsdk.com">EdSDK</a> company.
+		</p>
+	</div>
+</footer>
+<script>
+	initSample('config-file-manager-only.js');
+</script>
+
+</body>
+</html>

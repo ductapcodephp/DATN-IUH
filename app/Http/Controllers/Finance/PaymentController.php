@@ -36,6 +36,14 @@ class PaymentController extends Controller
         }
     }
 
+    public function success(Request $request)
+    {
+        return Inertia::render('Frontend/Cart/CheckoutSuccess', [
+            'transactionCode' => session('transaction_code', ''),
+            'appUrl' => config('app.url'),
+        ]);
+    }
+
     public function deposit(Request $request)
     {
         $request->validate([
@@ -123,7 +131,10 @@ class PaymentController extends Controller
                     return redirect()->route($route)->with('success', 'Thanh toán thành công! Gói VIP đã được kích hoạt.');
                 }
 
-                return redirect()->route('frontend.home')->with('success', 'Thanh toán thành công. Khóa học đã được thêm vào tài khoản của bạn!');
+                return redirect()->route('checkout.success')->with([
+                    'success' => 'Thanh toán thành công. Khóa học đã được thêm vào tài khoản của bạn!',
+                    'transaction_code' => $callbackData['transaction_code'] ?? ''
+                ]);
             } else {
                 if (str_starts_with($callbackData['transaction_code'] ?? '', 'DEP_')) {
                     $route = session('deposit_return_route', 'finance.wallet.index');

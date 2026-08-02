@@ -1,5 +1,4 @@
 <?php
-// === FILE: database/migrations/2024_01_01_000024_create_video_notes_table.php ===
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

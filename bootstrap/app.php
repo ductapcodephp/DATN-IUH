@@ -12,7 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
-        // Đăng ký Middleware kiểm tra thiết bị của mình vào nhóm web ở đây
         $middleware->web(append: [
             \App\Http\Middleware\CheckDeviceSession::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
@@ -20,8 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
             'role' => \App\Http\Middleware\CheckRole::class,
+            'current_role' => \App\Http\Middleware\CheckRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Giữ nguyên để Laravel khởi tạo ExceptionHandler chuẩn chỉnh
     })->create();

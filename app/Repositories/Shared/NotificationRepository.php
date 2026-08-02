@@ -10,7 +10,7 @@ class NotificationRepository implements NotificationRepositoryInterface
 {
     public function getNotificationsByRole(User $user, string $rolePrefix, NotificationFilterData $filter, int $perPage = 10): LengthAwarePaginator
     {
-        $query = $user->notifications()->where('type', 'like', $rolePrefix . '%');
+        $query = $user->notifications();
 
         if ($filter->startDate) {
             $query->whereDate('created_at', '>=', $filter->startDate);
@@ -21,9 +21,7 @@ class NotificationRepository implements NotificationRepositoryInterface
         }
 
         if ($filter->type) {
-            // Giả sử filter->type là tên class, vd: 'NewCourseEnrollmentNotification'
-            // Ta gắn thêm prefix để tìm đúng
-            $query->where('type', $rolePrefix . '\\' . $filter->type);
+            $query->where('type', 'like', '%' . $filter->type . '%');
         }
 
         return $query->paginate($perPage);

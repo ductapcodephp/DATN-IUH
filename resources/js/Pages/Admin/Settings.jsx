@@ -17,6 +17,8 @@ export default function Settings({ settings = [], flash }) {
         commission_rate: initialData.commission_rate || '15',
         wallet_bonus_rate: initialData.wallet_bonus_rate || '5',
         default_storage_gb: initialData.default_storage_gb || '2',
+        ad_min_bid_price: initialData.ad_min_bid_price || '1000',
+        ad_min_daily_budget: initialData.ad_min_daily_budget || '10000',
         notify_new_report: initialData.notify_new_report || '1',
         notify_new_contact: initialData.notify_new_contact || '1',
         notify_new_withdrawal: initialData.notify_new_withdrawal || '1',
@@ -135,6 +137,45 @@ export default function Settings({ settings = [], flash }) {
                                                     min="0" max="100"
                                                 />
                                                 <span className="input-group-text border-0 bg-white text-muted fw-bold">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* AD SETTINGS */}
+                                    <div className="col-md-6">
+                                        <div className="p-3 bg-light rounded-3 h-100 border border-primary border-opacity-25">
+                                            <label className="form-label text-primary fw-bold mb-1">
+                                                <i className="fa-solid fa-rectangle-ad me-1"></i> Giá thầu Quảng Cáo tối thiểu
+                                            </label>
+                                            <p className="text-muted small mb-3">Số tiền tối thiểu Seller phải trả cho mỗi lượt click (CPC).</p>
+                                            <div className="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+                                                <input 
+                                                    type="number" 
+                                                    className="form-control border-0 px-3 text-success fw-bold" 
+                                                    value={data.ad_min_bid_price}
+                                                    onChange={e => setData('ad_min_bid_price', e.target.value)}
+                                                    min="0" step="500"
+                                                />
+                                                <span className="input-group-text border-0 bg-white text-muted fw-bold">VNĐ</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="col-md-6">
+                                        <div className="p-3 bg-light rounded-3 h-100 border border-primary border-opacity-25">
+                                            <label className="form-label text-primary fw-bold mb-1">
+                                                <i className="fa-solid fa-wallet me-1"></i> Ngân sách Quảng Cáo ngày tối thiểu
+                                            </label>
+                                            <p className="text-muted small mb-3">Số tiền tối thiểu Seller phải đặt làm ngân sách chạy mỗi ngày.</p>
+                                            <div className="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+                                                <input 
+                                                    type="number" 
+                                                    className="form-control border-0 px-3 text-success fw-bold" 
+                                                    value={data.ad_min_daily_budget}
+                                                    onChange={e => setData('ad_min_daily_budget', e.target.value)}
+                                                    min="0" step="5000"
+                                                />
+                                                <span className="input-group-text border-0 bg-white text-muted fw-bold">VNĐ</span>
                                             </div>
                                         </div>
                                     </div>

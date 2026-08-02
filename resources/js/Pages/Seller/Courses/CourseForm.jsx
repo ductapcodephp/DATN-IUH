@@ -19,12 +19,26 @@ const STATUS_BADGE = {
     hidden: { label: 'Tạm ẩn', color: '#d97706', bg: 'rgba(217, 119, 6, 0.12)' },
 };
 
-export default function CourseForm({ course }) {
+const STEP_FIELDS = {
+    1: ['title', 'category_id', 'level', 'status'],
+    2: ['price', 'original_price', 'is_free', 'is_vip'],
+    3: ['thumbnail', 'description', 'requirements', 'outcomes'],
+};
+
+import Modal from '@/Components/Modal';
+import SweetAlert from '@/Components/SweetAlert';
+
+export default function CourseForm({ course, categories = [] }) {
     const isEdit = !!course;
     const [step, setStep] = useState(1);
+    const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [requestingCategory, setRequestingCategory] = useState(false);
+    const [sweetAlert, setSweetAlert] = useState({ show: false, title: '', text: '', icon: 'success' });
 
     const { data, setData, post, processing, errors, transform } = useForm({
         title: course?.title || '',
+        category_id: course?.category_id || '',
         status: course?.status || 'published',
         level: course?.level || 'beginner',
         price: course?.price || '',
@@ -44,11 +58,45 @@ export default function CourseForm({ course }) {
     const [preview, setPreview] = useState(null);
     const currentThumbnailUrl = course?.thumbnail_url || course?.thumbnail || null;
 
-const handleConfirm = () => {
+    const handleConfirm = () => {
         const url = isEdit
             ? route('seller.courses.update', course.id)
             : route('seller.courses.store');
-        post(url, { forceFormData: true });
+
+        post(url, {
+            forceFormData: true,
+            onError: (errs) => {
+                const errorFields = Object.keys(errs);
+                const stepWithError = Object.entries(STEP_FIELDS)
+                    .find(([, fields]) => fields.some(f => errorFields.includes(f)));
+                if (stepWithError) setStep(Number(stepWithError[0]));
+            },
+        });
+    };
+
+    const handleRequestCategory = async () => {
+        if (!newCategoryName.trim()) {
+            setSweetAlert({ show: true, title: 'Thông báo', text: 'Vui lòng nhập tên danh mục cần yêu cầu!', icon: 'warning' });
+            return;
+        }
+        setRequestingCategory(true);
+        try {
+            const response = await window.axios.post(route('seller.categories.request'), { name: newCategoryName });
+            if (response.data.success) {
+                setSweetAlert({ 
+                    show: true, 
+                    title: 'Thành công', 
+                    text: 'Yêu cầu danh mục đã được gửi. Admin sẽ duyệt trong 24h, chú ý thông báo!', 
+                    icon: 'success' 
+                });
+                setShowCategoryModal(false);
+                setNewCategoryName('');
+            }
+        } catch (error) {
+            setSweetAlert({ show: true, title: 'Lỗi', text: 'Có lỗi xảy ra khi yêu cầu danh mục.', icon: 'error' });
+        } finally {
+            setRequestingCategory(false);
+        }
     };
 
     const onThumbnailChange = (file) => {
@@ -70,14 +118,31 @@ const handleConfirm = () => {
 
     const badge = STATUS_BADGE[data.status] || STATUS_BADGE.draft;
 
-    const nextStep = () => setStep(s => Math.min(s + 1, 3));
+    const nextStep = () => {
+        if (step === 1 && (!data.title || !data.title.trim())) {
+            setSweetAlert({ show: true, title: 'Thông báo', text: 'Vui lòng nhập tên khóa học trước khi tiếp tục.', icon: 'warning' });
+            return;
+        }
+        if (step === 1 && !data.category_id) {
+            setSweetAlert({ show: true, title: 'Thông báo', text: 'Vui lòng chọn danh mục khóa học trước khi tiếp tục.', icon: 'warning' });
+            return;
+        }
+        setStep(s => Math.min(s + 1, 3));
+    };
     const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
     return (
         <>
             <Head title={isEdit ? `Chỉnh sửa: ${course.title}` : 'Tạo khóa học mới'} />
             
-
+            <SweetAlert
+                show={sweetAlert.show}
+                type="alert"
+                icon={sweetAlert.icon}
+                title={sweetAlert.title}
+                text={sweetAlert.text}
+                onClose={() => setSweetAlert({ show: false, title: '', text: '', icon: 'success' })}
+            />
 
             <div className="page">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -137,6 +202,26 @@ const handleConfirm = () => {
                                     </Field>
                                 </div>
                                 <div className="form-grid-2" style={{ marginTop: '24px' }}>
+                                    <Field label="Danh mục khóa học" required error={errors.category_id}>
+                                        <div className="input-with-icon">
+                                            <i className="fas fa-list"></i>
+                                            <select
+                                                className="form-select form-control"
+                                                value={data.category_id}
+                                                onChange={e => setData('category_id', e.target.value)}
+                                                style={{ paddingLeft: '42px' }}
+                                            >
+                                                <option value="">Chọn danh mục...</option>
+                                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            </select>
+                                        </div>
+                                        <div style={{ marginTop: '16px', fontSize: '13px', background: '#f8f9fa', padding: '12px', borderRadius: '8px', border: '1px dashed #e4e6ef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span>Không tìm thấy danh mục phù hợp?</span>
+                                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowCategoryModal(true); }} style={{ background: 'var(--fire)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', fontSize: '13px' }}>
+                                                Yêu cầu danh mục mới
+                                            </button>
+                                        </div>
+                                    </Field>
                                     <Field label="Trạng thái hiển thị">
                                         <div className="input-with-icon">
                                             <i className="fas fa-eye"></i>
@@ -337,6 +422,30 @@ const handleConfirm = () => {
                     </div>
                 </div>
             </div>
+
+            <Modal show={showCategoryModal} onClose={() => setShowCategoryModal(false)} maxWidth="sm">
+                <div style={{ padding: '24px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>Yêu cầu danh mục mới</h3>
+                    <div style={{ marginBottom: '16px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>Tên danh mục</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            placeholder="Nhập tên danh mục..."
+                        />
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                        <button onClick={() => setShowCategoryModal(false)} className="btn btn-light" style={{ padding: '8px 16px', borderRadius: '8px' }}>
+                            Hủy
+                        </button>
+                        <button onClick={handleRequestCategory} disabled={requestingCategory} className="btn btn-primary" style={{ padding: '8px 16px', borderRadius: '8px', background: 'var(--fire)', color: '#fff', border: 'none' }}>
+                            {requestingCategory ? 'Đang gửi...' : 'Gửi yêu cầu'}
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </>
     );
 }

@@ -21,7 +21,6 @@ class ReleaseSellerEarnings extends Command
 
         $this->info("Bắt đầu giải phóng tiền chờ cho Seller (trước {$releaseBeforeDate->toDateTimeString()})...");
 
-        // Lấy các giao dịch earning đang pending và quá thời hạn
         $pendingEarnings = WalletTransaction::with(['order', 'wallet'])
             ->earnings()
             ->pending()
@@ -38,7 +37,6 @@ class ReleaseSellerEarnings extends Command
         foreach ($pendingEarnings as $transaction) {
             $order = $transaction->order;
 
-            // Bỏ qua nếu không có đơn hàng (dữ liệu lỗi) hoặc đơn hàng đã hoàn tiền
             if (! $order) {
                 Log::warning("Earning transaction #{$transaction->id} thiếu thông tin Order liên kết.");
 
@@ -46,7 +44,6 @@ class ReleaseSellerEarnings extends Command
             }
 
             if ($order->isRefunded()) {
-                // Đơn hàng đã refund, ta cần thu hồi (hủy) giao dịch pending này
                 DB::table('wallet_transactions')
                     ->where('id', $transaction->id)
                     ->update([
@@ -55,7 +52,6 @@ class ReleaseSellerEarnings extends Command
                         'description' => $transaction->description.' (Hủy do Refund)',
                     ]);
 
-                // Trừ lại pending balance của seller
                 if ($transaction->wallet) {
                     $transaction->wallet->decrement('balance_pending', $transaction->amount);
                     $transaction->wallet->decrement('balance', $transaction->amount);
@@ -66,7 +62,6 @@ class ReleaseSellerEarnings extends Command
                 continue;
             }
 
-            // Gọi method giải phóng
             try {
                 if ($transaction->wallet) {
                     $transaction->wallet->releaseEarning(

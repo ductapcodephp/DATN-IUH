@@ -2,29 +2,20 @@ import React from "react";
 
 import FrontendLayout from "@/Layouts/Frontend/FrontendLayout";
 
-import HeroSection from "./HeroSection";
-import FeaturedCourses from "./FeaturedCourses";
-import InstructorSection from "./InstructorSection";
-import CategorySection from "./CategorySection";
-import BecomeSeller from "./BecomeSeller";
+import BlockRenderer from "@/Pages/Frontend/Blocks/BlockRenderer";
 
-
-export default function Home({vipCourses, topInstructors, enrolledCourseIds}) {
-
+export default function Home({sponsoredCourses, topInstructors, enrolledCourseIds, blocks = []}) {
     return (
         <>
-            <HeroSection />
-
-            <FeaturedCourses courses={vipCourses} enrolledCourseIds={enrolledCourseIds} />
-
-            <InstructorSection instructors={topInstructors} />
-
-            <CategorySection />
-
-            <BecomeSeller />
+            {blocks.map(block => (
+                <BlockRenderer 
+                    key={block.id} 
+                    block={block} 
+                    extraData={{ courses: sponsoredCourses, instructors: topInstructors, enrolledCourseIds }}
+                />
+            ))}
         </>
     );
-
 }
 
 

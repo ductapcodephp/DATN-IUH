@@ -32,21 +32,7 @@ class CourseController extends Controller
         ]);
     }
 
-    public function index(Request $request)
-    {
-        $filters = $request->only(['search', 'category', 'price', 'rating', 'sort']);
 
-        $courses = $this->courseService->getAllPublishedCourses($filters, 12);
-        $categories = $this->courseService->getActiveCategories();
-        $enrolledCourseIds = $this->courseService->getEnrolledCourseIds(auth()->id());
-
-        return Inertia::render('Frontend/Course/Index', [
-            'courses' => $courses,
-            'categories' => $categories,
-            'filters' => $filters,
-            'enrolledCourseIds' => $enrolledCourseIds,
-        ]);
-    }
 
     public function show($slug)
     {
@@ -58,7 +44,9 @@ class CourseController extends Controller
         $reviews = $this->reviewService->getCourseReviews($course->id);
         $userReview = $this->reviewService->getUserReviewForCourse(auth()->id(), $course->id);
 
-        return Inertia::render('Frontend/Course/Detail', compact('course', 'relatedCourses', 'isEnrolled', 'enrollment', 'reviews', 'userReview'));
+        $data = compact('course', 'relatedCourses', 'isEnrolled', 'enrollment', 'reviews', 'userReview');
+
+        return Inertia::render('Frontend/Course/Detail', $data);
     }
 
     public function enrollFreeCourse($slug)

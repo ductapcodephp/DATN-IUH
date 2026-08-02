@@ -3,12 +3,27 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Services\Frontend\BlogService;
 use Inertia\Inertia;
 
 class BlogController extends Controller
 {
-    public function index()
+    protected $blogService;
+
+    public function __construct(BlogService $blogService)
     {
-        return Inertia::render('Frontend/Blog/Index');
+        $this->blogService = $blogService;
+    }
+
+
+
+    public function show($slug)
+    {
+        $data = $this->blogService->getArticleBySlug($slug);
+
+        return Inertia::render('Frontend/Blog/Detail', [
+            'article' => $data['article'],
+            'post' => $data['post']
+        ]);
     }
 }

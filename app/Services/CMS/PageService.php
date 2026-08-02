@@ -14,7 +14,7 @@ class PageService
     ) {
     }
 
-    public function getPaginatedPages(int $perPage = 15): LengthAwarePaginator
+    public function getPaginatedPages(int $perPage = 10): LengthAwarePaginator
     {
         return $this->pageRepository->paginate($perPage);
     }

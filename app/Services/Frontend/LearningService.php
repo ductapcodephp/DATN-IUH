@@ -117,20 +117,29 @@ class LearningService
         $newWatched = max($oldWatched, $dto->watchedSeconds);
         $currentTimestamp = now()->timestamp;
 
-        if ($lastUpdatedAt !== null) {
-            if ($newWatched > $oldWatched) {
-                $videoTimeJump = $newWatched - $oldWatched;
+        // Kiểm tra xem lesson này đã hoàn thành chưa
+        $progress = \App\Models\CourseProgress::where('user_id', $userId)
+            ->where('lesson_id', $lessonId)
+            ->first();
+        $isCompleted = $progress ? $progress->is_completed : false;
 
-                $maxJumpAllowed = 25;
+        // Chỉ chặn tua nếu video chưa được hoàn thành
+        if (!$isCompleted) {
+            if ($lastUpdatedAt !== null) {
+                if ($newWatched > $oldWatched) {
+                    $videoTimeJump = $newWatched - $oldWatched;
+                    $elapsedRealTime = $currentTimestamp - $lastUpdatedAt;
 
-                if ($videoTimeJump > $maxJumpAllowed) {
-                    $newWatched = $oldWatched;
+                    // Cho phép độ trễ mạng/chênh lệch thời gian tối đa 10s
+                    if ($videoTimeJump > ($elapsedRealTime + 10)) {
+                        $newWatched = $oldWatched + $elapsedRealTime;
+                    }
                 }
-            }
-        } else {
-            $maxFirstPingAllowed = 25;
-            if ($newWatched > $maxFirstPingAllowed) {
-                $newWatched = 0;
+            } else {
+                $maxFirstPingAllowed = 25;
+                if ($newWatched > $maxFirstPingAllowed) {
+                    $newWatched = 0;
+                }
             }
         }
 

@@ -175,7 +175,9 @@ class CourseRepository implements CourseRepositoryInterface
 
     public function getActiveCategories()
     {
-        return Category::where('is_active', true)->get(['id', 'name', 'slug']);
+        return Category::where('is_active', true)
+            ->where('type', 'course')
+            ->get(['id', 'name', 'slug']);
     }
 
     public function getEnrolledCourseIds($userId)

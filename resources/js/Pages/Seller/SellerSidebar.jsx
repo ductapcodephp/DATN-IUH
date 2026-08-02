@@ -54,6 +54,13 @@ export default function SellerSidebar() {
                 <i className="fa-solid fa-ticket"></i> Mã giảm giá
             </Link>
 
+            <Link
+                className={`nav-item ${route().current('seller.ads.index') ? 'active' : ''}`}
+                href={route('seller.ads.index')}
+            >
+                <i className="fa-solid fa-rectangle-ad text-primary"></i> Đăng ký ADS
+            </Link>
+
 
             <div className="sidebar-section mt-4">Khu vực cài đặt</div>
 

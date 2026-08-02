@@ -13,9 +13,9 @@ class HomeService
         $this->homeRepository = $homeRepository;
     }
 
-    public function getVipCourses()
+    public function getSponsoredCourses()
     {
-        return $this->homeRepository->getVipCourses();
+        return $this->homeRepository->getSponsoredCourses();
     }
 
     public function getTopInstructors()

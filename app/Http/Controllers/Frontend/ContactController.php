@@ -18,9 +18,21 @@ class ContactController extends Controller
     public function index()
     {
         $topics = Topic::where('type', 'contact')->get();
-        return Inertia::render('Frontend/Contact/Index', [
-            'contactTopics' => $topics
-        ]);
+        
+        $pageData = app(PageController::class)->getPageData('lien-he');
+        
+        if (!$pageData) {
+            $pageData = [
+                'post' => null,
+                'page' => null,
+                'blocks' => [],
+                'blockTypesConfig' => config('cms_blocks', []),
+            ];
+        }
+        
+        $pageData['contactTopics'] = $topics;
+
+        return Inertia::render('Frontend/Contact/Index', $pageData);
     }
 
     public function store(Request $request)

@@ -60,6 +60,12 @@ export default function AdminLayout({ children }) {
                             </Link>
                         </li>
                         <li className="nav-item">
+                            <Link href={route('admin.categories.index')} className={`nav-link ${route().current('admin.categories*') ? 'active' : ''}`}>
+                                <span className="nav-icon"><i className="fa-solid fa-layer-group"></i></span>
+                                <span className="nav-text">Danh mục Khóa học</span>
+                            </Link>
+                        </li>
+                        <li className="nav-item">
                             <Link href={route('admin.users')} className={`nav-link ${route().current('admin.users*') ? 'active' : ''}`}>
                                 <span className="nav-icon"><i className="fa-solid fa-users"></i></span>
                                 <span className="nav-text">Người dùng</span>
@@ -96,15 +102,15 @@ export default function AdminLayout({ children }) {
                             </Link>
                         </li>
                         <li className="nav-item">
-                            <Link href={route('admin.topics.index')} className={`nav-link ${route().current('admin.topics*') ? 'active' : ''}`}>
-                                <span className="nav-icon"><i className="fa-solid fa-tags"></i></span>
-                                <span className="nav-text">Chủ đề</span>
-                            </Link>
-                        </li>
-                        <li className="nav-item">
                             <Link href={route('admin.notifications.index')} className={`nav-link ${route().current('admin.notifications*') ? 'active' : ''}`}>
                                 <span className="nav-icon"><i className="fa-solid fa-bell"></i></span>
                                 <span className="nav-text">Thông báo</span>
+                            </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link href={route('admin.wallet-bonuses.index')} className={`nav-link ${route().current('admin.wallet-bonuses*') ? 'active' : ''}`}>
+                                <span className="nav-icon"><i className="fa-solid fa-gift"></i></span>
+                                <span className="nav-text">Thưởng nạp ví</span>
                             </Link>
                         </li>
                         <li className="nav-item">

@@ -21,5 +21,6 @@
         <script>
           var vConsole = new VConsole();
         </script>
+        <script src="/plugins/ckeditor/ckeditor.js"></script>
     </body>
 </html>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import CMSLayout from '@/Layouts/CMS/CMSLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, Link, usePage } from '@inertiajs/react';
 
 export default function Edit({ pageData }) {
+    const { auth } = usePage().props;
+    const isRoot = auth?.user?.current_role === 'root' || auth?.user?.current_role?.value === 'root';
     const [activeTab, setActiveTab] = useState('content');
 
     const { data, setData, put, processing, errors } = useForm({
@@ -115,9 +117,27 @@ export default function Edit({ pageData }) {
                                 </div>
 
                                 <div className="col-md-12">
-                                    <div className="wow-input d-flex align-items-center mb-1" style={{ background: 'rgba(255,107,0,0.05)', borderColor: 'rgba(255,107,0,0.2)' }}>
-                                        <i className="fa-solid fa-link me-2" style={{ color: 'var(--wow-primary)' }}></i>
-                                        <span className="text-muted">Đường dẫn hiện tại: <strong>{data.slug}</strong></span>
+                                    <div className="wow-input d-flex justify-content-between align-items-center mb-1" style={{ background: 'rgba(255,107,0,0.05)', borderColor: 'rgba(255,107,0,0.2)' }}>
+                                        <div>
+                                            <i className="fa-solid fa-link me-2" style={{ color: 'var(--wow-primary)' }}></i>
+                                            <span className="text-muted">Đường dẫn hiện tại: <a href={`/tech-education/${data.slug}.html`} target="_blank" rel="noopener noreferrer" className="fw-bold" style={{ color: 'var(--wow-primary)', textDecoration: 'none' }}>{data.slug} <i className="fa-solid fa-arrow-up-right-from-square ms-1" style={{ fontSize: '0.8em' }}></i></a></span>
+                                        </div>
+                                        <div className="form-check form-switch mb-0">
+                                            <input 
+                                                className="form-check-input" 
+                                                type="checkbox" 
+                                                id="keepSlugCheck"
+                                                checked={data.keep_slug}
+                                                onChange={e => setData('keep_slug', e.target.checked)}
+                                                disabled={!isRoot}
+                                            />
+                                            <label className="form-check-label small fw-bold text-muted" htmlFor="keepSlugCheck">
+                                                Giữ nguyên slug <i className="fa-solid fa-lock ms-1" title="Chỉ Root Admin mới có thể đổi slug"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="small text-muted mb-3 fst-italic">
+                                        * Chỉ có role <strong>ROOT</strong> mới được phép thay đổi slug. Khi tắt, slug sẽ được tự động tạo lại theo Tên trang.
                                     </div>
                                 </div>
 
@@ -222,18 +242,7 @@ export default function Edit({ pageData }) {
                                 <div className="col-md-12">
                                     <label className="wow-label">Cài đặt nâng cao</label>
                                     <div className="d-flex gap-4">
-                                        <div className="form-check form-switch mt-2">
-                                            <input 
-                                                className="form-check-input" 
-                                                type="checkbox" 
-                                                id="keep_slug"
-                                                checked={data.keep_slug}
-                                                onChange={e => setData('keep_slug', e.target.checked)}
-                                            />
-                                            <label className="form-check-label" htmlFor="keep_slug" style={{ color: 'var(--wow-text)' }}>
-                                                Giữ nguyên đường dẫn (Slug) cũ
-                                            </label>
-                                        </div>
+
                                         <div className="form-check form-switch mt-2">
                                             <input 
                                                 className="form-check-input" 

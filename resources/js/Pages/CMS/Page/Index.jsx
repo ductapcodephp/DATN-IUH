@@ -41,9 +41,19 @@ export default function Index({ pages }) {
                                         <tr key={page.id}>
                                             <td style={{ color: 'var(--wow-text-muted)' }}>#{page.id}</td>
                                             <td style={{ fontWeight: 600 }}>{page.name}</td>
-                                            <td style={{ color: 'var(--wow-primary)' }}>{page.post?.slug}</td>
+                                            <td style={{ color: 'var(--wow-primary)' }}>
+                                                {page.post?.slug && (
+                                                    <a href={`/tech-education/${page.post.slug}.html`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                        {page.post.slug} <i className="fa-solid fa-arrow-up-right-from-square ms-1" style={{ fontSize: '0.8em' }}></i>
+                                                    </a>
+                                                )}
+                                            </td>
                                             <td>
-                                                <span className="wow-badge">Hiển thị</span>
+                                                {page.post?.published === 'publish' ? (
+                                                    <span className="wow-badge">Hiển thị</span>
+                                                ) : (
+                                                    <span className="wow-badge" style={{ background: '#f1f5f9', color: '#64748b' }}>Bản nháp</span>
+                                                )}
                                             </td>
                                             <td className="text-end">
                                                 <Link href={route('cms.block.index', page.id)} className="wow-btn-icon me-2" title="Quản lý Block">

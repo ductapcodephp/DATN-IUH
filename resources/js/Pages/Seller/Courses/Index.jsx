@@ -26,7 +26,6 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
     const limitBytes = auth?.seller_storage_limit || 0;
     const usedBytes = auth?.seller_storage_used || 0;
     const usedPercentage = limitBytes > 0 ? (usedBytes / limitBytes) * 100 : 0;
-    const isStorageFull = usedBytes >= limitBytes && limitBytes > 0;
     const isNearLimit = usedPercentage >= 90;
 
     useEffect(() => {
@@ -53,13 +52,6 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
 
     const handleDelete = (id, title) => {
         setConfirmDelete({ show: true, id, title });
-    };
-
-    const handleCreateCourse = (e) => {
-        if (isStorageFull) {
-            e.preventDefault();
-            setShowStorageModal(true);
-        }
     };
 
     return (
@@ -124,7 +116,6 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
                         <Link
                             href={route('seller.courses.create')}
                             className="btn-primary"
-                            onClick={handleCreateCourse}
                             style={{
                                 textDecoration: 'none',
                                 backgroundColor: '#f97316',
@@ -136,7 +127,8 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px',
-                                fontWeight: 'bold'
+                                fontWeight: 'bold',
+                                cursor: 'pointer'
                             }}
                             onMouseEnter={(e) => e.target.style.backgroundColor = '#ea580c'}
                             onMouseLeave={(e) => e.target.style.backgroundColor = '#f97316'}
@@ -291,7 +283,7 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
                                                         <i className="fa-solid fa-star"></i>
                                                     </Link>
                                                     <Link
-                                                        href={route('seller.courses.comments.index', course.id)}
+                                                        href="#"
                                                         className="action-btn"
                                                         title="Quản lý bình luận"
                                                         style={{ color: '#3b82f6' }}

@@ -35,6 +35,8 @@ class CorePicture extends Model
 
     public function galleries()
     {
-        return $this->belongsToMany(CoreGallery::class, 'core_gallery_pictures', 'picture_id', 'gallery_id');
+        return $this->belongsToMany(CoreGallery::class, 'core_gallery_pictures', 'picture_id', 'gallery_id')
+            ->withPivot('sort_order', 'image', 'link')
+            ->orderByPivot('sort_order');
     }
 }

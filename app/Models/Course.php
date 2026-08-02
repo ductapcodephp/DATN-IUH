@@ -182,6 +182,16 @@ class Course extends Model
         return $this->hasMany(Wishlist::class);
     }
 
+    public function ads(): HasMany
+    {
+        return $this->hasMany(CourseAd::class);
+    }
+
+    public function activeAd()
+    {
+        return $this->hasOne(CourseAd::class)->where('status', 'active');
+    }
+
     public function scopePublished($query)
     {
         return $query->where('status', 'published');

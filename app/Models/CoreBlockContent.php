@@ -41,10 +41,31 @@ class CoreBlockContent extends Model
 
     protected $casts = [
         'config' => 'array',
+        'content' => 'array',
     ];
 
     public function post()
     {
         return $this->belongsTo(CorePost::class, 'post_id');
     }
+
+    /**
+     * Lấy danh sách listing items từ content JSON
+     */
+    public function getListingItems(): array
+    {
+        $content = is_array($this->content) ? $this->content : [];
+        return $content['listingItem'] ?? [];
+    }
+
+    /**
+     * Lấy danh sách listing item extra từ content JSON
+     */
+    public function getListingItemExtras(): array
+    {
+        $content = is_array($this->content) ? $this->content : [];
+        return $content['listingItemExtra'] ?? [];
+    }
+
+
 }

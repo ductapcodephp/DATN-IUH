@@ -4,6 +4,7 @@ import {
     Transition,
     TransitionChild,
 } from '@headlessui/react';
+import { Fragment } from 'react';
 
 export default function Modal({
     children,
@@ -18,23 +19,33 @@ export default function Modal({
         }
     };
 
-    const maxWidthClass = {
-        sm: 'sm:max-w-sm',
-        md: 'sm:max-w-md',
-        lg: 'sm:max-w-lg',
-        xl: 'sm:max-w-xl',
-        '2xl': 'sm:max-w-2xl',
+    const maxWidthStyle = {
+        sm: '384px',
+        md: '448px',
+        lg: '512px',
+        xl: '576px',
+        '2xl': '672px',
     }[maxWidth];
 
     return (
-        <Transition show={show} leave="duration-200">
+        <Transition show={show} as={Fragment}>
             <Dialog
                 as="div"
                 id="modal"
-                className="fixed inset-0 z-50 flex transform items-center overflow-y-auto px-4 py-6 transition-all sm:px-0"
+                style={{
+                    position: 'fixed',
+                    top: 0, right: 0, bottom: 0, left: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflowY: 'auto',
+                    padding: '1.5rem',
+                    zIndex: 999999
+                }}
                 onClose={close}
             >
                 <TransitionChild
+                    as={Fragment}
                     enter="ease-out duration-300"
                     enterFrom="opacity-0"
                     enterTo="opacity-100"
@@ -42,10 +53,11 @@ export default function Modal({
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="absolute inset-0 bg-gray-500/75" />
+                    <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' }} />
                 </TransitionChild>
 
                 <TransitionChild
+                    as={Fragment}
                     enter="ease-out duration-300"
                     enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                     enterTo="opacity-100 translate-y-0 sm:scale-100"
@@ -54,7 +66,17 @@ export default function Modal({
                     leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
                     <DialogPanel
-                        className={`mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full ${maxWidthClass}`}
+                        style={{
+                            backgroundColor: '#fff',
+                            borderRadius: '0.5rem',
+                            overflow: 'hidden',
+                            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                            width: '100%',
+                            maxWidth: maxWidthStyle,
+                            margin: '0 auto',
+                            position: 'relative',
+                            zIndex: 10
+                        }}
                     >
                         {children}
                     </DialogPanel>

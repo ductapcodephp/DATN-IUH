@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Redis;
 class AuthService
 {
     /**
-     * Xử lý nghiệp vụ đăng ký tài khoản mới chuẩn cấu trúc Multi-Role (JSON)
      */
     public function register(array $data): User
     {
@@ -47,9 +46,6 @@ class AuthService
         });
     }
 
-    /**
-     * Xử lý nghiệp vụ xác thực đăng nhập
-     */
     public function login(array $credentials, array $context, bool $remember = false): string
     {
         $user = User::query()->where('email', $credentials['email'])->first();
@@ -77,9 +73,6 @@ class AuthService
         return $strategy->handlePostLogin($user);
     }
 
-    /**
-     * Xử lý dọn dẹp phiên làm việc khi Logout
-     */
     public function logout(User $user, string $userAgent): void
     {
         $deviceId = md5($userAgent);
@@ -92,9 +85,6 @@ class AuthService
         Redis::del("user_session:{$user->id}");
     }
 
-    /**
-     * Ghi nhận lịch sử đăng nhập (Dùng cho Security Audit)
-     */
     protected function recordLoginAttempt(string $email, array $context, bool $successful, ?string $reason): void
     {
         LoginAttempt::query()->create([
@@ -107,9 +97,6 @@ class AuthService
         ]);
     }
 
-    /**
-     * Xử lý nghiệp vụ đăng nhập với Google
-     */
     public function handleGoogleUser($googleUser): User
     {
         return DB::transaction(function () use ($googleUser) {
@@ -118,10 +105,8 @@ class AuthService
                 return $user;
             }
 
-            // Check if email already exists
             $userByEmail = User::query()->where('email', $googleUser->email)->first();
             if ($userByEmail) {
-                // Link google account to existing user
                 $userByEmail->update([
                     'google_id' => $googleUser->id,
                     'avatar' => $userByEmail->avatar ?? $googleUser->avatar,
@@ -129,7 +114,6 @@ class AuthService
                 return $userByEmail;
             }
 
-            // Create new user
             return User::query()->create([
                 'name' => $googleUser->name,
                 'email' => $googleUser->email,

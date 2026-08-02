@@ -48,6 +48,20 @@ class HandleInertiaRequests extends Middleware
             ],
             'vip_packages' => VipPackage::active()->ordered()->get(),
             'wallet_bonuses' => WalletBonus::where('is_active', true)->orderBy('min_amount')->get(),
+            'headerMenus' => function () {
+                return \App\Models\CoreMenu::where('display', 'show')
+                    ->where('position', 'header')
+                    ->whereNull('parent_id')
+                    ->with(['children' => function($q) {
+                        $q->where('display', 'show')->orderBy('sort_order', 'asc');
+                    }])
+                    ->orderBy('sort_order', 'asc')
+                    ->get();
+            },
+            'core_settings' => function () {
+                // Lấy toàn bộ setting dạng key-value
+                return \App\Models\CoreSetting::pluck('setting_value', 'setting_key')->toArray();
+            },
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

@@ -4,7 +4,7 @@ import VipBadge from '@/Components/VipBadge';
 import axios from 'axios';
 
 export default function Header() {
-    const { auth } = usePage().props;
+    const { auth, headerMenus } = usePage().props;
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -109,98 +109,56 @@ export default function Header() {
                 <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} id="mainNavbar">
 
                     <ul className="navbar-nav main-nav mb-3 mb-lg-0 gap-lg-3">
-
-                        <li className="nav-item">
-                            <Link className={`nav-link main-nav-link ${isActive('/home') ? 'active' : ''}`} href={route('frontend.home')}>
-                                Trang chủ
-                            </Link>
-                        </li>
-
-
-                        <li className="nav-item dropdown">
-
-                            <a
-                                className="nav-link main-nav-link dropdown-toggle"
-                                href="#"
-                                id="learningDropdown"
-                                role="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                Học tập
-                            </a>
-
-
-                            <ul
-                                className="dropdown-menu shadow-sm border-0 mt-2 p-2"
-                                aria-labelledby="learningDropdown"
-                                style={{ minWidth: "220px" }}
-                            >
-
-                                <li>
-                                    <Link
-                                        className="dropdown-item d-flex align-items-center gap-2 py-2 fw-medium rounded text-secondary"
-                                        href={route('frontend.course.index')}
-                                    >
-                                        <i
-                                            className="fa-solid fa-book-open text-primary"
-                                            style={{
-                                                width: "20px",
-                                                textAlign: "center"
-                                            }}
-                                        ></i>
-
-                                        Danh sách khóa học
-                                    </Link>
-                                </li>
-
-
-                                <li>
-                                    <Link
-                                        className="dropdown-item d-flex align-items-center gap-2 py-2 fw-medium rounded text-secondary"
-                                        href={route('frontend.instructor.index')}
-                                    >
-                                        <i
-                                            className="fa-solid fa-chalkboard-user text-info"
-                                            style={{
-                                                width: "20px",
-                                                textAlign: "center"
-                                            }}
-                                        ></i>
-
-                                        Danh sách giảng viên
-                                    </Link>
-                                </li>
-
-                            </ul>
-
-                        </li>
-
-
-                        <li className="nav-item">
-                            <Link className={`nav-link main-nav-link ${isActive('/blog') ? 'active' : ''}`} href={route('frontend.blog.index')}>
-                                Blog
-                            </Link>
-                        </li>
-
-                        <li className="nav-item">
-                            <Link className={`nav-link main-nav-link ${isActive('/about') ? 'active' : ''}`} href={route('frontend.about.index')}>
-                                Giới thiệu
-                            </Link>
-                        </li>
-
-                        <li className="nav-item">
-                            <Link className={`nav-link main-nav-link ${isActive('/faqs') ? 'active' : ''}`} href={route('frontend.faq.index')}>
-                                FAQ
-                            </Link>
-                        </li>
-
-                        <li className="nav-item">
-                            <Link className={`nav-link main-nav-link ${isActive('/contact') ? 'active' : ''}`} href={route('frontend.contact.index')}>
-                                Liên hệ
-                            </Link>
-                        </li>
-
+                        {headerMenus && headerMenus.map((menu) => {
+                            if (menu.children && menu.children.length > 0) {
+                                return (
+                                    <li className="nav-item dropdown" key={menu.id}>
+                                        <a
+                                            className="nav-link main-nav-link dropdown-toggle"
+                                            href="#"
+                                            id={`menuDropdown-${menu.id}`}
+                                            role="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                        >
+                                            {menu.icon && <i className={`${menu.icon} me-2`}></i>}
+                                            {menu.name}
+                                        </a>
+                                        <ul
+                                            className="dropdown-menu shadow-sm border-0 mt-2 p-2"
+                                            aria-labelledby={`menuDropdown-${menu.id}`}
+                                            style={{ minWidth: "220px" }}
+                                        >
+                                            {menu.children.map(child => (
+                                                <li key={child.id}>
+                                                    <a
+                                                        className="dropdown-item d-flex align-items-center gap-2 py-2 fw-medium rounded text-secondary"
+                                                        href={child.url || '#'}
+                                                    >
+                                                        {child.icon && (
+                                                            <i
+                                                                className={`${child.icon} text-primary`}
+                                                                style={{ width: "20px", textAlign: "center" }}
+                                                            ></i>
+                                                        )}
+                                                        {child.name}
+                                                    </a>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </li>
+                                );
+                            } else {
+                                return (
+                                    <li className="nav-item" key={menu.id}>
+                                        <a className={`nav-link main-nav-link`} href={menu.url || '#'}>
+                                            {menu.icon && <i className={`${menu.icon} me-2`}></i>}
+                                            {menu.name}
+                                        </a>
+                                    </li>
+                                );
+                            }
+                        })}
                     </ul>
 
 
@@ -294,14 +252,7 @@ export default function Header() {
                                     <a className="nav-link dropdown-toggle d-flex align-items-center gap-2 p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <img src={getAvatarUrl(user.avatar)} alt="Avatar" className="rounded-circle object-fit-cover" width="36" height="36" />
                                         <span className="fw-semibold text-dark d-none d-md-inline-block">{user.name}</span>
-                                        <div className="d-none d-md-block">
-                                            <VipBadge 
-                                                isUserVip={auth?.isUserVip} 
-                                                isSellerVip={auth?.isSellerVip} 
-                                                userVipBadge={auth?.userVipBadge} 
-                                                sellerVipBadge={auth?.sellerVipBadge} 
-                                            />
-                                        </div>
+
                                     </a>
                                     <ul className="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2 p-2" aria-labelledby="userDropdown">
                                         <li><Link className="dropdown-item py-2 rounded font-sm" href={route('dashboard.index')}><i className="fa-solid fa-gauge me-2 text-secondary"></i> Bảng điều khiển</Link></li>

@@ -44,7 +44,7 @@ class CartController extends Controller
 
         $popularCourses = $this->courseService->getPopularCourses(4);
 
-        return Inertia::render('Frontend/Cart/Index', [
+        $renderData = [
             'cart' => $cartData['cart'],
             'cartItems' => $cartData['cartItems'],
             'totalAmount' => $cartData['totalAmount'],
@@ -78,7 +78,14 @@ class CartController extends Controller
 
                 return [];
             }),
-        ]);
+        ];
+        
+        $pageData = app(\App\Http\Controllers\Frontend\PageController::class)->getPageData('gio-hang');
+        if ($pageData) {
+            $renderData = array_merge($renderData, $pageData);
+        }
+
+        return Inertia::render('Frontend/Cart/Index', $renderData);
     }
 
     public function add(Request $request, Course $course)
