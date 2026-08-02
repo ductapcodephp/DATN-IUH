@@ -83,7 +83,7 @@ class AuthController extends Controller
             UserLoggedIn::dispatch($user, $context);
             Log::info('After dispatch UserLoggedIn');
 
-            return redirect()->intended($redirectUrl)->with('success', 'Đăng nhập thành công!');
+            return redirect($redirectUrl)->with('success', 'Đăng nhập thành công!');
 
         } catch (Exception $e) {
             Log::error('Login Error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
@@ -129,7 +129,7 @@ class AuthController extends Controller
 
             UserLoggedIn::dispatch($user, $context);
 
-            return redirect()->intended(route($user->redirectRoute()))->with('success', 'Đăng nhập bằng Google thành công!');
+            return redirect(route($user->redirectRoute()))->with('success', 'Đăng nhập bằng Google thành công!');
         } catch (Exception $e) {
             Log::error('Google Login Error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
 
