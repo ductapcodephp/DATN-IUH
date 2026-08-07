@@ -3,7 +3,6 @@ import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 
 /**
- * Custom hook to manage video.js player initialization and cleanup.
  * @param {Object} activeLesson - The currently active lesson.
  * @returns {Object} { videoRef, playerRef }
  */

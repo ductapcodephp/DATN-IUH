@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-/**
- * Custom hook for tracking video progress and preventing cheating.
- */
 export const useProgressTracker = ({
     activeLesson,
     course,
@@ -21,7 +18,6 @@ export const useProgressTracker = ({
     useEffect(() => {
         if (!activeLesson || activeLesson.type !== 'video' || !activeLesson.video) return;
 
-        // Ensure the player is attached. We use a small timeout to let useVideoPlayer init it first
         const initTracker = () => {
             const player = playerRef.current;
             if (!player) return;

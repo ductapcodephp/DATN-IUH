@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-/**
- * Custom hook for quiz state management.
- */
+
 export const useQuizEngine = ({ activeLesson, course, userQuizResults, localCompleted, setLocalCompleted, flattenedLessons, setProgress }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState({});

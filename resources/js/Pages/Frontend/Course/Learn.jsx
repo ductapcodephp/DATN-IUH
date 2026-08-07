@@ -7,9 +7,9 @@ import QuizPanel from './Components/QuizPanel';
 import LessonSidebar from './Components/LessonSidebar';
 import CheatWarningModal from './Components/CheatWarningModal';
 
-import { useVideoPlayer } from '../../../../hooks/useVideoPlayer';
-import { useProgressTracker } from '../../../../hooks/useProgressTracker';
-import { useQuizEngine } from '../../../../hooks/useQuizEngine';
+import { useVideoPlayer } from '../../../hooks/useVideoPlayer';
+import { useProgressTracker } from '../../../hooks/useProgressTracker';
+import { useQuizEngine } from '../../../hooks/useQuizEngine';
 
 export default function Learn({ course, userQuizResults = {}, courseProgress = 0, completedLessonIds = [], lessonProgresses = {}, reportTopics = [] }) {
     const { chapters } = course;
@@ -38,7 +38,7 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
     const [currentNoteTime, setCurrentNoteTime] = useState('00:00');
 
     // Custom Hooks
-    // Note: useVideoPlayer path from resources/js/Pages/Frontend/Course to resources/js/hooks is ../../../../hooks
+    // Note: useVideoPlayer path from resources/js/Pages/Frontend/Course to resources/js/hooks is ../../../hooks
     const { videoRef, playerRef } = useVideoPlayer(activeLesson);
     
     const { showCheatModal, cheatMessage, setShowCheatModal } = useProgressTracker({
