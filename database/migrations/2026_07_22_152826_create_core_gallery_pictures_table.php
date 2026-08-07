@@ -12,14 +12,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('gallery_id')->nullable();
             $table->unsignedBigInteger('picture_id')->nullable();
-            $table->longText('image')->nullable();
-            $table->longText('image_mobile')->nullable();
-            $table->longText('link')->nullable();
             $table->integer('sort_order')->nullable();
-            $table->string('url_video')->nullable();
-            $table->string('title')->nullable();
-            $table->string('sub_title')->nullable();
-            $table->longText('name')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

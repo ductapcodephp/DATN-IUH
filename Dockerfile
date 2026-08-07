@@ -28,7 +28,6 @@ RUN composer install --no-dev --optimize-autoloader
 
 RUN npm install --legacy-peer-deps
 
-ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN cp .env.example .env || true
 RUN npm run build
 

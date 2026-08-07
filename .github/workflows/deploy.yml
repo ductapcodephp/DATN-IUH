@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # --- GIAI ĐOẠN 1: CHẠY TRÊN SERVER CỦA GITHUB ---
   build-and-push:
     name: Build & Push to Docker Hub
     runs-on: ubuntu-latest
@@ -28,7 +27,6 @@ jobs:
           push: true
           tags: ductapdevops/datn-devops:latest 
 
-  # --- GIAI ĐOẠN 2: CHẠY TRÊN SERVER UNBUTU ---
   deploy:
     name: Deploy to Ubuntu Server
     needs: build-and-push 

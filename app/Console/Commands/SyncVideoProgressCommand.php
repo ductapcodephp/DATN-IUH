@@ -27,21 +27,21 @@ class SyncVideoProgressCommand extends Command
      */
     public function handle()
     {
-        $keys = Redis::keys('laravel_database_video_progress:*');
-        
+        $keys = $this->scanRedisKeys('laravel_database_video_progress:*');
+
         if (empty($keys)) {
-             $keys = Redis::keys('video_progress:*');
+            $keys = $this->scanRedisKeys('video_progress:*');
         }
 
-        $count = 0;
+        $validEntries = [];
 
         foreach ($keys as $fullKey) {
             $parts = explode('video_progress:', $fullKey);
             if (count($parts) < 2) continue;
-            
-            $keySuffix = 'video_progress:' . $parts[1]; 
+
+            $keySuffix = 'video_progress:' . $parts[1];
             $ids = explode(':', $parts[1]);
-            
+
             if (count($ids) != 2) continue;
 
             $userId = $ids[0];
@@ -51,29 +51,51 @@ class SyncVideoProgressCommand extends Command
             if (! $data) continue;
 
             $progressData = json_decode($data, true);
-            $watchedSeconds = $progressData['watched_seconds'] ?? 0;
-            $skippedSeconds = $progressData['skipped_seconds'] ?? 0;
-            $durationSeconds = $progressData['duration_seconds'] ?? 0;
             $updatedAt = $progressData['updated_at'] ?? 0;
 
             if (now()->timestamp - $updatedAt < 60) {
                 continue;
             }
 
-            $lesson = Lesson::with('chapter')->find($lessonId);
-            if (!$lesson || !$lesson->chapter) continue;
+            $validEntries[] = [
+                'redis_key' => $keySuffix,
+                'user_id' => $userId,
+                'lesson_id' => $lessonId,
+                'watched_seconds' => $progressData['watched_seconds'] ?? 0,
+                'skipped_seconds' => $progressData['skipped_seconds'] ?? 0,
+                'duration_seconds' => $progressData['duration_seconds'] ?? 0,
+            ];
+        }
+
+        if (empty($validEntries)) {
+            $this->info('Không có record nào cần đồng bộ.');
+            return;
+        }
+
+        $lessonIds = collect($validEntries)->pluck('lesson_id')->unique()->toArray();
+        $lessons = Lesson::with('chapter')->whereIn('id', $lessonIds)->get()->keyBy('id');
+
+        $count = 0;
+
+        foreach ($validEntries as $entry) {
+            $lesson = $lessons->get($entry['lesson_id']);
+            if (!$lesson || !$lesson->chapter) {
+                Redis::del($entry['redis_key']);
+                continue;
+            }
+
             $courseId = $lesson->chapter->course_id;
 
             $progress = CourseProgress::firstOrCreate(
                 [
-                    'user_id' => $userId,
+                    'user_id' => $entry['user_id'],
                     'course_id' => $courseId,
-                    'lesson_id' => $lessonId,
+                    'lesson_id' => $entry['lesson_id'],
                 ],
                 [
                     'watched_seconds' => 0,
                     'skipped_seconds' => 0,
-                    'duration_seconds' => $durationSeconds,
+                    'duration_seconds' => $entry['duration_seconds'],
                     'is_completed' => false,
                 ]
             );
@@ -81,32 +103,54 @@ class SyncVideoProgressCommand extends Command
             $wasCompleted = $progress->is_completed;
 
             if ($progress->duration_seconds == 0) {
-                $progress->duration_seconds = $durationSeconds;
+                $progress->duration_seconds = $entry['duration_seconds'];
             }
 
-            $progress->updateWatchedAndSkippedSeconds($watchedSeconds, $skippedSeconds);
+            $progress->updateWatchedAndSkippedSeconds($entry['watched_seconds'], $entry['skipped_seconds']);
 
             if (! $wasCompleted && $progress->is_completed) {
                 $totalLessons = Lesson::whereHas('chapter', function ($q) use ($courseId) {
                     $q->where('course_id', $courseId);
                 })->count();
 
-                $completedLessons = CourseProgress::where('user_id', $userId)
+                $completedLessons = CourseProgress::where('user_id', $entry['user_id'])
                     ->where('course_id', $courseId)
                     ->where('is_completed', true)
                     ->count();
 
                 $progressPercentage = $totalLessons > 0 ? round(($completedLessons / $totalLessons) * 100) : 0;
 
-                CourseEnrollment::where('student_id', $userId)
+                CourseEnrollment::where('student_id', $entry['user_id'])
                     ->where('course_id', $courseId)
                     ->update(['progress' => $progressPercentage]);
             }
 
-            Redis::del($keySuffix);
+             Redis::del($entry['redis_key']);
             $count++;
         }
 
         $this->info("Đã đồng bộ thành công $count record tiến độ học bị kẹt.");
+    }
+
+    private function scanRedisKeys(string $pattern): array
+    {
+        $keys = [];
+        $cursor = '0';
+
+        do {
+            $result = Redis::scan($cursor, ['match' => $pattern, 'count' => 100]);
+
+            if ($result === false) {
+                break;
+            }
+
+            [$cursor, $matches] = $result;
+
+            if (is_array($matches) && !empty($matches)) {
+                $keys = array_merge($keys, $matches);
+            }
+        } while ($cursor !== '0' && $cursor !== 0);
+
+        return $keys;
     }
 }

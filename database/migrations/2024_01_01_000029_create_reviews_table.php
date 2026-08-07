@@ -16,6 +16,8 @@ return new class extends Migration {
             $table->tinyInteger('rating')->comment('Rating 1-5');
             $table->text('content')->nullable();
             $table->boolean('is_hidden')->default(false);
+            $table->boolean('is_reported')->default(false);
+            $table->text('reply_content')->nullable();
             $table->softDeletes();
             $table->timestamps();
             

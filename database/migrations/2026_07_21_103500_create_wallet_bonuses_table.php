@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->decimal('min_amount', 15, 2)->comment('Số tiền nạp tối thiểu để đạt mức thưởng này');
             $table->decimal('bonus_percentage', 5, 2)->comment('Phần trăm thưởng (vd: 3.00)');
+            $table->decimal('max_bonus_amount', 15, 2)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

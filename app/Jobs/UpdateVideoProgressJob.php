@@ -11,11 +11,16 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class UpdateVideoProgressJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $tries = 3;
+
+    public $backoff = 5;
 
     public $userId;
 
@@ -23,7 +28,7 @@ class UpdateVideoProgressJob implements ShouldBeUnique, ShouldQueue
 
     public $courseId;
 
-    public $uniqueFor = 3600; // Khóa 1 tiếng để tránh lặp job khi worker bị tắt
+    public $uniqueFor = 60; 
 
     public function uniqueId(): string
     {
@@ -89,5 +94,17 @@ class UpdateVideoProgressJob implements ShouldBeUnique, ShouldQueue
                 ->where('course_id', $this->courseId)
                 ->update(['progress' => $progressPercentage]);
         }
+
+        Redis::del($redisKey);
+    }
+
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('UpdateVideoProgressJob failed after all retries', [
+            'user_id' => $this->userId,
+            'lesson_id' => $this->lessonId,
+            'course_id' => $this->courseId,
+            'error' => $exception->getMessage(),
+        ]);
     }
 }

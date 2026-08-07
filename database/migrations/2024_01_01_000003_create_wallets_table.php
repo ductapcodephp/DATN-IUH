@@ -12,6 +12,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
             $table->decimal('balance', 15, 2)->default(0)->comment('Wallet balance in VND');
+            $table->decimal('balance_available', 15, 2)->default(0)->comment('Seller available balance (already released, can withdraw)');
+            $table->decimal('balance_pending', 15, 2)->default(0)->comment('Seller pending balance (waiting 7 days before release)');
+            $table->enum('status', ['locked', 'active'])->default('locked');
             $table->timestamps();
             
             $table->index('user_id');

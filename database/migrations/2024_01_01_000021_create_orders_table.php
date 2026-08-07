@@ -33,10 +33,18 @@ return new class extends Migration {
             $table->index('payment_method');
             $table->unique(['user_id', 'course_id'])->comment('One purchase per course per user');
         });
+
+        Schema::table('wallet_transactions', function (Blueprint $table) {
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('set null');
+        });
     }
 
     public function down(): void
     {
+        Schema::table('wallet_transactions', function (Blueprint $table) {
+            $table->dropForeign(['order_id']);
+        });
+
         Schema::dropIfExists('orders');
     }
 };

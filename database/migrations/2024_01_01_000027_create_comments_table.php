@@ -13,8 +13,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('lesson_id')->constrained('lessons')->onDelete('cascade');
-            $table->foreignId('parent_id')->nullable()->constrained('comments')->onDelete('cascade')->comment('Dành cho   
-  reply');
+            $table->foreignId('parent_id')->nullable()->constrained('comments')->onDelete('cascade')->comment('Dành cho reply');
 
             $table->text('content');
 
@@ -23,7 +22,11 @@ return new class extends Migration
 
             $table->unsignedInteger('likes_count')->default(0);
 
+            $table->unsignedInteger('_lft')->default(0);
+            $table->unsignedInteger('_rgt')->default(0);
+
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['lesson_id', 'is_hidden', 'parent_id']);
         });

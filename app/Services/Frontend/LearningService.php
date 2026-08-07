@@ -5,6 +5,7 @@ namespace App\Services\Frontend;
 use App\DTO\Frontend\Course\SubmitQuizData;
 use App\DTO\Frontend\Course\VideoProgressData;
 use App\Jobs\UpdateVideoProgressJob;
+use App\Models\CourseProgress;  
 use App\Repositories\Frontend\Learning\LearningRepositoryInterface;
 use Illuminate\Support\Facades\Redis;
 
@@ -107,30 +108,29 @@ class LearningService
         $oldDataJson = Redis::get($redisKey);
         $oldWatched = 0;
         $lastUpdatedAt = null;
+        $isCompleted = false;
 
         if ($oldDataJson) {
             $oldData = json_decode($oldDataJson, true);
             $oldWatched = $oldData['watched_seconds'] ?? 0;
             $lastUpdatedAt = $oldData['updated_at'] ?? null;
+            $isCompleted = $oldData['is_completed'] ?? false;
+        } else {
+            $progress = CourseProgress::where('user_id', $userId)
+                ->where('lesson_id', $lessonId)
+                ->first();
+            $isCompleted = $progress ? $progress->is_completed : false;
         }
 
         $newWatched = max($oldWatched, $dto->watchedSeconds);
         $currentTimestamp = now()->timestamp;
 
-        // Kiểm tra xem lesson này đã hoàn thành chưa
-        $progress = \App\Models\CourseProgress::where('user_id', $userId)
-            ->where('lesson_id', $lessonId)
-            ->first();
-        $isCompleted = $progress ? $progress->is_completed : false;
-
-        // Chỉ chặn tua nếu video chưa được hoàn thành
         if (!$isCompleted) {
             if ($lastUpdatedAt !== null) {
                 if ($newWatched > $oldWatched) {
                     $videoTimeJump = $newWatched - $oldWatched;
                     $elapsedRealTime = $currentTimestamp - $lastUpdatedAt;
 
-                    // Cho phép độ trễ mạng/chênh lệch thời gian tối đa 10s
                     if ($videoTimeJump > ($elapsedRealTime + 10)) {
                         $newWatched = $oldWatched + $elapsedRealTime;
                     }
@@ -148,6 +148,7 @@ class LearningService
             'skipped_seconds' => $dto->skippedSeconds,
             'duration_seconds' => $dto->durationSeconds,
             'updated_at' => $currentTimestamp,
+            'is_completed' => $isCompleted,
         ]);
 
         Redis::setex($redisKey, 3600, $payload);

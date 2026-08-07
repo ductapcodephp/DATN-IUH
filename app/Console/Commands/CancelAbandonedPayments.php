@@ -18,7 +18,7 @@ class CancelAbandonedPayments extends Command
     {
         $expiredPayments = OnlinePayment::with('orders')
             ->where('status', 'pending')
-            ->where('created_at', '<', Carbon::now()->subMinutes(1))
+            ->where('created_at', '<', Carbon::now()->subMinutes(15))
             ->get();
 
         if ($expiredPayments->isEmpty()) {

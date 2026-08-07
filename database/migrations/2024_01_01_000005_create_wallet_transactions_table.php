@@ -11,8 +11,9 @@ return new class extends Migration {
         Schema::create('wallet_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('wallet_id')->constrained('wallets')->onDelete('cascade');
+            $table->unsignedBigInteger('order_id')->nullable()->comment('Linked order for seller earning transactions');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('type', ['deposit', 'purchase', 'refund', 'commission', 'vip_payment'])->comment('Transaction type');
+            $table->enum('type', ['deposit', 'purchase', 'refund', 'commission', 'vip_payment', 'earning', 'withdrawal'])->comment('Transaction type');
             $table->decimal('amount', 15, 2)->comment('Transaction amount in VND');
             $table->decimal('balance_before', 15, 2)->comment('Balance before transaction');
             $table->decimal('balance_after', 15, 2)->comment('Balance after transaction');

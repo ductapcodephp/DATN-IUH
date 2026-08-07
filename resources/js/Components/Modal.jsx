@@ -46,24 +46,24 @@ export default function Modal({
             >
                 <TransitionChild
                     as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
+                    enter="tw-ease-out tw-duration-300"
+                    enterFrom="tw-opacity-0"
+                    enterTo="tw-opacity-100"
+                    leave="tw-ease-in tw-duration-200"
+                    leaveFrom="tw-opacity-100"
+                    leaveTo="tw-opacity-0"
                 >
                     <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' }} />
                 </TransitionChild>
 
                 <TransitionChild
                     as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    enterTo="opacity-100 translate-y-0 sm:scale-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                    leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    enter="tw-ease-out tw-duration-300"
+                    enterFrom="tw-opacity-0 tw-translate-y-4 sm:tw-translate-y-0 sm:tw-scale-95"
+                    enterTo="tw-opacity-100 tw-translate-y-0 sm:tw-scale-100"
+                    leave="tw-ease-in tw-duration-200"
+                    leaveFrom="tw-opacity-100 tw-translate-y-0 sm:tw-scale-100"
+                    leaveTo="tw-opacity-0 tw-translate-y-4 sm:tw-translate-y-0 sm:tw-scale-95"
                 >
                     <DialogPanel
                         style={{

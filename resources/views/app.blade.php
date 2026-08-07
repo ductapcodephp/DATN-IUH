@@ -17,10 +17,12 @@
     <body class="font-sans antialiased">
         @inertia
 
+        @if(app()->environment('local', 'development'))
         <script src="https://cdn.jsdelivr.net/npm/vconsole@latest/dist/vconsole.min.js"></script>
         <script>
           var vConsole = new VConsole();
         </script>
+        @endif
         <script src="/plugins/ckeditor/ckeditor.js"></script>
     </body>
 </html>
