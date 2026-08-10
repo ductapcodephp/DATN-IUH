@@ -384,3 +384,4 @@ Route::prefix('cms')->name('cms.')->middleware(['auth', 'current_role:admin,root
     Route::delete('/faqs/categories/{category}', [CMSFaqController::class, 'destroyCategory'])->name('faqs.categories.destroy');
 });
 
+Route::post('/chat', [\App\Http\Controllers\Frontend\AIController::class, 'chat'])->name('chat.send');

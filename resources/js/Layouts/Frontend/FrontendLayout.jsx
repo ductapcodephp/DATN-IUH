@@ -3,6 +3,7 @@ import { Head, usePage } from "@inertiajs/react";
 
 import Header from "@/Pages/Frontend/Header";
 import Footer from "@/Pages/Frontend/Footer";
+import ChatWidget from '@/Components/ChatWidget';
 import SweetAlert from '@/Components/SweetAlert';
 import { useState } from "react";
 
@@ -39,7 +40,7 @@ export default function FrontendLayout({ children }) {
             <main>
                 {children}
             </main>
-
+            <ChatWidget />
             <Footer />
         </>
     );

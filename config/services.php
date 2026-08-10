@@ -41,4 +41,10 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL') . '/auth/google/callback'),
     ],
 
+    'ollama' => [
+        'base_url' => env('OLLAMA_BASE_URL', 'http://127.0.0.1:11434'),
+        'model'    => env('OLLAMA_MODEL', 'qwen2.5:3b'),
+        'timeout'  => env('OLLAMA_TIMEOUT', 120),
+    ],
+
 ];

@@ -1,0 +1,12 @@
+.env
+.env.backup
+.git
+.gitignore
+.idea
+.vscode
+node_modules
+vendor
+tests
+.phpunit.result.cache
+npm-debug.log
+yarn-error.log

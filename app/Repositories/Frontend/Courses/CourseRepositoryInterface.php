@@ -35,4 +35,10 @@ interface CourseRepositoryInterface
     public function deleteReview($reviewId);
 
     public function createFreeOrderAndEnrollment($userId, $course);
+
+    public function searchForAI($keyword, $limit = 5);
+
+    public function searchForAIFuzzy($keyword, $limit = 5);
+
+    public function getAllTitlesForFallback($limit = 100);
 }

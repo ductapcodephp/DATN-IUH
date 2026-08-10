@@ -70,4 +70,27 @@ class InstructorRepository implements InstructorRepositoryInterface
             }])
             ->findOrFail($id);
     }
+
+    public function searchForAI($keyword, $limit = 3)
+    {
+        $query = User::sellers()
+            ->active()
+            ->select('id', 'name', 'bio', 'total_students');
+
+        if (!empty(trim($keyword))) {
+            $words = explode(' ', trim($keyword));
+            $query->where(function($q) use ($words) {
+                foreach ($words as $word) {
+                    if (mb_strlen($word) > 1) {
+                        $q->orWhere('name', 'like', "%{$word}%")
+                          ->orWhere('bio', 'like', "%{$word}%");
+                    }
+                }
+            });
+        }
+
+        return $query->orderByDesc('total_students')
+                     ->take($limit)
+                     ->get();
+    }
 }

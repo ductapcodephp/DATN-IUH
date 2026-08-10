@@ -32,4 +32,28 @@ class BlogRepository implements BlogRepositoryInterface
             'article' => $article
         ];
     }
+
+    public function searchForAI($keyword, $limit = 3)
+    {
+        $query = CoreArticle::with(['post'])
+            ->join('core_post', 'core_article.post_id', '=', 'core_post.id')
+            ->where('core_post.published', 'publish')
+            ->select('core_article.id', 'core_post.title', 'core_post.description as excerpt', 'core_post.slug', 'core_post.created_at');
+
+        if (!empty(trim($keyword))) {
+            $words = explode(' ', trim($keyword));
+            $query->where(function($q) use ($words) {
+                foreach ($words as $word) {
+                    if (mb_strlen($word) > 1) {
+                        $q->orWhere('core_post.title', 'like', "%{$word}%")
+                          ->orWhere('core_post.description', 'like', "%{$word}%");
+                    }
+                }
+            });
+        }
+
+        return $query->orderByDesc('core_post.created_at')
+                     ->take($limit)
+                     ->get();
+    }
 }

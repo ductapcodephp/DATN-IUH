@@ -99,6 +99,18 @@ class DatabaseSeeder extends Seeder
         ]);
         Wallet::create(['user_id' => $admin->id, 'balance' => 0]);
 
+        // CMS Manager
+        $cms = User::create([
+            'name'              => 'CMS Manager',
+            'email'             => 'cms@gmail.com',
+            'password'          => $password,
+            'roles'             => ['cms'],
+            'current_role'      => 'cms',
+            'email_verified_at' => now(),
+            'is_active'         => true,
+        ]);
+        Wallet::create(['user_id' => $cms->id, 'balance' => 0]);
+
         // Sellers (5 sellers with approved profiles + bank accounts)
         $sellers = [];
         $sellerNames = [

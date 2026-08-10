@@ -121,6 +121,18 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Frontend\Faq\FaqRepositoryInterface::class,
             \App\Repositories\Frontend\Faq\FaqRepository::class
         );
+
+        // Đăng ký binding cho Course (dành cho Frontend / AI)
+        $this->app->bind(
+            \App\Repositories\Frontend\Courses\CourseRepositoryInterface::class,
+            \App\Repositories\Frontend\Courses\CourseRepository::class
+        );
+
+        // Đăng ký binding cho Instructor
+        $this->app->bind(
+            \App\Repositories\Frontend\Instructor\InstructorRepositoryInterface::class,
+            \App\Repositories\Frontend\Instructor\InstructorRepository::class
+        );
     }
 
     public function boot(): void

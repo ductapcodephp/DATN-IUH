@@ -258,4 +258,55 @@ class CourseRepository implements CourseRepositoryInterface
             ]);
         });
     }
+
+    public function searchForAI($keyword, $limit = 5)
+    {
+        $query = Course::query()
+            ->published()
+            ->select('id', 'title', 'slug', 'price', 'description', 'students_count');
+
+        if (!empty(trim($keyword))) {
+            $query->where(function($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                  ->orWhere('description', 'like', "%{$keyword}%");
+            });
+        }
+
+        return $query->orderByDesc('students_count')
+                     ->take($limit)
+                     ->get();
+    }
+
+    public function searchForAIFuzzy($keyword, $limit = 5)
+    {
+        $query = Course::query()
+            ->published()
+            ->select('id', 'title', 'slug', 'price', 'description', 'students_count');
+
+        if (!empty(trim($keyword))) {
+            $words = explode(' ', trim($keyword));
+            $query->where(function($q) use ($words) {
+                foreach ($words as $word) {
+                    if (mb_strlen($word) > 1) {
+                        $q->orWhere('title', 'like', "%{$word}%")
+                          ->orWhere('description', 'like', "%{$word}%");
+                    }
+                }
+            });
+        }
+
+        return $query->orderByDesc('students_count')
+                     ->take($limit)
+                     ->get();
+    }
+
+    public function getAllTitlesForFallback($limit = 100)
+    {
+        return Course::query()
+            ->published()
+            ->select('title')
+            ->orderBy('title')
+            ->limit($limit)
+            ->get();
+    }
 }
