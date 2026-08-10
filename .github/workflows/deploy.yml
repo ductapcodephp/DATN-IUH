@@ -52,8 +52,9 @@ jobs:
           docker compose down
           
           docker compose up -d
-      - name: Tối ưu hóa Laravel và Migrations
+      - name: Tối ưu hóa Laravel 
         run: |
           docker exec laravel_app php artisan storage:link || true
-          docker exec laravel_app php artisan optimize:clear
-          docker exec laravel_app php artisan optimize
+          docker exec laravel_app php artisan config:cache
+          docker exec laravel_app php artisan route:cache
+          docker exec laravel_app php artisan view:cache
