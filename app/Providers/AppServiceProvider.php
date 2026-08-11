@@ -32,6 +32,7 @@ use App\Repositories\CMS\Block\BlockRepository;
 use App\Repositories\CMS\Block\BlockRepositoryInterface;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -137,6 +138,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (config('app.url')) {
+            URL::forceRootUrl(config('app.url'));
+        }
+        if (str_contains(config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
+
         Event::listen(
             UserRegistered::class,
             CreateUserWallet::class

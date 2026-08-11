@@ -6,8 +6,6 @@ services:
     container_name: laravel_app
     restart: unless-stopped
     working_dir: /var/www/html
-    extra_hosts:
-      - "host.docker.internal:host-gateway"    
     volumes:
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
       - ./.env:/var/www/html/.env

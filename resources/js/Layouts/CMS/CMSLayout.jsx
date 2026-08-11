@@ -5,7 +5,6 @@ export default function CMSLayout({ children }) {
     const { props } = usePage();
     const { auth } = props;
     
-    // Theme Management
     const [theme, setTheme] = useState(() => {
         if (typeof window !== 'undefined') {
             return localStorage.getItem('cms-theme') || 'dark';
@@ -107,9 +106,6 @@ export default function CMSLayout({ children }) {
                             <i className={`fa-solid ${theme === 'dark' ? 'fa-sun text-warning' : 'fa-moon text-primary'}`}></i>
                         </button>
                         
-                        <Link href={route('admin.dashboard')} className="wow-btn-light">
-                            <i className="fa-solid fa-arrow-left"></i> Thoát về Admin
-                        </Link>
                         
                         <div className="d-flex align-items-center gap-3">
                             <img 
