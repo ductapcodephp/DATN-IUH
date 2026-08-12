@@ -65,6 +65,7 @@ services:
     image: redis:alpine
     container_name: laravel_redis
     restart: always
+    command: redis-server --appendonly yes --appendfsync everysec
     volumes:
       - redisdata:/data
     networks:
