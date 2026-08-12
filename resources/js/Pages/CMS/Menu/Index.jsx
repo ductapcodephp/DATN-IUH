@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Head, router, useForm, Link } from '@inertiajs/react';
 import CMSLayout from '@/Layouts/CMS/CMSLayout';
 import IconPicker from '@/Components/CMS/IconPicker';
+
 export default function Index({ menus }) {
     const [showModal, setShowModal] = useState(false);
     const [editingMenu, setEditingMenu] = useState(null);
@@ -67,6 +68,26 @@ export default function Index({ menus }) {
         }
     };
 
+    const positionLabel = (pos) => {
+        const map = { header: 'Header', cart: 'Cart', footer: 'Footer' };
+        return map[pos] || pos;
+    };
+
+    const positionColor = (pos) => {
+        const map = { header: '#6366f1', cart: '#f59e0b', footer: '#64748b' };
+        return map[pos] || '#6366f1';
+    };
+
+    const truncateUrl = (url) => {
+        if (!url) return null;
+        try {
+            const u = new URL(url);
+            return u.pathname === '/' ? u.hostname : u.hostname + u.pathname;
+        } catch {
+            return url.length > 40 ? url.substring(0, 40) + '…' : url;
+        }
+    };
+
     return (
         <CMSLayout>
             <Head title="Quản lý Menu" />
@@ -81,94 +102,156 @@ export default function Index({ menus }) {
                     </button>
                 </div>
 
-                <div className="card border-0 shadow-none glass-card rounded-4 p-4 stagger-fade-up">
-                    {menus.length === 0 ? (
-                        <div className="text-center py-5 text-muted">
-                            <i className="fa-solid fa-bars-staggered fs-1 mb-3 d-block opacity-50"></i>
-                            Chưa có menu nào được tạo.
-                        </div>
-                    ) : (
-                        <div className="table-responsive">
-                            <table className="table table-hover align-middle mb-0">
-                                <thead className="table-light">
-                                    <tr>
-                                        <th className="border-0 rounded-start-3 px-4 py-3" style={{ width: '80px' }}>STT</th>
-                                        <th className="border-0 py-3">Tên Menu</th>
-                                        <th className="border-0 py-3">URL</th>
-                                        <th className="border-0 py-3 text-center">Trạng thái</th>
-                                        <th className="border-0 rounded-end-3 text-end px-4 py-3" style={{ width: '250px' }}>Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="border-top-0">
-                                    {menus.map((menu, index) => (
-                                        <React.Fragment key={`menu-${menu.id}`}>
-                                            {/* Parent Menu Row */}
-                                            <tr style={{ backgroundColor: 'var(--bs-light)', borderBottom: '2px solid #fff' }}>
-                                                <td className="px-4 py-3 fw-bold text-muted text-center">{menu.sort_order}</td>
-                                                <td className="py-3">
-                                                    <span className="fw-bold text-dark fs-5">
-                                                        {menu.icon && <i className={`${menu.icon} me-2 text-primary`}></i>}
-                                                        {menu.name}
-                                                    </span>
-                                                    <span className="badge bg-secondary ms-2 rounded-pill" style={{ fontSize: '0.7em' }}>{menu.position}</span>
-                                                </td>
-                                                <td className="py-3 text-primary">{menu.url || '-'}</td>
-                                                <td className="py-3 text-center">
-                                                    {menu.display === 'show' ? (
-                                                        <span className="badge bg-success rounded-pill px-3">Hiển thị</span>
-                                                    ) : (
-                                                        <span className="badge bg-warning text-dark rounded-pill px-3">Đã ẩn</span>
-                                                    )}
-                                                </td>
-                                                <td className="px-4 py-3 text-end">
-                                                    <button onClick={() => openModal(null, menu.id)} className="btn btn-sm btn-outline-primary rounded-pill px-3 me-2" title="Thêm menu con">
-                                                        <i className="fa-solid fa-plus"></i> Con
-                                                    </button>
-                                                    <button onClick={() => openModal(menu)} className="btn btn-sm btn-outline-secondary rounded-pill px-3 me-2" title="Sửa menu">
-                                                        <i className="fa-solid fa-pen"></i>
-                                                    </button>
-                                                    <button onClick={() => handleDelete(menu.id)} className="btn btn-sm btn-outline-danger rounded-pill px-3" title="Xóa menu">
-                                                        <i className="fa-solid fa-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
+                {menus.length === 0 ? (
+                    <div className="card border-0 shadow-none glass-card rounded-4 p-5 stagger-fade-up text-center">
+                        <i className="fa-solid fa-bars-staggered fs-1 mb-3 d-block opacity-50 text-muted"></i>
+                        <p className="text-muted mb-0">Chưa có menu nào được tạo.</p>
+                    </div>
+                ) : (
+                    <div className="d-flex flex-column gap-3 stagger-fade-up">
+                        {menus.map((menu, index) => (
+                            <div key={`menu-${menu.id}`} className="card border-0 shadow-none glass-card rounded-4 overflow-hidden">
+                                {/* Parent Row */}
+                                <div className="d-flex align-items-center px-4 py-3 gap-3" style={{ borderLeft: `4px solid ${positionColor(menu.position)}` }}>
+                                    {/* Sort Order */}
+                                    <div className="text-muted fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
+                                         style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(0,0,0,.04)', fontSize: '0.85rem' }}>
+                                        {menu.sort_order}
+                                    </div>
 
-                                            {/* Children Menu Rows */}
-                                            {menu.children && menu.children.length > 0 && menu.children.map(child => (
-                                                <tr key={`child-${child.id}`}>
-                                                    <td className="px-4 py-3 fw-bold text-muted text-center" style={{ fontSize: '0.9em' }}>{child.sort_order}</td>
-                                                    <td className="py-3 ps-5">
-                                                        <i className="fa-solid fa-arrow-turn-up fa-rotate-90 text-muted me-2 opacity-50"></i>
-                                                        <span className="text-dark fw-medium">
-                                                            {child.icon && <i className={`${child.icon} me-2 text-muted`}></i>}
-                                                            {child.name}
+                                    {/* Icon + Name + Position Badge */}
+                                    <div className="d-flex align-items-center gap-2 flex-shrink-0" style={{ minWidth: 180 }}>
+                                        {menu.icon && <i className={`${menu.icon} fs-5`} style={{ color: positionColor(menu.position), width: 22, textAlign: 'center' }}></i>}
+                                        <span className="fw-bold text-dark" style={{ fontSize: '1.05rem' }}>{menu.name}</span>
+                                        <span className="badge rounded-pill text-white px-2" style={{ fontSize: '0.65rem', backgroundColor: positionColor(menu.position) }}>
+                                            {positionLabel(menu.position)}
+                                        </span>
+                                    </div>
+
+                                    {/* URL */}
+                                    <div className="flex-grow-1 text-truncate" style={{ minWidth: 0 }}>
+                                        {menu.url ? (
+                                            <a href={menu.url} target="_blank" rel="noopener noreferrer"
+                                               className="text-decoration-none d-inline-flex align-items-center gap-1"
+                                               style={{ color: '#6366f1', fontSize: '0.88rem', maxWidth: '100%' }}
+                                               title={menu.url}>
+                                                <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '0.7rem', flexShrink: 0 }}></i>
+                                                <span className="text-truncate">{truncateUrl(menu.url)}</span>
+                                            </a>
+                                        ) : (
+                                            <span className="text-muted" style={{ fontSize: '0.85rem' }}>—</span>
+                                        )}
+                                    </div>
+
+                                    {/* Status */}
+                                    <div className="flex-shrink-0">
+                                        {menu.display === 'show' ? (
+                                            <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3"
+                                                  style={{ fontSize: '0.75rem' }}>
+                                                <i className="fa-solid fa-eye me-1" style={{ fontSize: '0.65rem' }}></i>Hiển thị
+                                            </span>
+                                        ) : (
+                                            <span className="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3"
+                                                  style={{ fontSize: '0.75rem' }}>
+                                                <i className="fa-solid fa-eye-slash me-1" style={{ fontSize: '0.65rem' }}></i>Đã ẩn
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="d-flex gap-1 flex-shrink-0">
+                                        <button onClick={() => openModal(null, menu.id)}
+                                                className="btn btn-sm d-flex align-items-center justify-content-center"
+                                                style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: 'rgba(99,102,241,.08)', color: '#6366f1' }}
+                                                title="Thêm menu con">
+                                            <i className="fa-solid fa-plus" style={{ fontSize: '0.8rem' }}></i>
+                                        </button>
+                                        <button onClick={() => openModal(menu)}
+                                                className="btn btn-sm d-flex align-items-center justify-content-center"
+                                                style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: 'rgba(100,116,139,.08)', color: '#64748b' }}
+                                                title="Sửa menu">
+                                            <i className="fa-solid fa-pen" style={{ fontSize: '0.75rem' }}></i>
+                                        </button>
+                                        <button onClick={() => handleDelete(menu.id)}
+                                                className="btn btn-sm d-flex align-items-center justify-content-center"
+                                                style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: 'rgba(239,68,68,.06)', color: '#ef4444' }}
+                                                title="Xóa menu">
+                                            <i className="fa-solid fa-trash" style={{ fontSize: '0.75rem' }}></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Children */}
+                                {menu.children && menu.children.length > 0 && (
+                                    <div style={{ backgroundColor: 'rgba(0,0,0,.015)' }}>
+                                        {menu.children.map((child, ci) => (
+                                            <div key={`child-${child.id}`}
+                                                 className="d-flex align-items-center px-4 py-2 gap-3"
+                                                 style={{ marginLeft: 36, borderTop: '1px solid rgba(0,0,0,.04)' }}>
+                                                {/* Sort */}
+                                                <div className="text-muted d-flex align-items-center justify-content-center flex-shrink-0"
+                                                     style={{ width: 28, height: 28, borderRadius: 6, fontSize: '0.8rem' }}>
+                                                    {child.sort_order}
+                                                </div>
+
+                                                {/* Arrow + Name */}
+                                                <div className="d-flex align-items-center gap-2 flex-shrink-0" style={{ minWidth: 160 }}>
+                                                    <i className="fa-solid fa-turn-up fa-rotate-90 text-muted opacity-25" style={{ fontSize: '0.75rem' }}></i>
+                                                    {child.icon && <i className={`${child.icon} text-muted`} style={{ width: 18, textAlign: 'center', fontSize: '0.9rem' }}></i>}
+                                                    <span className="fw-medium text-dark" style={{ fontSize: '0.93rem' }}>{child.name}</span>
+                                                </div>
+
+                                                {/* URL */}
+                                                <div className="flex-grow-1 text-truncate" style={{ minWidth: 0 }}>
+                                                    {child.url ? (
+                                                        <a href={child.url} target="_blank" rel="noopener noreferrer"
+                                                           className="text-decoration-none d-inline-flex align-items-center gap-1"
+                                                           style={{ color: '#94a3b8', fontSize: '0.83rem', maxWidth: '100%' }}
+                                                           title={child.url}>
+                                                            <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '0.65rem', flexShrink: 0 }}></i>
+                                                            <span className="text-truncate">{truncateUrl(child.url)}</span>
+                                                        </a>
+                                                    ) : (
+                                                        <span className="text-muted" style={{ fontSize: '0.83rem' }}>—</span>
+                                                    )}
+                                                </div>
+
+                                                {/* Status */}
+                                                <div className="flex-shrink-0">
+                                                    {child.display === 'show' ? (
+                                                        <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-2" style={{ fontSize: '0.7rem' }}>
+                                                            <i className="fa-solid fa-eye" style={{ fontSize: '0.6rem' }}></i>
                                                         </span>
-                                                    </td>
-                                                    <td className="py-3 text-muted">{child.url || '-'}</td>
-                                                    <td className="py-3 text-center">
-                                                        {child.display === 'show' ? (
-                                                            <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Hiển thị</span>
-                                                        ) : (
-                                                            <span className="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3">Đã ẩn</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-3 text-end">
-                                                        <button onClick={() => openModal(child)} className="btn btn-sm btn-light rounded-pill px-3 me-2 text-secondary" title="Sửa menu">
-                                                            <i className="fa-solid fa-pen"></i>
-                                                        </button>
-                                                        <button onClick={() => handleDelete(child.id)} className="btn btn-sm btn-light rounded-pill px-3 text-danger" title="Xóa menu">
-                                                            <i className="fa-solid fa-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </React.Fragment>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
+                                                    ) : (
+                                                        <span className="badge bg-warning bg-opacity-10 text-warning rounded-pill px-2" style={{ fontSize: '0.7rem' }}>
+                                                            <i className="fa-solid fa-eye-slash" style={{ fontSize: '0.6rem' }}></i>
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                {/* Actions */}
+                                                <div className="d-flex gap-1 flex-shrink-0">
+                                                    <button onClick={() => openModal(child)}
+                                                            className="btn btn-sm d-flex align-items-center justify-content-center"
+                                                            style={{ width: 30, height: 30, borderRadius: 6, backgroundColor: 'rgba(100,116,139,.06)', color: '#94a3b8' }}
+                                                            title="Sửa">
+                                                        <i className="fa-solid fa-pen" style={{ fontSize: '0.7rem' }}></i>
+                                                    </button>
+                                                    <button onClick={() => handleDelete(child.id)}
+                                                            className="btn btn-sm d-flex align-items-center justify-content-center"
+                                                            style={{ width: 30, height: 30, borderRadius: 6, backgroundColor: 'rgba(239,68,68,.04)', color: '#fca5a5' }}
+                                                            title="Xóa">
+                                                        <i className="fa-solid fa-trash" style={{ fontSize: '0.7rem' }}></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Modal Create/Edit */}

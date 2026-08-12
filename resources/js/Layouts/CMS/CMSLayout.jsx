@@ -118,6 +118,17 @@ export default function CMSLayout({ children }) {
                                 <div style={{ color: 'var(--wow-text-muted)', fontSize: '0.85rem' }}>Super Admin</div>
                             </div>
                         </div>
+                        
+                        <Link 
+                            href={route('logout')} 
+                            method="post" 
+                            as="button" 
+                            className="wow-btn-icon"
+                            title="Đăng xuất"
+                            style={{ border: 'none', background: 'none' }}
+                        >
+                            <i className="fa-solid fa-arrow-right-from-bracket text-danger"></i>
+                        </Link>
                     </div>
                 </header>
 

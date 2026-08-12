@@ -43,23 +43,23 @@ class ReviewController extends Controller
         $enrollment = $this->courseService->getEnrollment(auth()->id(), $course->id);
 
         if (! $enrollment) {
-            return back()->with('error', 'Bạn chưa tham gia khóa học này!');
+            return back()->with('error', 'Báº¡n chÆ°a tham gia khÃ³a há»c nÃ y!');
         }
 
         if ($enrollment->progress < 80) {
-            return back()->with('error', 'Bạn cần hoàn thành ít nhất 80% khóa học để đánh giá!');
+            return back()->with('error', 'Báº¡n cáº§n hoÃ n thÃ nh Ã­t nháº¥t 80% khÃ³a há»c Ä‘á»ƒ Ä‘Ã¡nh giÃ¡!');
         }
 
         $existingReview = $this->reviewService->getUserReviewForCourse(auth()->id(), $course->id);
 
         if ($existingReview) {
-            return back()->with('error', 'Bạn đã đánh giá khóa học này rồi!');
+            return back()->with('error', 'Báº¡n Ä‘Ã£ Ä‘Ã¡nh giÃ¡ khÃ³a há»c nÃ y rá»“i!');
         }
 
         $order = $this->courseService->getCompletedOrderForCourse(auth()->id(), $course->id);
 
         if (! $order) {
-            return back()->with('error', 'Không tìm thấy hóa đơn của bạn cho khóa học này!');
+            return back()->with('error', 'KhÃ´ng tÃ¬m tháº¥y hÃ³a Ä‘Æ¡n cá»§a báº¡n cho khÃ³a há»c nÃ y!');
         }
 
         $this->reviewService->createReview([
@@ -80,7 +80,7 @@ class ReviewController extends Controller
             ));
         }
 
-        return back()->with('success', 'Đánh giá của bạn đã được gửi thành công!');
+        return back()->with('success', 'ÄÃ¡nh giÃ¡ cá»§a báº¡n Ä‘Ã£ Ä‘Æ°á»£c gá»­i thÃ nh cÃ´ng!');
     }
 
     public function updateReview(Request $request, Review $review)
@@ -99,7 +99,7 @@ class ReviewController extends Controller
             'content' => $request->input('content'),
         ]);
 
-        return back()->with('success', 'Đánh giá của bạn đã được cập nhật thành công!');
+        return back()->with('success', 'ÄÃ¡nh giÃ¡ cá»§a báº¡n Ä‘Ã£ Ä‘Æ°á»£c cáº­p nháº­t thÃ nh cÃ´ng!');
     }
 
     public function deleteReview(Review $review)
@@ -110,7 +110,7 @@ class ReviewController extends Controller
 
         $this->reviewService->deleteReview($review->id);
 
-        return back()->with('success', 'Đã xóa đánh giá thành công!');
+        return back()->with('success', 'ÄÃ£ xÃ³a Ä‘Ã¡nh giÃ¡ thÃ nh cÃ´ng!');
     }
 
     // ==========================================
@@ -144,7 +144,7 @@ class ReviewController extends Controller
             'reporter_id' => auth()->id(),
             'reportable_type' => Review::class,
             'reportable_id' => $review->id,
-            'reason' => $request->input('reason', 'Vi ph?m ti�u chu?n c?ng d?ng'),
+            'reason' => $request->input('reason', 'Vi phạm tiêu chuẩn cộng đồng'),
             'status' => 'pending',
         ]);
 
@@ -170,6 +170,6 @@ class ReviewController extends Controller
 
         $this->reviewService->updateReview($review->id, ['reply_content' => $request->reply_content]);
 
-        return back()->with('success', 'Đã phản hồi đánh giá.');
+        return back()->with('success', 'ÄÃ£ pháº£n há»“i Ä‘Ã¡nh giÃ¡.');
     }
 }
