@@ -47,6 +47,7 @@ use App\Http\Controllers\CMS\CategoryController as CMSCategoryController;
 use App\Http\Controllers\CMS\PageController as CMSPageController;
 use App\Http\Controllers\CMS\ArticleController as CMSArticleController;
 use App\Http\Controllers\CMS\MenuController as CMSMenuController;
+use App\Http\Controllers\Admin\TopicController as AdminTopicController;
 use App\Http\Controllers\CMS\TopicController as CMSTopicController;
 use App\Http\Controllers\CMS\BlockController as CMSBlockController;
 use App\Http\Controllers\CMS\MediaController as CMSMediaController;
@@ -316,6 +317,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,root'])-
     Route::post('/reports/{id}/dismiss', [ReportController::class, 'dismiss'])->name('reports.dismiss');
     Route::get('/contacts', [AdminContactController::class, 'index'])->name('contacts');
     Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    
+    // --- Topics ---
+    Route::get('/topics', [AdminTopicController::class, 'index'])->name('topics.index');
+    Route::post('/topics', [AdminTopicController::class, 'store'])->name('topics.store');
+    Route::put('/topics/{id}', [AdminTopicController::class, 'update'])->name('topics.update');
+    Route::delete('/topics/{id}', [AdminTopicController::class, 'destroy'])->name('topics.destroy');
 });
 
 // CMS Routes
@@ -339,7 +346,7 @@ Route::prefix('cms')->name('cms.')->middleware(['auth', 'current_role:admin,root
     Route::delete('menu/{id}', [CMSMenuController::class, 'destroy'])->name('menu.destroy');
     Route::post('menu/reorder', [CMSMenuController::class, 'reorder'])->name('menu.reorder');
     
-    // --- Topics ---
+    // --- Topics (Contact) ---
     Route::get('/topics', [CMSTopicController::class, 'index'])->name('topics.index');
     Route::post('/topics', [CMSTopicController::class, 'store'])->name('topics.store');
     Route::put('/topics/{id}', [CMSTopicController::class, 'update'])->name('topics.update');

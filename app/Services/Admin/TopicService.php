@@ -12,9 +12,9 @@ class TopicService
         protected TopicRepositoryInterface $topicRepository
     ) {}
 
-    public function getAllPaginated(int $perPage = 10)
+    public function getAllPaginated(int $perPage = 10, ?string $type = null)
     {
-        return $this->topicRepository->getAllPaginated($perPage);
+        return $this->topicRepository->getAllPaginated($perPage, $type);
     }
 
     public function createTopic(TopicData $data)

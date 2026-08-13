@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Head, router, useForm } from '@inertiajs/react';
-import CMSLayout from '@/Layouts/CMS/CMSLayout';
+import AdminLayout from '@/Layouts/Admin/AdminLayout';
 export default function Index({ topics }) {
     const [showModal, setShowModal] = useState(false);
     const [editingTopic, setEditingTopic] = useState(null);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         name: '',
-        type: 'contact',
+        type: 'report',
     });
 
     const openModal = (topic = null) => {
@@ -30,11 +30,11 @@ export default function Index({ topics }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (editingTopic) {
-            put(route('cms.topics.update', editingTopic.id), {
+            put(route('admin.topics.update', editingTopic.id), {
                 onSuccess: () => closeModal(),
             });
         } else {
-            post(route('cms.topics.store'), {
+            post(route('admin.topics.store'), {
                 onSuccess: () => closeModal(),
             });
         }
@@ -42,12 +42,12 @@ export default function Index({ topics }) {
 
     const handleDelete = (id) => {
         if (confirm('Bạn có chắc chắn muốn xóa chủ đề này?')) {
-            destroy(route('cms.topics.destroy', id));
+            destroy(route('admin.topics.destroy', id));
         }
     };
 
     return (
-        <CMSLayout>
+        <AdminLayout>
             <Head title="Quản lý Chủ đề" />
             <div className="content-area">
                 <div className="d-flex justify-content-between align-items-center section-block stagger-fade-up">
@@ -158,6 +158,6 @@ export default function Index({ topics }) {
                     </div>
                 </div>
             )}
-        </CMSLayout>
+        </AdminLayout>
     );
 }

@@ -96,6 +96,12 @@ export default function AdminLayout({ children }) {
                             </Link>
                         </li>
                         <li className="nav-item">
+                            <Link href={route('admin.topics.index')} className={`nav-link ${route().current('admin.topics*') ? 'active' : ''}`}>
+                                <span className="nav-icon"><i className="fa-solid fa-tags"></i></span>
+                                <span className="nav-text">Chủ đề báo cáo</span>
+                            </Link>
+                        </li>
+                        <li className="nav-item">
                             <Link href={route('admin.contacts')} className={`nav-link ${route().current('admin.contacts*') ? 'active' : ''}`}>
                                 <span className="nav-icon"><i className="fa-solid fa-envelope"></i></span>
                                 <span className="nav-text">Liên hệ</span>

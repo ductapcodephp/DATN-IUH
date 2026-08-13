@@ -69,10 +69,10 @@ export default function CMSLayout({ children }) {
                         <span className="wow-nav-icon"><i className="fa-solid fa-circle-question"></i></span>
                         <span className="wow-nav-text">FAQ</span>
                     </Link>
-                    
+
                     <Link href={route('cms.topics.index')} className={`wow-nav-link ${route().current('cms.topics*') ? 'active' : ''}`}>
                         <span className="wow-nav-icon"><i className="fa-solid fa-tags"></i></span>
-                        <span className="wow-nav-text">Quản lý Chủ đề</span>
+                        <span className="wow-nav-text">Chủ đề liên hệ</span>
                     </Link>
                     
                     <Link href={route('cms.media.index')} className={`wow-nav-link ${route().current('cms.media*') ? 'active' : ''}`}>

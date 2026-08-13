@@ -6,9 +6,13 @@ use App\Models\Topic;
 
 class TopicRepository implements TopicRepositoryInterface
 {
-    public function getAllPaginated(int $perPage = 10)
+    public function getAllPaginated(int $perPage = 10, ?string $type = null)
     {
-        return Topic::latest()->paginate($perPage);
+        $query = Topic::latest();
+        if ($type) {
+            $query->where('type', $type);
+        }
+        return $query->paginate($perPage);
     }
 
     public function create(array $data)

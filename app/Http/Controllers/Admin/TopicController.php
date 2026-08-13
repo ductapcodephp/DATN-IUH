@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\DTO\Admin\TopicData;
@@ -16,9 +16,9 @@ class TopicController extends Controller
 
     public function index()
     {
-        $topics = $this->topicService->getAllPaginated(10, 'contact');
+        $topics = $this->topicService->getAllPaginated(10, 'report');
         
-        return Inertia::render('CMS/Topics/Index', [
+        return Inertia::render('Admin/Topics/Index', [
             'topics' => $topics
         ]);
     }
