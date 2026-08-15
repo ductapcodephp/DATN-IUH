@@ -29,7 +29,12 @@ class VipPackageController extends Controller
 
     public function store(StoreVipPackageRequest $request)
     {
-        VipPackage::create($request->all());
+        $data = $request->validated();
+        if (($data['package_type'] ?? '') === 'storage') {
+            $data['badge_text'] = null;
+        }
+
+        VipPackage::create($data);
 
         return redirect()->back()->with('success', 'Gói VIP đã được tạo thành công.');
     }
@@ -37,7 +42,12 @@ class VipPackageController extends Controller
     public function update(UpdateVipPackageRequest $request, $id)
     {
         $package = VipPackage::findOrFail($id);
-        $package->update($request->all());
+        $data = $request->validated();
+        if (($data['package_type'] ?? '') === 'storage') {
+            $data['badge_text'] = null;
+        }
+
+        $package->update($data);
 
         return redirect()->back()->with('success', 'Gói VIP đã được cập nhật thành công.');
     }

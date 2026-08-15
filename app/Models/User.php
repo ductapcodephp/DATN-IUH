@@ -355,13 +355,17 @@ class User extends Authenticatable
             ->sortByDesc(fn($sub) => $sub->vipPackage->priority_level ?? 0)
             ->first();
             
-        return $activeSub && $activeSub->vipPackage->badge_text ? $activeSub->vipPackage->badge_text : null;
+        if (!$activeSub || !$activeSub->vipPackage) {
+            return null;
+        }
+
+        return $activeSub->vipPackage->badge_text ?: $activeSub->vipPackage->name;
     }
 
     public function getSellerVipBadgeText(): ?string
     {
         $activeSub = $this->vipSubscriptions()
-            ->whereHas('vipPackage', fn ($q) => $q->where('role_type', 'seller'))
+            ->whereHas('vipPackage', fn ($q) => $q->where('role_type', 'seller')->whereIn('package_type', ['commission', 'combo']))
             ->where('status', 'active')
             ->where('expires_at', '>', now())
             ->with('vipPackage')
@@ -369,7 +373,11 @@ class User extends Authenticatable
             ->sortByDesc(fn($sub) => $sub->vipPackage->priority_level ?? 0)
             ->first();
             
-        return $activeSub && $activeSub->vipPackage->badge_text ? $activeSub->vipPackage->badge_text : null;
+        if (!$activeSub || !$activeSub->vipPackage) {
+            return null;
+        }
+
+        return $activeSub->vipPackage->badge_text ?: $activeSub->vipPackage->name;
     }
 
     public function getSellerStorageLimitBytes(): int

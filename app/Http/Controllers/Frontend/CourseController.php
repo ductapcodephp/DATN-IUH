@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\Report;
+use App\Models\SystemSetting;
+use App\Models\User;
+use App\Notifications\Admin\NewReportNotification;
 use App\Notifications\Seller\NewCourseEnrollmentNotification;
 use App\Services\Frontend\CourseService;
 use App\Services\Shared\ReviewService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class CourseController extends Controller
@@ -75,5 +82,38 @@ class CourseController extends Controller
         }
 
         return back()->with('success', 'Đã mở khóa khóa học miễn phí thành công!');
+    }
+
+    public function reportCourse(Request $request, Course $course)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255',
+            'details' => 'nullable|string|max:1000',
+        ]);
+
+        $alreadyReported = Report::where('reporter_id', auth()->id())
+            ->where('reportable_type', Course::class)
+            ->where('reportable_id', $course->id)
+            ->exists();
+
+        if ($alreadyReported) {
+            return back()->with('error', 'Bạn đã gửi báo cáo cho khóa học này rồi. Ban quản trị đang xem xét xử lý.');
+        }
+
+        $report = Report::create([
+            'reporter_id' => auth()->id(),
+            'reportable_type' => Course::class,
+            'reportable_id' => $course->id,
+            'reason' => $request->input('reason'),
+            'details' => $request->input('details'),
+            'status' => 'pending',
+        ]);
+
+        if (SystemSetting::where('key', 'notify_new_report')->value('value') == '1') {
+            $admins = User::whereIn('current_role', [UserRole::ADMIN, UserRole::ROOT])->get();
+            Notification::send($admins, new NewReportNotification($report));
+        }
+
+        return back()->with('success', 'Đã gửi báo cáo khóa học lên Ban Quản trị thành công.');
     }
 }

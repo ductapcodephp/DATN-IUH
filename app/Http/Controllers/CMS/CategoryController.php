@@ -25,6 +25,9 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'icon' => 'nullable|string|max:255',
+            'color' => 'nullable|string|max:50',
+            'sort_order' => 'nullable|integer',
             'is_active' => 'boolean',
         ]);
 
@@ -37,6 +40,9 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'icon' => 'nullable|string|max:255',
+            'color' => 'nullable|string|max:50',
+            'sort_order' => 'nullable|integer',
             'is_active' => 'boolean',
         ]);
 

@@ -5,10 +5,11 @@ namespace App\Notifications\Seller;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Illuminate\Queue\SerializesModels;
 
 class NewCommentReportNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, SerializesModels;
 
     public $report;
 
@@ -34,8 +35,8 @@ class NewCommentReportNotification extends Notification implements ShouldQueue
             'title' => 'Bình luận bị báo cáo',
             'message' => 'Một bình luận trong khóa học của bạn vừa bị học viên báo cáo.',
             'url' => $courseId ? route('seller.courses.comments.index', $courseId) : '#',
-            'icon' => 'fa-comments',
-            'color' => 'warning',
+            'icon' => 'fa-solid fa-flag',
+            'color' => 'text-danger',
         ];
     }
 }

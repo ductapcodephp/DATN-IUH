@@ -95,7 +95,16 @@ class UpdateVideoProgressJob implements ShouldBeUnique, ShouldQueue
                 ->update(['progress' => $progressPercentage]);
         }
 
-        Redis::del($redisKey);
+        // Đồng bộ is_completed từ DB ngược lại Redis để các request tiếp theo
+        // biết lesson đã hoàn thành → bỏ qua anti-cheat
+        if ($progress->is_completed && !($progressData['is_completed'] ?? false)) {
+            $progressData['is_completed'] = true;
+            Redis::setex($redisKey, 3600, json_encode($progressData));
+        }
+
+        // KHÔNG xóa Redis key — để TTL (3600s) tự quản lý.
+        // Xóa sớm sẽ khiến request tiếp theo mất lastUpdatedAt,
+        // rơi vào logic "first ping" và bị cap watched_seconds.
     }
 
     public function failed(\Throwable $exception): void

@@ -14,12 +14,14 @@ class TopicController extends Controller
         protected TopicService $topicService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $topics = $this->topicService->getAllPaginated(10, 'report');
+        $type = $request->input('type');
+        $topics = $this->topicService->getAllPaginated(10, $type);
         
         return Inertia::render('Admin/Topics/Index', [
-            'topics' => $topics
+            'topics' => $topics,
+            'filterType' => $type,
         ]);
     }
 
@@ -27,7 +29,7 @@ class TopicController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:contact,report',
+            'type' => 'required|in:contact,report,comment',
         ]);
 
         $data = TopicData::fromRequest($request);
@@ -40,7 +42,7 @@ class TopicController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:contact,report',
+            'type' => 'required|in:contact,report,comment',
         ]);
 
         $data = TopicData::fromRequest($request);

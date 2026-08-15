@@ -15,7 +15,7 @@ class InstructorRepository implements InstructorRepositoryInterface
             ->join('vip_packages', 'vip_packages.id', '=', 'vip_subscriptions.vip_package_id')
             ->where('vip_subscriptions.status', 'active')
             ->where('vip_subscriptions.expires_at', '>', $now)
-            ->where('vip_packages.package_type', 'commission')
+            ->whereIn('vip_packages.package_type', ['commission', 'combo'])
             ->select(
                 'vip_subscriptions.user_id',
                 DB::raw('MAX(vip_packages.priority_level) as vip_priority'),

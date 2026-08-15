@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\DTO\Frontend\Comment\ReportCommentData;
 use App\Http\Controllers\Controller;
 use App\Services\Frontend\CommentService;
+use DomainException;
+use Exception;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -46,5 +49,33 @@ class CommentController extends Controller
             'comment' => $comment,
             'message' => 'Đã gửi bình luận thành công',
         ]);
+    }
+
+    public function report(Request $request, $commentId)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255',
+            'details' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $dto = ReportCommentData::fromRequest($request);
+            $this->commentService->reportComment($dto, $commentId, auth()->id());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã gửi báo cáo bình luận thành công',
+            ]);
+        } catch (DomainException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể gửi báo cáo vào lúc này. Vui lòng thử lại sau.',
+            ], 500);
+        }
     }
 }

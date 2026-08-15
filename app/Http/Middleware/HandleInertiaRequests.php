@@ -94,13 +94,13 @@ class HandleInertiaRequests extends Middleware
     protected function applyNotificationFilter($query, Request $request)
     {
         if ($request->is('admin*')) {
-            $query->where('type', 'like', 'App\Notifications\Admin\%');
+            $query->where('type', 'like', '%Notifications%Admin%');
         } elseif ($request->is('seller*')) {
-            $query->where('type', 'like', 'App\Notifications\Seller\%');
+            $query->where('type', 'like', '%Notifications%Seller%');
         } else {
             // Frontend hoặc Dashboard học viên: Loại trừ thông báo của Admin và Seller
-            $query->where('type', 'not like', 'App\Notifications\Admin\%')
-                  ->where('type', 'not like', 'App\Notifications\Seller\%');
+            $query->where('type', 'not like', '%Notifications%Admin%')
+                  ->where('type', 'not like', '%Notifications%Seller%');
         }
     }
 }

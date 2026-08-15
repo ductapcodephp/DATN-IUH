@@ -146,40 +146,61 @@ class WalletRepository implements WalletRepositoryInterface
     {
         // Query 1: Wallet Transactions (Earnings & Withdrawals)
         $walletQuery = DB::table('wallet_transactions')
+            ->leftJoin('orders', 'wallet_transactions.order_id', '=', 'orders.id')
+            ->leftJoin('courses', 'orders.course_id', '=', 'courses.id')
+            ->leftJoin('users as buyers', 'orders.user_id', '=', 'buyers.id')
             ->select(
-                'id',
-                'type',
-                'amount',
-                'status',
-                'description',
-                'metadata',
-                'created_at',
+                'wallet_transactions.id',
+                'wallet_transactions.order_id',
+                'wallet_transactions.type',
+                'wallet_transactions.amount',
+                'wallet_transactions.status',
+                'wallet_transactions.description',
+                'wallet_transactions.metadata',
+                'wallet_transactions.created_at',
+                'orders.amount_paid as buyer_paid_amount',
+                'orders.amount_original as original_price',
+                'orders.discount_amount',
+                'orders.commission_rate',
+                'orders.commission_amount',
+                'orders.seller_amount',
+                'courses.title as course_title',
+                'buyers.name as buyer_name',
                 DB::raw("'wallet' as source")
             )
-            ->where('user_id', $userId)
-            ->whereIn('type', [WalletTransaction::TYPE_WITHDRAWAL, WalletTransaction::TYPE_EARNING]);
+            ->where('wallet_transactions.user_id', $userId)
+            ->whereIn('wallet_transactions.type', [WalletTransaction::TYPE_WITHDRAWAL, WalletTransaction::TYPE_EARNING]);
 
         // Query 2: Online Payments
         $onlineQuery = DB::table('online_payments')
             ->select(
                 'id',
+                DB::raw("NULL as order_id"),
                 'payment_gateway as type',
                 'amount',
                 'status',
                 DB::raw("CONCAT('Thanh toán qua cổng ', payment_gateway) as description"),
                 DB::raw("NULL as metadata"),
                 'created_at',
+                DB::raw("NULL as buyer_paid_amount"),
+                DB::raw("NULL as original_price"),
+                DB::raw("NULL as discount_amount"),
+                DB::raw("NULL as commission_rate"),
+                DB::raw("NULL as commission_amount"),
+                DB::raw("NULL as seller_amount"),
+                DB::raw("NULL as course_title"),
+                DB::raw("NULL as buyer_name"),
                 DB::raw("'online' as source")
             )
             ->where('user_id', $userId)
             ->where('status', 'completed');
 
         if (! empty($filters['date_from'])) {
-            $walletQuery->whereDate('created_at', '>=', $filters['date_from']);
+            $walletQuery->whereDate('wallet_transactions.created_at', '>=', $filters['date_from']);
             $onlineQuery->whereDate('created_at', '>=', $filters['date_from']);
         }
         if (! empty($filters['date_to'])) {
-            $walletQuery->whereDate('created_at', '<=', $filters['date_to']);
+            $walletQuery->whereDate('wallet_transactions.created_at', '<=', $filters['date_to']);
             $onlineQuery->whereDate('created_at', '<=', $filters['date_to']);
         }
 
@@ -193,7 +214,7 @@ class WalletRepository implements WalletRepositoryInterface
             }
             return $item;
         });
-        
+
         return $paginator;
     }
 
