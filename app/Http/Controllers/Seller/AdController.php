@@ -10,6 +10,7 @@ use App\Models\Course;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AdController extends Controller
 {
@@ -39,6 +40,8 @@ class AdController extends Controller
             'course_id' => 'required|exists:courses,id',
             'bid_price' => 'required|numeric|min:1000', // Giá tối thiểu cho 1 click
             'daily_budget' => 'required|numeric|min:10000', // Ngân sách ngày tối thiểu
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
         $course = Course::findOrFail($request->course_id);
@@ -56,10 +59,21 @@ class AdController extends Controller
 
         $ad->bid_price = $request->bid_price;
         $ad->daily_budget = $request->daily_budget;
+        $ad->start_date = $request->start_date;
+        $ad->end_date = $request->end_date;
         
-        // Nếu vừa nạp tiền và budget ổn định, tự động bật
-        if ($ad->campaign_balance > 0 && $ad->status == 'paused') {
+        // Nếu vừa nạp tiền và budget ổn định, tự động bật (chỉ khi còn trong thời hạn)
+        $today = Carbon::today();
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+        
+        if ($ad->campaign_balance > 0 && $ad->status == 'paused' && $today->between($startDate, $endDate)) {
             $ad->status = 'active';
+        }
+        
+        // Nếu đã hết hạn thì tự động chuyển expired
+        if ($today->greaterThan($endDate)) {
+            $ad->status = 'expired';
         }
         
         $ad->save();
@@ -141,6 +155,17 @@ class AdController extends Controller
 
         if ($request->status == 'active' && $ad->campaign_balance <= 0) {
             return redirect()->back()->with('error', 'Không thể bật quảng cáo khi số dư bằng 0. Vui lòng nạp thêm.');
+        }
+
+        // Kiểm tra thời hạn quảng cáo khi muốn bật active
+        if ($request->status == 'active' && $ad->end_date) {
+            $today = Carbon::today();
+            if ($today->greaterThan(Carbon::parse($ad->end_date))) {
+                return redirect()->back()->with('error', 'Quảng cáo đã hết thời hạn. Vui lòng cập nhật lại ngày kết thúc.');
+            }
+            if ($ad->start_date && $today->lessThan(Carbon::parse($ad->start_date))) {
+                return redirect()->back()->with('error', 'Chưa đến ngày bắt đầu chạy quảng cáo (' . Carbon::parse($ad->start_date)->format('d/m/Y') . ').');
+            }
         }
 
         $ad->status = $request->status;

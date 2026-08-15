@@ -51,8 +51,8 @@ class RevenueController extends Controller
             'amount' => 'required|numeric|min:50000',
             'bank_account_id' => 'required|exists:user_bank_accounts,id',
         ], [
-            'amount.min' => 'S? ti?n rút t?i thi?u là 50,000d',
-            'bank_account_id.required' => 'Vui lòng ch?n tài kho?n ngân hàng',
+            'amount.min' => 'Sá»‘ tiá»n rÃºt tá»‘i thiá»ƒu lÃ  50,000Ä‘',
+            'bank_account_id.required' => 'Vui lÃ²ng chá»n tÃ i khoáº£n ngÃ¢n hÃ ng',
         ]);
 
         try {
@@ -71,7 +71,7 @@ class RevenueController extends Controller
                 }
             }
 
-            return back()->with('success', 'Ğã g?i yêu c?u rút ti?n thành công. Admin s? duy?t trong vòng 24h.');
+            return back()->with('success', 'ÄÃ£ gá»­i yÃªu cáº§u rÃºt tiá»n thÃ nh cÃ´ng. Admin sáº½ duyá»‡t trong vÃ²ng 24h.');
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }

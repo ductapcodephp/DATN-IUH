@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CMS;
 use App\Http\Controllers\Controller;
 use App\Services\CMS\PageService;
 use App\DTO\CMS\PageData;
+use App\Enums\UserRole;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -33,7 +34,7 @@ class PageController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255', // Removed unique validation from slug because the user cannot enter it anymore
+            'slug' => 'nullable|string|max:255', 
             'sub_title' => 'nullable|string|max:255',
             'published' => 'required|in:publish,draft',
             'language' => 'required|string|max:10',
@@ -77,9 +78,8 @@ class PageController extends Controller
 
         $data = PageData::fromRequest($request);
         
-        // Enforce keep_slug for non-root users
         $user = auth()->user();
-        if ($user->current_role !== \App\Enums\UserRole::ROOT) {
+        if ($user->current_role !== UserRole::ROOT) {
             $data = new PageData(
                 name: $data->name,
                 title: $data->title,

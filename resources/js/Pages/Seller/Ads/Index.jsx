@@ -7,6 +7,18 @@ export default function AdsIndex({ courses, wallet, auth }) {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     };
 
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
+    // Lấy ngày hôm nay dạng YYYY-MM-DD để set min cho input date
+    const getTodayString = () => {
+        const now = new Date();
+        return now.toISOString().split('T')[0];
+    };
+
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [actionType, setActionType] = useState(''); // 'config' or 'topup'
 
@@ -14,6 +26,8 @@ export default function AdsIndex({ courses, wallet, auth }) {
         course_id: '',
         bid_price: 1000,
         daily_budget: 50000,
+        start_date: '',
+        end_date: '',
     });
 
     const topUpForm = useForm({
@@ -29,6 +43,8 @@ export default function AdsIndex({ courses, wallet, auth }) {
             course_id: course.id,
             bid_price: ad ? Number(ad.bid_price) : 1000,
             daily_budget: ad ? Number(ad.daily_budget) : 50000,
+            start_date: ad?.start_date ? ad.start_date.split('T')[0] : getTodayString(),
+            end_date: ad?.end_date ? ad.end_date.split('T')[0] : '',
         });
         configForm.clearErrors();
     };
@@ -137,6 +153,8 @@ export default function AdsIndex({ courses, wallet, auth }) {
                                     adStatusBadge = <span className="badge bg-warning text-dark rounded-pill px-3 py-2"><i className="fa-solid fa-pause me-1"></i> Tạm dừng</span>;
                                 } else if (ad.status === 'out_of_budget') {
                                     adStatusBadge = <span className="badge bg-danger rounded-pill px-3 py-2"><i className="fa-solid fa-ban me-1"></i> Hết ngân sách</span>;
+                                } else if (ad.status === 'expired') {
+                                    adStatusBadge = <span className="badge bg-dark rounded-pill px-3 py-2"><i className="fa-solid fa-clock me-1"></i> Hết hạn</span>;
                                 }
                             }
 
@@ -160,7 +178,7 @@ export default function AdsIndex({ courses, wallet, auth }) {
                                                 {course.title}
                                             </h5>
                                             
-                                            <div className="row g-2 mb-4 flex-grow-1">
+                                            <div className="row g-2 mb-3 flex-grow-1">
                                                 <div className="col-6">
                                                     <div className="p-3 bg-light rounded text-center h-100">
                                                         <div className="text-muted small mb-1">Ngân sách dư</div>
@@ -180,6 +198,17 @@ export default function AdsIndex({ courses, wallet, auth }) {
                                                         <span className="fw-bold text-success">{ad ? formatCurrency(ad.bid_price) : '0 ₫'}</span>
                                                     </div>
                                                 </div>
+                                                {/* Hiển thị thời hạn chạy quảng cáo */}
+                                                {ad && (ad.start_date || ad.end_date) && (
+                                                    <div className="col-12">
+                                                        <div className="p-2 bg-light rounded d-flex justify-content-between align-items-center px-3">
+                                                            <span className="text-muted small"><i className="fa-regular fa-calendar me-1"></i>Thời hạn:</span>
+                                                            <span className="fw-bold small" style={{ color: ad.status === 'expired' ? '#dc3545' : '#0d6efd' }}>
+                                                                {formatDate(ad.start_date)} → {formatDate(ad.end_date)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="d-flex justify-content-between align-items-center mt-auto gap-2">
@@ -262,6 +291,35 @@ export default function AdsIndex({ courses, wallet, auth }) {
                                         <div className="form-text">Số tiền tối đa quảng cáo tiêu mỗi ngày. Hết tiền sẽ tự động tạm dừng. Tối thiểu 10,000đ.</div>
                                         {configForm.errors.daily_budget && <div className="invalid-feedback">{configForm.errors.daily_budget}</div>}
                                     </div>
+
+                                    {/* Chọn thời hạn chạy quảng cáo */}
+                                    <hr className="my-3" />
+                                    <h6 className="fw-bold mb-3"><i className="fa-regular fa-calendar-check me-1"></i> Thời hạn chạy quảng cáo</h6>
+                                    <div className="row g-3">
+                                        <div className="col-6">
+                                            <label className="form-label">Từ ngày</label>
+                                            <input 
+                                                type="date" 
+                                                className={`form-control ${configForm.errors.start_date ? 'is-invalid' : ''}`}
+                                                value={configForm.data.start_date}
+                                                onChange={e => configForm.setData('start_date', e.target.value)}
+                                                min={getTodayString()}
+                                            />
+                                            {configForm.errors.start_date && <div className="invalid-feedback">{configForm.errors.start_date}</div>}
+                                        </div>
+                                        <div className="col-6">
+                                            <label className="form-label">Đến ngày</label>
+                                            <input 
+                                                type="date" 
+                                                className={`form-control ${configForm.errors.end_date ? 'is-invalid' : ''}`}
+                                                value={configForm.data.end_date}
+                                                onChange={e => configForm.setData('end_date', e.target.value)}
+                                                min={configForm.data.start_date || getTodayString()}
+                                            />
+                                            {configForm.errors.end_date && <div className="invalid-feedback">{configForm.errors.end_date}</div>}
+                                        </div>
+                                    </div>
+                                    <div className="form-text mt-2">Quảng cáo sẽ tự động chạy trong khoảng thời gian này và tự động tắt khi hết hạn.</div>
                                 </div>
                                 <div className="modal-footer">
                                     <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>

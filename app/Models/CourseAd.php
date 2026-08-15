@@ -16,6 +16,13 @@ class CourseAd extends Model
         'clicks',
         'impressions',
         'status',
+        'start_date',
+        'end_date',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function course()

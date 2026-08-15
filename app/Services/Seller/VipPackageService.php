@@ -34,7 +34,7 @@ class VipPackageService
         if ($data->paymentMethod === 'wallet') {
             $wallet = $this->repository->findWalletByUserId($userId);
             if (!$wallet || $wallet->balance_available < $package->price) {
-                throw new Exception('S? du v� kh�ng d? d? mua g�i VIP n�y.');
+                throw new Exception('Số dư ví không đủ để mua gói VIP này.');
             }
 
             $order = $this->repository->createOrder([
@@ -50,10 +50,10 @@ class VipPackageService
                 'payment_method' => 'wallet',
             ]);
 
-            $wallet->withdraw($package->price, 'Mua g�i VIP ' . $package->name, WalletTransaction::TYPE_VIP_PAYMENT);
+            $wallet->withdraw($package->price, 'Mua gói VIP ' . $package->name, WalletTransaction::TYPE_VIP_PAYMENT);
             $this->activateVip($userId, $package, $order->id);
 
-            return ['type' => 'wallet', 'message' => 'Thanh to�n th�nh c�ng! G�i VIP d� du?c k�ch ho?t.'];
+            return ['type' => 'wallet', 'message' => 'Thanh toán thành công! Gói VIP đã được kích hoạt.'];
         }
 
         $order = $this->repository->createOrder([
