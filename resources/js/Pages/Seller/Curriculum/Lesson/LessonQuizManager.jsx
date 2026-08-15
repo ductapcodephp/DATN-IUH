@@ -22,13 +22,33 @@ export default function LessonQuizManager({ course, lesson }) {
         answers: [
             { text: '', is_correct: true },
             { text: '', is_correct: false },
-            { text: '', is_correct: false },
-            { text: '', is_correct: false },
         ]
     });
 
+    const handleAddQuizFormAnswer = () => {
+        quizForm.setData('answers', [
+            ...quizForm.data.answers,
+            { text: '', is_correct: false }
+        ]);
+    };
+
+    const handleRemoveQuizFormAnswer = (indexToRemove) => {
+        if (quizForm.data.answers.length <= 2) return;
+        const updated = quizForm.data.answers.filter((_, idx) => idx !== indexToRemove);
+        if (quizForm.data.type === 'single_choice' && !updated.some(a => a.is_correct)) {
+            updated[0].is_correct = true;
+        }
+        quizForm.setData('answers', updated);
+    };
+
     const handleAddQuestion = (e) => {
         e.preventDefault();
+        const hasCorrect = quizForm.data.answers.some(a => a.is_correct);
+        if (!hasCorrect) {
+            alert('Vui lòng chọn ít nhất 1 đáp án đúng!');
+            return;
+        }
+
         quizForm.post(route('seller.courses.curriculum.quiz.store-question', [course.id, lesson.id]), {
             preserveScroll: true,
             onSuccess: () => {
@@ -45,16 +65,39 @@ export default function LessonQuizManager({ course, lesson }) {
 
     const startEditQuestion = (q) => {
         setEditingId(q.id);
+        const mappedAnswers = (q.answers || []).map(a => ({ text: a.answer, is_correct: !!a.is_correct }));
+        while (mappedAnswers.length < 2) {
+            mappedAnswers.push({ text: '', is_correct: false });
+        }
         setEditData({
             question_text: q.question,
             type: q.type || 'single_choice',
-            answers: q.answers.map(a => ({ text: a.answer, is_correct: !!a.is_correct }))
+            answers: mappedAnswers
         });
     };
 
     const cancelEditQuestion = () => {
         setEditingId(null);
         setEditData({ question_text: '', type: 'single_choice', answers: [] });
+    };
+
+    const handleAddEditAnswer = () => {
+        setEditData({
+            ...editData,
+            answers: [
+                ...editData.answers,
+                { text: '', is_correct: false }
+            ]
+        });
+    };
+
+    const handleRemoveEditAnswer = (indexToRemove) => {
+        if (editData.answers.length <= 2) return;
+        const updated = editData.answers.filter((_, idx) => idx !== indexToRemove);
+        if (editData.type === 'single_choice' && !updated.some(a => a.is_correct)) {
+            updated[0].is_correct = true;
+        }
+        setEditData({ ...editData, answers: updated });
     };
 
     const handleEditAnswerText = (idx, value) => {
@@ -76,6 +119,12 @@ export default function LessonQuizManager({ course, lesson }) {
 
     const submitEditQuestion = (e, questionId) => {
         e.preventDefault();
+        const hasCorrect = editData.answers.some(a => a.is_correct);
+        if (!hasCorrect) {
+            alert('Vui lòng chọn ít nhất 1 đáp án đúng!');
+            return;
+        }
+
         setEditProcessing(true);
         router.post(
             route('seller.courses.curriculum.quiz.update-question', {
@@ -179,7 +228,25 @@ export default function LessonQuizManager({ course, lesson }) {
                             </select>
                         </div>
 
-                        <label className="form-label">Các phương án lựa chọn (Click chọn đáp án đúng):</label>
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <label className="form-label mb-0">Các phương án lựa chọn (Click chọn đáp án đúng):</label>
+                            <button
+                                type="button"
+                                onClick={handleAddEditAnswer}
+                                className="btn btn-sm"
+                                style={{
+                                    borderRadius: '8px',
+                                    padding: '4px 10px',
+                                    fontSize: '0.8rem',
+                                    color: '#EA580C',
+                                    border: '1px solid #EA580C',
+                                    background: 'transparent',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                <i className="fa-solid fa-plus me-1"></i> Thêm đáp án
+                            </button>
+                        </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {editData.answers.map((ans, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -188,17 +255,29 @@ export default function LessonQuizManager({ course, lesson }) {
                                         name={`edit_correct_${q.id}`}
                                         checked={ans.is_correct}
                                         onChange={() => handleEditAnswerCorrect(idx)}
-                                        style={{ cursor: 'pointer' }}
+                                        style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: '#EA580C' }}
+                                        title={ans.is_correct ? "Đáp án đúng" : "Đánh dấu là đáp án đúng"}
                                     />
                                     <input
                                         type="text"
                                         className="form-control"
-                                        style={{ padding: '6px 10px' }}
+                                        style={{ padding: '6px 10px', flex: 1, borderRadius: '8px' }}
                                         placeholder={`Đáp án ${idx + 1}`}
                                         value={ans.text}
                                         onChange={e => handleEditAnswerText(idx, e.target.value)}
                                         required
                                     />
+                                    {editData.answers.length > 2 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveEditAnswer(idx)}
+                                            className="btn btn-outline-danger btn-sm"
+                                            style={{ borderRadius: '8px', padding: '6px 10px' }}
+                                            title="Xóa đáp án này"
+                                        >
+                                            <i className="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -300,7 +379,25 @@ export default function LessonQuizManager({ course, lesson }) {
                         </select>
                     </div>
 
-                    <label className="form-label">Các phương án lựa chọn (Click chọn đáp án đúng):</label>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                        <label className="form-label mb-0">Các phương án lựa chọn (Click chọn đáp án đúng):</label>
+                        <button
+                            type="button"
+                            onClick={handleAddQuizFormAnswer}
+                            className="btn btn-sm"
+                            style={{
+                                borderRadius: '8px',
+                                padding: '4px 10px',
+                                fontSize: '0.8rem',
+                                color: '#EA580C',
+                                border: '1px solid #EA580C',
+                                background: 'transparent',
+                                fontWeight: '600'
+                            }}
+                        >
+                            <i className="fa-solid fa-plus me-1"></i> Thêm đáp án
+                        </button>
+                    </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {quizForm.data.answers.map((ans, idx) => (
                             <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -318,12 +415,13 @@ export default function LessonQuizManager({ course, lesson }) {
                                         });
                                         quizForm.setData('answers', updated);
                                     }} 
-                                    style={{ cursor: 'pointer' }}
+                                    style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: '#EA580C' }}
+                                    title={ans.is_correct ? "Đáp án đúng" : "Đánh dấu là đáp án đúng"}
                                 />
                                 <input 
                                     type="text" 
                                     className="form-control"
-                                    style={{ padding: '6px 10px' }}
+                                    style={{ padding: '6px 10px', flex: 1, borderRadius: '8px' }}
                                     placeholder={`Đáp án ${idx + 1}`} 
                                     value={ans.text} 
                                     onChange={e => {
@@ -333,6 +431,17 @@ export default function LessonQuizManager({ course, lesson }) {
                                     }} 
                                     required 
                                 />
+                                {quizForm.data.answers.length > 2 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveQuizFormAnswer(idx)}
+                                        className="btn btn-outline-danger btn-sm"
+                                        style={{ borderRadius: '8px', padding: '6px 10px' }}
+                                        title="Xóa đáp án này"
+                                    >
+                                        <i className="fa-solid fa-trash-can"></i>
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>

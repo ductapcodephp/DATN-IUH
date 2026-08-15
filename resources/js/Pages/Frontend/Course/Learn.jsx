@@ -6,10 +6,13 @@ import NotesPanel from './Components/NotesPanel';
 import QuizPanel from './Components/QuizPanel';
 import LessonSidebar from './Components/LessonSidebar';
 import CheatWarningModal from './Components/CheatWarningModal';
+import CircularProgress from '@/Components/MagicUI/CircularProgress';
+import { triggerConfetti } from '@/Components/MagicUI/Confetti';
 
 import { useVideoPlayer } from '../../../hooks/useVideoPlayer';
 import { useProgressTracker } from '../../../hooks/useProgressTracker';
 import { useQuizEngine } from '../../../hooks/useQuizEngine';
+import Swal from 'sweetalert2';
 
 export default function Learn({ course, userQuizResults = {}, courseProgress = 0, completedLessonIds = [], lessonProgresses = {}, reportTopics = [] }) {
     const { chapters } = course;
@@ -17,6 +20,13 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
     const [localCompleted, setLocalCompleted] = useState(completedLessonIds); 
     const [localProgresses, setLocalProgresses] = useState(lessonProgresses || {});
     const [progress, setProgress] = useState(courseProgress);
+
+    useEffect(() => {
+        if (progress >= 100) {
+            triggerConfetti({ count: 120, duration: 4000 });
+        }
+    }, [progress]);
+
 
     const flattenedLessons = chapters.reduce((acc, chapter) => {
         return acc.concat(chapter.lessons || []);
@@ -29,16 +39,12 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
         return localCompleted.includes(prevLesson.id);
     };
 
-    // Overlay states
     const [showCommentsPanel, setShowCommentsPanel] = useState(false);
     const [showNotesPanel, setShowNotesPanel] = useState(false);
 
-    // Note form state
     const [showNoteForm, setShowNoteForm] = useState(false);
     const [currentNoteTime, setCurrentNoteTime] = useState('00:00');
 
-    // Custom Hooks
-    // Note: useVideoPlayer path from resources/js/Pages/Frontend/Course to resources/js/hooks is ../../../hooks
     const { videoRef, playerRef } = useVideoPlayer(activeLesson);
     
     const { showCheatModal, cheatMessage, setShowCheatModal } = useProgressTracker({
@@ -96,7 +102,12 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
 
     const handleLessonSelect = (lesson) => {
         if (!isLessonUnlocked(lesson)) {
-            alert('Bạn cần hoàn thành bài học trước đó để mở khóa bài này!');
+            Swal.fire({
+                title: 'Bài học chưa mở khóa',
+                text: 'Bạn cần hoàn thành bài học trước đó để mở khóa bài này!',
+                icon: 'warning',
+                confirmButtonColor: '#ea580c',
+            });
             return;
         }
         setActiveLesson(lesson);
@@ -121,21 +132,19 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
                 </h1>
 
                 <div className="learn-nav-actions">
-                    <div className="learn-streak-badge d-none d-md-flex">
-                        <span className="me-1 fs-6">🔥</span> 5 ngày liên tục
+                    <div className="learn-streak-badge d-none d-md-flex align-items-center gap-1">
+                        <span className="fs-6">🔥</span> 5 ngày liên tục
                     </div>
 
-                    <div className="d-none d-md-flex align-items-center gap-2" style={{ width: '130px' }}>
-                        <div className="progress flex-grow-1" style={{ height: '8px', backgroundColor: '#e9ecef', borderRadius: '4px' }}>
-                            <div className="progress-bar" style={{ width: `${progress}%`, backgroundColor: '#fd7e14', borderRadius: '4px' }}></div>
-                        </div>
-                        <span className="fw-bold" style={{ fontSize: '13px', color: '#1f2937' }}>{progress}%</span>
+                    <div className="d-none d-md-flex align-items-center gap-2 px-2 py-1 bg-white rounded-pill border shadow-sm">
+                        <CircularProgress value={progress} size={36} strokeWidth={4} color="#EA580C" fontSize="10px" />
+                        <span className="fw-semibold text-muted font-sm me-1">Tiến độ</span>
                     </div>
 
-                    <button className="learn-nav-icon" onClick={() => setShowNotesPanel(true)}>
+                    <button className="learn-nav-icon" onClick={() => setShowNotesPanel(true)} title="Ghi chú bài học">
                         <i className="fa-solid fa-file-lines"></i>
                     </button>
-                    <button className="learn-nav-icon" onClick={() => setShowCommentsPanel(true)}>
+                    <button className="learn-nav-icon" onClick={() => setShowCommentsPanel(true)} title="Hỏi đáp & Thảo luận">
                         <i className="fa-solid fa-circle-question"></i>
                     </button>
                 </div>
@@ -272,7 +281,12 @@ export default function Learn({ course, userQuizResults = {}, courseProgress = 0
                                     if (localCompleted.includes(activeLesson?.id)) {
                                         handleLessonSelect(nextLesson);
                                     } else {
-                                        alert('Bạn cần hoàn thành bài học hiện tại trước!');
+                                        Swal.fire({
+                                            title: 'Chưa hoàn thành',
+                                            text: 'Bạn cần hoàn thành bài học hiện tại trước khi chuyển bài!',
+                                            icon: 'warning',
+                                            confirmButtonColor: '#ea580c',
+                                        });
                                     }
                                 }
                             }}

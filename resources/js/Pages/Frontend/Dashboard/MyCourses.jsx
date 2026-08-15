@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, router, useForm } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/Frontend/DashboardLayout';
+import Swal from 'sweetalert2';
 
 const statusConfig = {
     completed: { label: 'Hoàn thành', color: '#16a34a', bg: '#dcfce7', icon: 'fa-solid fa-circle-check' },
@@ -146,7 +147,21 @@ export default function MyCourses({ courses, filters, reportTopics }) {
         postReport(route('frontend.course.report', { course: selectedCourse?.id }), {
             onSuccess: () => {
                 closeReportModal();
-                alert('Báo cáo khóa học thành công!');
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Báo cáo khóa học thành công. Ban quản trị sẽ sớm xem xét!',
+                    icon: 'success',
+                    confirmButtonColor: '#ea580c',
+                });
+            },
+            onError: (errors) => {
+                const msg = Object.values(errors)[0] || 'Có lỗi xảy ra khi gửi báo cáo.';
+                Swal.fire({
+                    title: 'Thông báo',
+                    text: msg,
+                    icon: 'warning',
+                    confirmButtonColor: '#ea580c',
+                });
             }
         });
     };

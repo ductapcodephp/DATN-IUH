@@ -41,12 +41,15 @@ class LearningService
             $courseProgress = $enrollment ? $enrollment->progress : 0;
         }
 
+        $reportTopics = $this->learningRepository->getTopicsByType('comment');
+
         return [
             'userQuizResults' => $userQuizResults,
             'completedLessonIds' => $completedLessonIds,
             'lessonProgresses' => $lessonProgresses,
             'isEnrolled' => $isEnrolled,
             'courseProgress' => $courseProgress,
+            'reportTopics' => $reportTopics,
         ];
     }
 
@@ -119,7 +122,10 @@ class LearningService
             $progress = CourseProgress::where('user_id', $userId)
                 ->where('lesson_id', $lessonId)
                 ->first();
-            $isCompleted = $progress ? $progress->is_completed : false;
+            if ($progress) {
+                $isCompleted = $progress->is_completed;
+                $oldWatched = $progress->watched_seconds;
+            }
         }
 
         $newWatched = max($oldWatched, $dto->watchedSeconds);
@@ -131,14 +137,21 @@ class LearningService
                     $videoTimeJump = $newWatched - $oldWatched;
                     $elapsedRealTime = $currentTimestamp - $lastUpdatedAt;
 
-                    if ($videoTimeJump > ($elapsedRealTime + 10)) {
+                    // Cho phép dung sai 15s để tính cho trường hợp browser throttle tab,
+                    // độ trễ mạng, hoặc timeupdate event bị delay
+                    if ($videoTimeJump > ($elapsedRealTime + 15)) {
                         $newWatched = $oldWatched + $elapsedRealTime;
                     }
                 }
             } else {
-                $maxFirstPingAllowed = 25;
-                if ($newWatched > $maxFirstPingAllowed) {
-                    $newWatched = 0;
+                // Chỉ cap khi thật sự chưa có lịch sử xem nào (lần gửi đầu tiên tuyệt đối).
+                // Nếu đã có oldWatched từ DB thì đây không phải first ping,
+                // chỉ là Redis hết hạn TTL → không cần cap.
+                if ($oldWatched == 0) {
+                    $maxFirstPingAllowed = 30;
+                    if ($newWatched > $maxFirstPingAllowed) {
+                        $newWatched = $maxFirstPingAllowed;
+                    }
                 }
             }
         }

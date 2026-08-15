@@ -8,6 +8,7 @@ use App\Models\CourseProgress;
 use App\Models\Lesson;
 use App\Models\Quiz;
 use App\Models\QuizResult;
+use App\Models\Topic;
 
 class LearningRepository implements LearningRepositoryInterface
 {
@@ -113,5 +114,10 @@ class LearningRepository implements LearningRepositoryInterface
         return CourseEnrollment::where('student_id', $userId)
             ->where('course_id', $courseId)
             ->update(['progress' => $progressPercentage]);
+    }
+
+    public function getTopicsByType(string $type)
+    {
+        return Topic::where('type', $type)->select('id', 'name')->get();
     }
 }

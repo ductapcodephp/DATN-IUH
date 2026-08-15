@@ -125,7 +125,8 @@ class SyncVideoProgressCommand extends Command
                     ->update(['progress' => $progressPercentage]);
             }
 
-             Redis::del($entry['redis_key']);
+            // Không xóa Redis key — để TTL tự quản lý, tránh mất lastUpdatedAt
+            // cho các request tiếp theo từ frontend.
             $count++;
         }
 

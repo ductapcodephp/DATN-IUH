@@ -27,4 +27,6 @@ interface LearningRepositoryInterface
     public function countCompletedLessons($userId, $courseId);
 
     public function updateCourseEnrollmentProgress($userId, $courseId, $progressPercentage);
+
+    public function getTopicsByType(string $type);
 }

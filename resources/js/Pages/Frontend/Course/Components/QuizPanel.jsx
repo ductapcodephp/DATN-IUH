@@ -1,6 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { triggerConfetti } from '@/Components/MagicUI/Confetti';
+import ShimmerButton from '@/Components/MagicUI/ShimmerButton';
 
 export default function QuizPanel({ activeLesson, activeQuiz, questions, selectedAnswers, quizSubmitted, handleAnswerSelect, submitQuiz }) {
+    useEffect(() => {
+        if (quizSubmitted && questions.length > 0) {
+            // Kiểm tra xem học viên có làm đúng đa số hoặc toàn bộ câu hỏi không
+            const isAllCorrect = questions.every(q => {
+                const selected = selectedAnswers[q.id] || [];
+                const correctAnswers = q.answers?.filter(a => a.is_correct).map(a => a.id) || [];
+                return selected.length === correctAnswers.length && selected.every(id => correctAnswers.includes(id));
+            });
+
+            if (isAllCorrect) {
+                triggerConfetti({ count: 90, duration: 3500 });
+            }
+        }
+    }, [quizSubmitted]);
+
     return (
         <div className="learn-quiz-section">
             <div className="learn-quiz-container">
@@ -75,13 +92,14 @@ export default function QuizPanel({ activeLesson, activeQuiz, questions, selecte
 
                         {!quizSubmitted && (
                             <div className="mt-2 text-center">
-                                <button
-                                    className="learn-quiz-submit-btn py-3 px-5 fw-bold"
+                                <ShimmerButton
+                                    className="py-3 px-5 fw-bold"
+                                    background="var(--fire, #EA580C)"
                                     disabled={Object.keys(selectedAnswers).length === 0}
                                     onClick={submitQuiz}
                                 >
-                                    NỘP BÀI TẬP
-                                </button>
+                                    <i className="fa-solid fa-paper-plane me-2"></i> NỘP BÀI TẬP
+                                </ShimmerButton>
                             </div>
                         )}
                     </>
@@ -90,3 +108,4 @@ export default function QuizPanel({ activeLesson, activeQuiz, questions, selecte
         </div>
     );
 }
+
