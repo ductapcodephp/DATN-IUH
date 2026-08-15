@@ -1665,3 +1665,240 @@ h1, h2, h3, h4, h5, h6,
     padding: 28px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
+
+/* ==========================================================
+   MAGIC UI UTILITIES & COMPONENTS (EduFlow Enhancement)
+   ========================================================== */
+
+/* 1. Number Ticker */
+.magic-number-ticker {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* 2. Marquee */
+.magic-marquee-container {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  gap: 1.5rem;
+  width: 100%;
+  position: relative;
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+.magic-marquee-vertical {
+  flex-direction: column;
+  height: 300px;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+.magic-marquee-content {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-around;
+  gap: 1.5rem;
+  min-width: 100%;
+  animation: magic-marquee var(--duration, 30s) linear infinite;
+}
+
+.magic-marquee-vertical-content {
+  flex-direction: column;
+  min-height: 100%;
+  min-width: unset;
+  animation: magic-marquee-vertical var(--duration, 30s) linear infinite;
+}
+
+.magic-marquee-reverse {
+  animation-direction: reverse;
+}
+
+.pause-on-hover:hover .magic-marquee-content {
+  animation-play-state: paused;
+}
+
+@keyframes magic-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - 1.5rem));
+  }
+}
+
+@keyframes magic-marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - 1.5rem));
+  }
+}
+
+/* 3. Shimmer Button */
+.magic-shimmer-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius, 8px);
+  background: var(--bg, var(--fire, #EA580C));
+  color: #ffffff !important;
+  font-weight: 600;
+  border: 1px solid transparent;
+  padding: 0.75rem 1.75rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.25);
+}
+
+.magic-shimmer-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.35);
+  color: #ffffff !important;
+}
+
+.magic-shimmer-button:active {
+  transform: translateY(0);
+}
+
+.magic-shimmer-button.disabled,
+.magic-shimmer-button:disabled {
+  opacity: 0.65;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.magic-shimmer-sparkle {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  animation: magic-shine-sweep var(--speed, 3.5s) infinite ease-in-out;
+  pointer-events: none;
+}
+
+.magic-shimmer-button:hover .magic-shimmer-sparkle {
+  animation-duration: 2s;
+}
+
+.magic-shimmer-content {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@keyframes magic-shine-sweep {
+  0% {
+    left: -100%;
+  }
+  30%, 100% {
+    left: 200%;
+  }
+}
+
+
+/* 4. Magic Card (Spotlight) */
+.magic-card-wrapper {
+  position: relative;
+  border-radius: var(--radius, 12px);
+  background: #ffffff;
+  border: 1px solid var(--border, #E5E7EB);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.magic-card-wrapper:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+}
+
+.magic-card-spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.magic-card-border {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* 5. Border Beam */
+.magic-border-beam {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
+  -webkit-mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+  -webkit-mask-clip: padding-box, border-box;
+  -webkit-mask-composite: source-out;
+  padding: var(--border-width, 1.5px);
+}
+
+.magic-border-beam::after {
+  content: "";
+  position: absolute;
+  aspect-ratio: 1;
+  width: calc(var(--size, 200) * 1px);
+  background: linear-gradient(to left, var(--color-from, #EA580C), var(--color-to, #0284C7), transparent);
+  offset-path: rect(0 auto auto 0 round calc(var(--radius, 12px)));
+  animation: magic-border-beam-move var(--duration, 15s) infinite linear;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes magic-border-beam-move {
+  to {
+    offset-distance: 100%;
+  }
+}
+
+/* 6. Circular Progress */
+.magic-circular-progress-wrap {
+  display: inline-flex;
+}
+
+.magic-circular-progress-svg {
+  transform: rotate(-90deg);
+}
+
+/* 7. Announcement Marquee Bar */
+.magic-top-announcement {
+  background: linear-gradient(90deg, #EA580C 0%, #C2410C 50%, #0284C7 100%);
+  color: #ffffff;
+  padding: 6px 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.magic-top-announcement .badge-pill {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+

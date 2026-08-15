@@ -8,6 +8,7 @@ import SweetAlert from '@/Components/SweetAlert';
 export default function SellerLayout({ children }) {
     const { flash } = usePage().props;
     const [flashToast, setFlashToast] = useState({ show: false, type: 'success', title: '' });
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
     useEffect(() => {
         if (flash?.success || flash?.error) {
@@ -21,7 +22,6 @@ export default function SellerLayout({ children }) {
 
     return (
         <>
-
             <Head>
                 <link rel="stylesheet" href="/assets/seller/css/seller.css?v=3" />
                 <link rel="stylesheet" href="/assets/seller/css/curriculum.css" />
@@ -37,17 +37,28 @@ export default function SellerLayout({ children }) {
                 onClose={() => setFlashToast({ show: false, type: 'success', title: '' })}
             />
 
+            {/* Mobile Drawer Backdrop */}
+            <div 
+                className={`seller-sidebar-backdrop ${mobileSidebarOpen ? 'active' : ''}`}
+                onClick={() => setMobileSidebarOpen(false)}
+            ></div>
 
-        <div className="seller-app-layout">
-            <SellerSidebar />
-            
-            <div className="seller-app-right">
-                <SellerHeader />
-                <div className="seller-app-main">
-                    {children}
+            <div className="seller-app-layout">
+                <SellerSidebar 
+                    isOpen={mobileSidebarOpen} 
+                    onClose={() => setMobileSidebarOpen(false)} 
+                />
+                
+                <div className="seller-app-right">
+                    <SellerHeader 
+                        onToggleMobileSidebar={() => setMobileSidebarOpen(prev => !prev)} 
+                    />
+                    <div className="seller-app-main">
+                        {children}
+                    </div>
                 </div>
             </div>
-        </div>
         </>
     );
 }
+

@@ -138,6 +138,15 @@ class ReviewController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $alreadyReported = Report::where('reporter_id', auth()->id())
+            ->where('reportable_type', Review::class)
+            ->where('reportable_id', $review->id)
+            ->exists();
+
+        if ($review->is_reported || $alreadyReported) {
+            return back()->with('error', 'Bạn đã gửi báo cáo cho đánh giá này rồi.');
+        }
+
         $this->reviewService->updateReview($review->id, ['is_reported' => true]);
 
         $report = Report::create([

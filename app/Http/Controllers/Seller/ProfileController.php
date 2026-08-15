@@ -27,7 +27,7 @@ class ProfileController extends Controller
     {
         $notifications = $request->user()
             ->notifications()
-            ->where('type', 'like', 'App\Notifications\Seller\%')
+            ->where('type', 'like', '%Notifications%Seller%')
             ->paginate(10);
 
         return Inertia::render('Seller/Profile/Notifications', [

@@ -12,6 +12,8 @@ import {
     Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import NumberTicker from '@/Components/MagicUI/NumberTicker';
+import MagicCard from '@/Components/MagicUI/MagicCard';
 
 ChartJS.register(
     CategoryScale,
@@ -24,6 +26,7 @@ ChartJS.register(
     Legend
 );
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
+
 
 export default function UserDetail({ user, stats, chartData, filters, orders }) {
     const isUser = user.current_role === 'user';
@@ -39,10 +42,10 @@ export default function UserDetail({ user, stats, chartData, filters, orders }) 
             fill: true,
             label: isUser ? 'Tiêu dùng' : 'Doanh thu',
             data: chartData?.data || [],
-            borderColor: isUser ? 'rgba(59, 130, 246, 1)' : 'rgba(234, 88, 12, 1)',
-            backgroundColor: isUser ? 'rgba(59, 130, 246, 0.1)' : 'rgba(234, 88, 12, 0.1)',
+            borderColor: isUser ? 'rgba(59, 130, 246, 1)' : 'rgba(79, 172, 254, 1)',
+            backgroundColor: isUser ? 'rgba(59, 130, 246, 0.1)' : 'rgba(79, 172, 254, 0.1)',
             tension: 0.4,
-            pointBackgroundColor: isUser ? 'rgba(59, 130, 246, 1)' : 'rgba(234, 88, 12, 1)',
+            pointBackgroundColor: isUser ? 'rgba(59, 130, 246, 1)' : 'rgba(79, 172, 254, 1)',
         }],
     });
 
@@ -80,7 +83,7 @@ export default function UserDetail({ user, stats, chartData, filters, orders }) 
     useEffect(() => {
         const fetchChartData = async () => {
             try {
-                let url = route('admin.users.chart-data', { id: user.id }) + `?type=${chartFilter}`;
+                let url = `/admin/users/${user.id}/chart-data?type=${chartFilter}`;
                 if (chartFilter === 'custom') {
                     if (!startDate || !endDate) return;
                     url += `&start_date=${startDate}&end_date=${endDate}`;
@@ -94,10 +97,10 @@ export default function UserDetail({ user, stats, chartData, filters, orders }) 
                         fill: true,
                         label: isUser ? 'Tiêu dùng' : 'Doanh thu',
                         data: data.data || [],
-                        borderColor: isUser ? 'rgba(59, 130, 246, 1)' : 'rgba(234, 88, 12, 1)',
-                        backgroundColor: isUser ? 'rgba(59, 130, 246, 0.1)' : 'rgba(234, 88, 12, 0.1)',
+                        borderColor: isUser ? 'rgba(59, 130, 246, 1)' : 'rgba(79, 172, 254, 1)',
+                        backgroundColor: isUser ? 'rgba(59, 130, 246, 0.1)' : 'rgba(79, 172, 254, 0.1)',
                         tension: 0.4,
-                        pointBackgroundColor: isUser ? 'rgba(59, 130, 246, 1)' : 'rgba(234, 88, 12, 1)',
+                        pointBackgroundColor: isUser ? 'rgba(59, 130, 246, 1)' : 'rgba(79, 172, 254, 1)',
                     }],
                 });
             } catch (error) {
@@ -201,52 +204,58 @@ export default function UserDetail({ user, stats, chartData, filters, orders }) 
                             {isUser && (
                                 <>
                                     <div className="col-12 col-md-6 stagger-fade-up">
-                                        <div className="card stat-card glass-card border-0 h-100" data-color="--primary-glow">
-                                            <div className="card-body position-relative overflow-hidden">
-                                                <div className="glow-bg bg-primary-glow"></div>
-                                                <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
-                                                    <div className="stat-icon icon-primary">
-                                                        <i className="fa-solid fa-wallet"></i>
+                                        <MagicCard gradientColor="rgba(79, 172, 254, 0.15)" borderColor="rgba(79, 172, 254, 0.4)" className="border-0 shadow-none h-100">
+                                            <div className="card stat-card glass-card border-0 h-100" data-color="--primary-glow">
+                                                <div className="card-body position-relative overflow-hidden">
+                                                    <div className="glow-bg bg-primary-glow"></div>
+                                                    <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                                        <div className="stat-icon icon-primary">
+                                                            <i className="fa-solid fa-wallet"></i>
+                                                        </div>
                                                     </div>
+                                                    <div className="text-muted fw-medium mb-1 position-relative z-1">Tổng tiền đã tiêu (VNĐ)</div>
+                                                    <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
+                                                        <NumberTicker value={stats.total_spent || 0} duration={1800} /> ₫
+                                                    </h2>
                                                 </div>
-                                                <div className="text-muted fw-medium mb-1 position-relative z-1">Tổng tiền đã tiêu (VNĐ)</div>
-                                                <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
-                                                    {new Intl.NumberFormat('vi-VN').format(stats.total_spent || 0)} ₫
-                                                </h2>
                                             </div>
-                                        </div>
+                                        </MagicCard>
                                     </div>
                                     <div className="col-12 col-md-6 stagger-fade-up" style={{ animationDelay: '0.1s' }}>
-                                        <div className="card stat-card glass-card border-0 h-100" data-color="--success-glow">
-                                            <div className="card-body position-relative overflow-hidden">
-                                                <div className="glow-bg bg-success-glow"></div>
-                                                <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
-                                                    <div className="stat-icon icon-success">
-                                                        <i className="fa-solid fa-graduation-cap"></i>
+                                        <MagicCard gradientColor="rgba(67, 233, 123, 0.15)" borderColor="rgba(67, 233, 123, 0.4)" className="border-0 shadow-none h-100">
+                                            <div className="card stat-card glass-card border-0 h-100" data-color="--success-glow">
+                                                <div className="card-body position-relative overflow-hidden">
+                                                    <div className="glow-bg bg-success-glow"></div>
+                                                    <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                                        <div className="stat-icon icon-success">
+                                                            <i className="fa-solid fa-graduation-cap"></i>
+                                                        </div>
                                                     </div>
+                                                    <div className="text-muted fw-medium mb-1 position-relative z-1">Khóa học đã mua</div>
+                                                    <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
+                                                        <NumberTicker value={stats.total_courses || 0} duration={1500} />
+                                                    </h2>
                                                 </div>
-                                                <div className="text-muted fw-medium mb-1 position-relative z-1">Khóa học đã mua</div>
-                                                <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
-                                                    {stats.total_courses || 0}
-                                                </h2>
                                             </div>
-                                        </div>
+                                        </MagicCard>
                                     </div>
                                     <div className="col-12 col-md-6 stagger-fade-up" style={{ animationDelay: '0.2s' }}>
-                                        <div className="card stat-card glass-card border-0 h-100" data-color="--warning-glow">
-                                            <div className="card-body position-relative overflow-hidden">
-                                                <div className="glow-bg bg-warning-glow"></div>
-                                                <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
-                                                    <div className="stat-icon icon-warning">
-                                                        <i className="fa-solid fa-crown"></i>
+                                        <MagicCard gradientColor="rgba(246, 211, 101, 0.15)" borderColor="rgba(246, 211, 101, 0.4)" className="border-0 shadow-none h-100">
+                                            <div className="card stat-card glass-card border-0 h-100" data-color="--warning-glow">
+                                                <div className="card-body position-relative overflow-hidden">
+                                                    <div className="glow-bg bg-warning-glow"></div>
+                                                    <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                                        <div className="stat-icon icon-warning">
+                                                            <i className="fa-solid fa-crown"></i>
+                                                        </div>
                                                     </div>
+                                                    <div className="text-muted fw-medium mb-1 position-relative z-1">Gói VIP đã mua</div>
+                                                    <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
+                                                        <NumberTicker value={stats.total_vips || 0} duration={1500} />
+                                                    </h2>
                                                 </div>
-                                                <div className="text-muted fw-medium mb-1 position-relative z-1">Gói VIP đã mua</div>
-                                                <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
-                                                    {stats.total_vips || 0}
-                                                </h2>
                                             </div>
-                                        </div>
+                                        </MagicCard>
                                     </div>
                                 </>
                             )}
@@ -254,52 +263,58 @@ export default function UserDetail({ user, stats, chartData, filters, orders }) 
                             {isSeller && (
                                 <>
                                     <div className="col-12 col-md-6 stagger-fade-up">
-                                        <div className="card stat-card glass-card border-0 h-100" data-color="--primary-glow">
-                                            <div className="card-body position-relative overflow-hidden">
-                                                <div className="glow-bg bg-primary-glow"></div>
-                                                <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
-                                                    <div className="stat-icon icon-primary">
-                                                        <i className="fa-solid fa-money-bill-wave"></i>
+                                        <MagicCard gradientColor="rgba(79, 172, 254, 0.15)" borderColor="rgba(79, 172, 254, 0.4)" className="border-0 shadow-none h-100">
+                                            <div className="card stat-card glass-card border-0 h-100" data-color="--primary-glow">
+                                                <div className="card-body position-relative overflow-hidden">
+                                                    <div className="glow-bg bg-primary-glow"></div>
+                                                    <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                                        <div className="stat-icon icon-primary">
+                                                            <i className="fa-solid fa-money-bill-wave"></i>
+                                                        </div>
                                                     </div>
+                                                    <div className="text-muted fw-medium mb-1 position-relative z-1">Tổng doanh thu (VNĐ)</div>
+                                                    <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
+                                                        <NumberTicker value={stats.total_revenue || 0} duration={1800} /> ₫
+                                                    </h2>
                                                 </div>
-                                                <div className="text-muted fw-medium mb-1 position-relative z-1">Tổng doanh thu (VNĐ)</div>
-                                                <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
-                                                    {new Intl.NumberFormat('vi-VN').format(stats.total_revenue || 0)} ₫
-                                                </h2>
                                             </div>
-                                        </div>
+                                        </MagicCard>
                                     </div>
                                     <div className="col-12 col-md-6 stagger-fade-up" style={{ animationDelay: '0.1s' }}>
-                                        <div className="card stat-card glass-card border-0 h-100" data-color="--success-glow">
-                                            <div className="card-body position-relative overflow-hidden">
-                                                <div className="glow-bg bg-success-glow"></div>
-                                                <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
-                                                    <div className="stat-icon icon-success">
-                                                        <i className="fa-solid fa-book-open"></i>
+                                        <MagicCard gradientColor="rgba(67, 233, 123, 0.15)" borderColor="rgba(67, 233, 123, 0.4)" className="border-0 shadow-none h-100">
+                                            <div className="card stat-card glass-card border-0 h-100" data-color="--success-glow">
+                                                <div className="card-body position-relative overflow-hidden">
+                                                    <div className="glow-bg bg-success-glow"></div>
+                                                    <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                                        <div className="stat-icon icon-success">
+                                                            <i className="fa-solid fa-book-open"></i>
+                                                        </div>
                                                     </div>
+                                                    <div className="text-muted fw-medium mb-1 position-relative z-1">Khóa học đang bán</div>
+                                                    <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
+                                                        <NumberTicker value={stats.total_courses || 0} duration={1500} />
+                                                    </h2>
                                                 </div>
-                                                <div className="text-muted fw-medium mb-1 position-relative z-1">Khóa học đang bán</div>
-                                                <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
-                                                    {stats.total_courses || 0}
-                                                </h2>
                                             </div>
-                                        </div>
+                                        </MagicCard>
                                     </div>
                                     <div className="col-12 col-md-6 stagger-fade-up" style={{ animationDelay: '0.2s' }}>
-                                        <div className="card stat-card glass-card border-0 h-100" data-color="--info-glow">
-                                            <div className="card-body position-relative overflow-hidden">
-                                                <div className="glow-bg bg-info-glow"></div>
-                                                <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
-                                                    <div className="stat-icon" style={{ color: 'var(--bs-info)', backgroundColor: 'rgba(13, 202, 240, 0.1)' }}>
-                                                        <i className="fa-solid fa-users"></i>
+                                        <MagicCard gradientColor="rgba(161, 140, 209, 0.15)" borderColor="rgba(161, 140, 209, 0.4)" className="border-0 shadow-none h-100">
+                                            <div className="card stat-card glass-card border-0 h-100" data-color="--info-glow">
+                                                <div className="card-body position-relative overflow-hidden">
+                                                    <div className="glow-bg bg-info-glow"></div>
+                                                    <div className="d-flex align-items-center justify-content-between mb-3 position-relative z-1">
+                                                        <div className="stat-icon" style={{ color: 'var(--bs-info)', backgroundColor: 'rgba(13, 202, 240, 0.1)' }}>
+                                                            <i className="fa-solid fa-users"></i>
+                                                        </div>
                                                     </div>
+                                                    <div className="text-muted fw-medium mb-1 position-relative z-1">Tổng số học viên</div>
+                                                    <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
+                                                        <NumberTicker value={stats.total_students || 0} duration={1500} />
+                                                    </h2>
                                                 </div>
-                                                <div className="text-muted fw-medium mb-1 position-relative z-1">Tổng số học viên</div>
-                                                <h2 className="fw-bold m-0 text-dark stat-value position-relative z-1">
-                                                    {stats.total_students || 0}
-                                                </h2>
                                             </div>
-                                        </div>
+                                        </MagicCard>
                                     </div>
                                 </>
                             )}

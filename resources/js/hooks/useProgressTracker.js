@@ -18,6 +18,8 @@ export const useProgressTracker = ({
     useEffect(() => {
         if (!activeLesson || activeLesson.type !== 'video' || !activeLesson.video) return;
 
+        let cleanupTracker = null;
+
         const initTracker = () => {
             const player = playerRef.current;
             if (!player) return;
@@ -40,7 +42,8 @@ export const useProgressTracker = ({
                 const maxTotalSkipAllowed = duration * 0.10;
 
                 if (!player.seeking()) {
-                    if (currentTime > maxWatchedTime && (currentTime - maxWatchedTime) < 2) {
+                    // Tăng gap tolerance lên 3s để xử lý browser throttle tab
+                    if (currentTime > maxWatchedTime && (currentTime - maxWatchedTime) < 3) {
                         maxWatchedTime = currentTime;
                     }
                 } else {
@@ -118,7 +121,8 @@ export const useProgressTracker = ({
             player.on('timeupdate', onTimeUpdate);
             player.on('seeking', onSeeking);
 
-            return () => {
+            // Return cleanup function
+            cleanupTracker = () => {
                 if (player) {
                     player.off('timeupdate', onTimeUpdate);
                     player.off('seeking', onSeeking);
@@ -127,7 +131,12 @@ export const useProgressTracker = ({
         };
 
         const timeoutId = setTimeout(initTracker, 100);
-        return () => clearTimeout(timeoutId);
+        return () => {
+            clearTimeout(timeoutId);
+            if (cleanupTracker) {
+                cleanupTracker();
+            }
+        };
     }, [activeLesson, course.slug]);
 
     return { showCheatModal, cheatMessage, setShowCheatModal };

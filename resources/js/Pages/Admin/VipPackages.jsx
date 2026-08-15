@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Head, router, useForm } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import FormModal from '@/Components/FormModal';
+import ShimmerButton from '@/Components/MagicUI/ShimmerButton';
+import MagicCard from '@/Components/MagicUI/MagicCard';
 import Swal from 'sweetalert2';
+
 
 export default function VipPackages({ packages = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -116,9 +119,13 @@ export default function VipPackages({ packages = [] }) {
                         <h3 className="m-0 fw-bold text-dark">Quản lý Gói VIP</h3>
                         <p className="text-muted mb-0">Thiết lập các gói dịch vụ cao cấp cho giảng viên và học viên</p>
                     </div>
-                    <button onClick={() => handleOpenModal()} className="btn btn-primary fw-bold rounded-pill px-4 py-2 shadow-sm" style={{ background: 'var(--primary-glow)', border: 'none' }}>
+                    <ShimmerButton 
+                        onClick={() => handleOpenModal()} 
+                        className="fw-bold px-4 py-2"
+                        background="var(--primary-glow, #4facfe)"
+                    >
                         <i className="fa-solid fa-plus me-2"></i> Tạo gói mới
-                    </button>
+                    </ShimmerButton>
                 </div>
                 
                 <ul className="nav nav-pills mb-4 mt-4 stagger-fade-up gap-2 flex-wrap">
@@ -156,83 +163,89 @@ export default function VipPackages({ packages = [] }) {
                         return pkg.role_type === 'seller' && pkg.package_type === activeTab;
                     }).map(pkg => (
                         <div className="col-md-6 col-xl-4 stagger-fade-up" key={pkg.id}>
-                            <div className="card glass-card border-0 h-100 position-relative overflow-hidden shadow-sm hover-lift" style={{ borderRadius: '1rem' }}>
-                                <div className={`position-absolute top-0 end-0 p-3 z-1`}>
-                                    <span className={`badge rounded-pill px-3 py-2 fw-bold ${pkg.role_type === 'seller' ? 'bg-primary' : 'bg-info text-dark'}`}>
-                                        {pkg.role_type === 'seller' ? 'Dành cho Giảng viên' : 'Dành cho Học viên'}
-                                    </span>
-                                </div>
-                                {pkg.badge_text && (
-                                    <div className="position-absolute z-1" style={{ top: '20px', left: '-30px', transform: 'rotate(-45deg)', background: 'linear-gradient(45deg, #FFD700, #FFA500)', color: '#000', padding: '5px 40px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', fontSize: '12px' }}>
-                                        {pkg.badge_text}
-                                    </div>
-                                )}
-                                <div className={`glow-bg ${pkg.role_type === 'seller' ? 'bg-primary-glow' : 'bg-info-glow'}`} style={{ opacity: 0.05 }}></div>
-                                <div className="card-body p-4 d-flex flex-column position-relative z-1 mt-3">
-                                    <div className="d-flex align-items-center justify-content-center mb-3 gap-2">
-                                        {pkg.is_active ? (
-                                            <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1"><i className="fa-solid fa-circle me-1" style={{ fontSize: '8px' }}></i> Hoạt động</span>
-                                        ) : (
-                                            <span className="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1"><i className="fa-solid fa-circle me-1" style={{ fontSize: '8px' }}></i> Đang ẩn</span>
-                                        )}
-                                        <span className="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-2 py-1"><i className="fa-solid fa-layer-group me-1"></i> {pkg.package_type}</span>
-                                    </div>
-                                    <div className="text-center mb-4">
-                                        <h4 className="fw-bold text-dark mb-2">{pkg.name}</h4>
-                                        <h2 className="fw-bold text-dark my-3">
-                                            {new Intl.NumberFormat('vi-VN').format(pkg.price)}<span className="fs-5 text-muted fw-normal">₫</span>
-                                        </h2>
-                                        <span className="badge bg-light text-dark border px-3 py-2 rounded-pill fs-6">
-                                            <i className="fa-regular fa-clock text-warning me-2"></i> {pkg.duration_days} ngày
+                            <MagicCard 
+                                gradientColor={pkg.role_type === 'seller' ? "rgba(79, 172, 254, 0.15)" : "rgba(13, 202, 240, 0.15)"} 
+                                borderColor={pkg.role_type === 'seller' ? "rgba(79, 172, 254, 0.4)" : "rgba(13, 202, 240, 0.4)"}
+                                className="border-0 shadow-none h-100"
+                            >
+                                <div className="card glass-card border-0 h-100 position-relative overflow-hidden shadow-sm hover-lift" style={{ borderRadius: '1rem' }}>
+                                    <div className={`position-absolute top-0 end-0 p-3 z-1`}>
+                                        <span className={`badge rounded-pill px-3 py-2 fw-bold ${pkg.role_type === 'seller' ? 'bg-primary text-white' : 'bg-info text-dark'}`}>
+                                            {pkg.role_type === 'seller' ? 'Dành cho Giảng viên' : 'Dành cho Học viên'}
                                         </span>
                                     </div>
-                                    
-                                    <div className="mb-4 flex-grow-1 bg-light rounded-4 p-3 border">
-                                        <h6 className="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wide border-bottom pb-2">Đặc quyền bao gồm:</h6>
-                                        <ul className="list-unstyled m-0 d-flex flex-column gap-3">
-                                            {pkg.commission_rate > 0 && (
-                                                <li className="d-flex align-items-start gap-2">
-                                                    <i className="fa-solid fa-circle-check text-primary fs-5 mt-1"></i>
-                                                    <div>
-                                                        <strong className="d-block text-dark">Chiết khấu hoa hồng {pkg.commission_rate}%</strong>
-                                                        <small className="text-muted">Ưu đãi giảm phí sàn trên mỗi giao dịch</small>
-                                                    </div>
-                                                </li>
+                                    {pkg.package_type !== 'storage' && pkg.badge_text && (
+                                        <div className="position-absolute z-1" style={{ top: '20px', left: '-30px', transform: 'rotate(-45deg)', background: 'linear-gradient(45deg, #FFD700, #FFA500)', color: '#000', padding: '5px 40px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', fontSize: '12px' }}>
+                                            {pkg.badge_text}
+                                        </div>
+                                    )}
+                                    <div className={`glow-bg ${pkg.role_type === 'seller' ? 'bg-primary-glow' : 'bg-info-glow'}`} style={{ opacity: 0.05 }}></div>
+                                    <div className="card-body p-4 d-flex flex-column position-relative z-1 mt-3">
+                                        <div className="d-flex align-items-center justify-content-center mb-3 gap-2">
+                                            {pkg.is_active ? (
+                                                <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1"><i className="fa-solid fa-circle me-1" style={{ fontSize: '8px' }}></i> Hoạt động</span>
+                                            ) : (
+                                                <span className="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1"><i className="fa-solid fa-circle me-1" style={{ fontSize: '8px' }}></i> Đang ẩn</span>
                                             )}
-                                            {pkg.max_storage_gb > 0 && (
-                                                <li className="d-flex align-items-start gap-2">
-                                                    <i className="fa-solid fa-cloud text-info fs-5 mt-1"></i>
-                                                    <div>
-                                                        <strong className="d-block text-dark">Dung lượng lưu trữ {pkg.max_storage_gb}GB</strong>
-                                                        <small className="text-muted">Không gian lưu trữ video, tài liệu</small>
-                                                    </div>
-                                                </li>
-                                            )}
-                                            {pkg.description && (
-                                                <li className="d-flex align-items-start gap-2">
-                                                    <i className="fa-solid fa-star text-warning fs-5 mt-1"></i>
-                                                    <div className="text-muted fst-italic">"{pkg.description}"</div>
-                                                </li>
-                                            )}
-                                            {!pkg.description && !pkg.commission_rate && !pkg.max_storage_gb && (
-                                                <li className="text-muted text-center fst-italic py-2">Chưa có mô tả chi tiết</li>
-                                            )}
-                                        </ul>
-                                    </div>
+                                            <span className="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-2 py-1"><i className="fa-solid fa-layer-group me-1"></i> {pkg.package_type}</span>
+                                        </div>
+                                        <div className="text-center mb-4">
+                                            <h4 className="fw-bold text-dark mb-2">{pkg.name}</h4>
+                                            <h2 className="fw-bold text-dark my-3">
+                                                {new Intl.NumberFormat('vi-VN').format(pkg.price)}<span className="fs-5 text-muted fw-normal">₫</span>
+                                            </h2>
+                                            <span className="badge bg-light text-dark border px-3 py-2 rounded-pill fs-6">
+                                                <i className="fa-regular fa-clock text-warning me-2"></i> {pkg.duration_days} ngày
+                                            </span>
+                                        </div>
+                                        
+                                        <div className="mb-4 flex-grow-1 bg-light rounded-4 p-3 border">
+                                            <h6 className="fw-bold text-dark mb-3 fs-7 text-uppercase tracking-wide border-bottom pb-2">Đặc quyền bao gồm:</h6>
+                                            <ul className="list-unstyled m-0 d-flex flex-column gap-3">
+                                                {pkg.commission_rate > 0 && (
+                                                    <li className="d-flex align-items-start gap-2">
+                                                        <i className="fa-solid fa-circle-check text-primary fs-5 mt-1"></i>
+                                                        <div>
+                                                            <strong className="d-block text-dark">Chiết khấu hoa hồng {pkg.commission_rate}%</strong>
+                                                            <small className="text-muted">Ưu đãi giảm phí sàn trên mỗi giao dịch</small>
+                                                        </div>
+                                                    </li>
+                                                )}
+                                                {pkg.max_storage_gb > 0 && (
+                                                    <li className="d-flex align-items-start gap-2">
+                                                        <i className="fa-solid fa-cloud text-info fs-5 mt-1"></i>
+                                                        <div>
+                                                            <strong className="d-block text-dark">Dung lượng lưu trữ {pkg.max_storage_gb}GB</strong>
+                                                            <small className="text-muted">Không gian lưu trữ video, tài liệu</small>
+                                                        </div>
+                                                    </li>
+                                                )}
+                                                {pkg.description && (
+                                                    <li className="d-flex align-items-start gap-2">
+                                                        <i className="fa-solid fa-star text-warning fs-5 mt-1"></i>
+                                                        <div className="text-muted fst-italic">"{pkg.description}"</div>
+                                                    </li>
+                                                )}
+                                                {!pkg.description && !pkg.commission_rate && !pkg.max_storage_gb && (
+                                                    <li className="text-muted text-center fst-italic py-2">Chưa có mô tả chi tiết</li>
+                                                )}
+                                            </ul>
+                                        </div>
 
-                                    <div className="d-flex gap-2 mt-auto pt-2">
-                                        <button onClick={() => handleToggleStatus(pkg.id, pkg.is_active)} className={`btn btn-sm ${pkg.is_active ? 'btn-light text-warning' : 'btn-light text-success'} flex-grow-1 rounded-pill fw-bold border`} title={pkg.is_active ? "Ẩn gói này" : "Kích hoạt"}>
-                                            <i className={`fa-solid ${pkg.is_active ? 'fa-eye-slash' : 'fa-eye'} me-1`}></i> {pkg.is_active ? 'Ẩn' : 'Hiện'}
-                                        </button>
-                                        <button onClick={() => handleOpenModal(pkg)} className="btn btn-sm btn-primary flex-grow-1 rounded-pill fw-bold shadow-sm">
-                                            <i className="fa-solid fa-pen-to-square me-1"></i> Sửa
-                                        </button>
-                                        <button onClick={() => handleDelete(pkg.id)} className="btn btn-sm btn-danger flex-grow-1 rounded-pill fw-bold shadow-sm">
-                                            <i className="fa-solid fa-trash me-1"></i> Xóa
-                                        </button>
+                                        <div className="d-flex gap-2 mt-auto pt-2">
+                                            <button onClick={() => handleToggleStatus(pkg.id, pkg.is_active)} className={`btn btn-sm ${pkg.is_active ? 'btn-light text-warning' : 'btn-light text-success'} flex-grow-1 rounded-pill fw-bold border`} title={pkg.is_active ? "Ẩn gói này" : "Kích hoạt"}>
+                                                <i className={`fa-solid ${pkg.is_active ? 'fa-eye-slash' : 'fa-eye'} me-1`}></i> {pkg.is_active ? 'Ẩn' : 'Hiện'}
+                                            </button>
+                                            <button onClick={() => handleOpenModal(pkg)} className="btn btn-sm btn-primary flex-grow-1 rounded-pill fw-bold shadow-sm">
+                                                <i className="fa-solid fa-pen-to-square me-1"></i> Sửa
+                                            </button>
+                                            <button onClick={() => handleDelete(pkg.id)} className="btn btn-sm btn-danger flex-grow-1 rounded-pill fw-bold shadow-sm">
+                                                <i className="fa-solid fa-trash me-1"></i> Xóa
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </MagicCard>
                         </div>
                     ))}
                     
@@ -277,20 +290,22 @@ export default function VipPackages({ packages = [] }) {
                         {errors.name && <div className="text-danger small mt-1">{errors.name}</div>}
                     </div>
                     
-                    <div className="col-md-6">
-                        <div className="form-floating">
-                            <input 
-                                type="text" 
-                                className={`form-control ${errors.badge_text ? 'is-invalid' : ''}`}
-                                id="badgeText"
-                                placeholder="VD: HOT, BEST SELLER"
-                                value={data.badge_text}
-                                onChange={e => setData('badge_text', e.target.value)}
-                            />
-                            <label htmlFor="badgeText" className="fw-bold text-muted"><i className="fa-solid fa-tag me-2"></i>Huy hiệu nổi bật (Tùy chọn)</label>
+                    {data.package_type !== 'storage' && (
+                        <div className="col-md-6">
+                            <div className="form-floating">
+                                <input 
+                                    type="text" 
+                                    className={`form-control ${errors.badge_text ? 'is-invalid' : ''}`}
+                                    id="badgeText"
+                                    placeholder="VD: VIP Pro, Uy Tín, Best Seller"
+                                    value={data.badge_text}
+                                    onChange={e => setData('badge_text', e.target.value)}
+                                />
+                                <label htmlFor="badgeText" className="fw-bold text-muted"><i className="fa-solid fa-tag me-2"></i>Huy hiệu nổi bật (Gói giảm phí & Combo)</label>
+                            </div>
+                            {errors.badge_text && <div className="text-danger small mt-1">{errors.badge_text}</div>}
                         </div>
-                        {errors.badge_text && <div className="text-danger small mt-1">{errors.badge_text}</div>}
-                    </div>
+                    )}
 
                     <div className="col-md-6">
                         <div className="form-floating">
@@ -319,12 +334,13 @@ export default function VipPackages({ packages = [] }) {
                                     let updates = { package_type: val };
                                     if (val === 'commission' || val === 'standard') updates.max_storage_gb = '';
                                     if (val === 'storage' || val === 'standard') updates.commission_rate = '';
+                                    if (val === 'storage') updates.badge_text = '';
                                     setData({ ...data, ...updates });
                                 }}
                             >
-                                <option value="commission">Giảm chiết khấu phí (Sàn)</option>
-                                <option value="storage">Mở rộng dung lượng (GB)</option>
-                                <option value="combo">Combo VIP (Giảm phí + Mở rộng)</option>
+                                <option value="commission">Giảm chiết khấu phí sàn (Có huy hiệu)</option>
+                                <option value="storage">Mở rộng dung lượng lưu trữ (Không huy hiệu)</option>
+                                <option value="combo">Combo VIP - Giảm phí + Mở rộng (Có huy hiệu)</option>
                                 <option value="standard">Tiêu chuẩn (Chỉ mô tả)</option>
                             </select>
                             <label htmlFor="packageType" className="fw-bold text-muted"><i className="fa-solid fa-layer-group me-2"></i>Loại đặc quyền</label>

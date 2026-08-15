@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import Pagination from "@/Components/Pagination.jsx";
+import Swal from 'sweetalert2';
 
 function StarRating({ rating }) {
     return (
@@ -98,9 +99,20 @@ export default function Reviews({ course, reviews }) {
                                         <td className="text-end" style={{ padding: '20px 24px', whiteSpace: 'nowrap' }}>
                                             <button 
                                                 onClick={() => {
-                                                    if(window.confirm('Bạn có chắc chắn muốn báo cáo vi phạm đánh giá này lên Admin?')) {
-                                                        router.patch(route('seller.reviews.report', review.id));
-                                                    }
+                                                    Swal.fire({
+                                                        title: 'Báo cáo vi phạm?',
+                                                        text: 'Bạn có chắc chắn muốn báo cáo vi phạm đánh giá này lên Ban Quản trị?',
+                                                        icon: 'warning',
+                                                        showCancelButton: true,
+                                                        confirmButtonColor: '#ea580c',
+                                                        cancelButtonColor: '#6b7280',
+                                                        confirmButtonText: 'Đồng ý',
+                                                        cancelButtonText: 'Hủy'
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) {
+                                                            router.patch(route('seller.reviews.report', review.id));
+                                                        }
+                                                    });
                                                 }}
                                                 className={`btn-reply-outline me-2`}
                                                 style={review.is_reported ? { color: '#6B7280', borderColor: '#D1D5DB', opacity: 0.7 } : { color: '#EF4444', borderColor: '#FCA5A5' }}

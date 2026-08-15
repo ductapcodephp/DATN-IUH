@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link, useForm, router } from "@inertiajs/react";
+import ShimmerButton from "@/Components/MagicUI/ShimmerButton";
+import MagicCard from "@/Components/MagicUI/MagicCard";
 
 export default function CourseDetailBlock({ block, editable = false, course, relatedCourses, isEnrolled, enrollment, reviews, userReview }) {
     
@@ -10,6 +12,12 @@ export default function CourseDetailBlock({ block, editable = false, course, rel
     const safeEnrollment = enrollment;
     const safeReviews = reviews;
     const safeUserReview = userReview;
+
+    const getAvatarUrl = (avatarPath) => {
+        if (!avatarPath) return '/assets/frontend/img/default-avatar.jpg';
+        if (avatarPath.startsWith('http') || avatarPath.startsWith('/')) return avatarPath;
+        return `/storage/${avatarPath}`;
+    };
 
     const { data, setData, post: postForm, processing } = useForm({
         course_id: safeCourse.id,
@@ -58,6 +66,18 @@ export default function CourseDetailBlock({ block, editable = false, course, rel
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     };
 
+    const [enrolling, setEnrolling] = useState(false);
+
+    const handleEnrollFree = (e) => {
+        if (e) e.preventDefault();
+        if (isMock) return;
+        setEnrolling(true);
+        router.post(route('frontend.course.enroll-free', safeCourse.slug), {}, {
+            preserveScroll: true,
+            onFinish: () => setEnrolling(false)
+        });
+    };
+
     const handleAddToCart = (e) => {
         e.preventDefault();
         if (isMock) return;
@@ -94,7 +114,14 @@ export default function CourseDetailBlock({ block, editable = false, course, rel
                             </div>
 
                             <div className="d-flex align-items-center gap-3">
-                                <img src={safeCourse.seller?.avatar || "/assets/frontend/img/default-avatar-small.jpg"} alt="Instructor" className="rounded-circle" width="48" height="48" />
+                                <img 
+                                    src={getAvatarUrl(safeCourse.seller?.avatar)} 
+                                    alt="Instructor" 
+                                    className="rounded-circle object-fit-cover" 
+                                    width="48" 
+                                    height="48" 
+                                    onError={(e) => { e.target.src = '/assets/frontend/img/default-avatar.jpg'; }}
+                                />
                                 <div>
                                     <div className="font-sm opacity-75">Giảng viên</div>
                                     <a href="#instructor" className="text-white fw-bold text-decoration-none">{safeCourse.seller?.name || "Giảng viên ẩn danh"}</a>
@@ -190,7 +217,14 @@ export default function CourseDetailBlock({ block, editable = false, course, rel
 
                                     <h4 className="fw-bold mb-4" id="instructor">Giảng viên của bạn</h4>
                                     <div className="d-flex flex-column flex-md-row gap-4 align-items-start border rounded-3 p-4 bg-white">
-                                        <img src={safeCourse.seller?.avatar || "/assets/frontend/img/default-avatar.jpg"} alt={safeCourse.seller?.name} className="rounded-circle" width="120" height="120" />
+                                        <img 
+                                            src={getAvatarUrl(safeCourse.seller?.avatar)} 
+                                            alt={safeCourse.seller?.name} 
+                                            className="rounded-circle object-fit-cover" 
+                                            width="120" 
+                                            height="120" 
+                                            onError={(e) => { e.target.src = '/assets/frontend/img/default-avatar.jpg'; }}
+                                        />
                                         <div>
                                             <h5 className="fw-bold text-main mb-1">{safeCourse.seller?.name}</h5>
                                             <p className="text-accent font-sm fw-semibold mb-3">{safeCourse.seller?.current_role}</p>
@@ -279,20 +313,57 @@ export default function CourseDetailBlock({ block, editable = false, course, rel
                                     <div className="reviews-list custom-scrollbar" style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '15px' }}>
                                         {safeReviews && safeReviews.length > 0 ? safeReviews.map(review => (
                                             <div key={review.id} className="review-item d-flex gap-3 mb-4 pb-4 border-bottom">
-                                                <img src={review.user?.avatar || "/assets/frontend/img/default-avatar.jpg"} alt={review.user?.name} className="rounded-circle object-fit-cover" width="48" height="48" />
-                                                <div>
+                                                <img 
+                                                    src={getAvatarUrl(review.user?.avatar)} 
+                                                    alt={review.user?.name || "Học viên"} 
+                                                    className="rounded-circle object-fit-cover flex-shrink-0" 
+                                                    width="48" 
+                                                    height="48" 
+                                                    onError={(e) => { e.target.src = '/assets/frontend/img/default-avatar.jpg'; }}
+                                                />
+                                                <div className="flex-grow-1">
                                                     <div className="d-flex align-items-center gap-2 mb-1">
-                                                        <h6 className="fw-bold mb-0">{review.user?.name}</h6>
+                                                        <h6 className="fw-bold mb-0">{review.user?.name || "Học viên ẩn danh"}</h6>
                                                         <span className="text-muted font-sm ms-2">
                                                             {new Date(review.created_at).toLocaleDateString('vi-VN')}
                                                         </span>
                                                     </div>
-                                                    <div className="text-warning mb-2 font-sm">
+                                                    <div className="text-yellow mb-2 font-sm">
                                                         {[...Array(5)].map((_, i) => (
                                                             <i key={i} className={`fa-solid fa-star ${i < review.rating ? '' : 'text-muted opacity-50'}`}></i>
                                                         ))}
                                                     </div>
-                                                    {review.content && <p className="mb-0 text-dark">{review.content}</p>}
+                                                    {review.content && <p className="mb-0 text-dark" style={{ whiteSpace: 'pre-line' }}>{review.content}</p>}
+
+                                                    {/* Phản hồi từ giảng viên */}
+                                                    {review.reply_content && (
+                                                        <div className="instructor-reply mt-3 p-3 rounded-3" style={{ backgroundColor: '#FFF7ED', borderLeft: '3px solid #EA580C' }}>
+                                                            <div className="d-flex align-items-center justify-content-between mb-2">
+                                                                <div className="d-flex align-items-center gap-2">
+                                                                    <img 
+                                                                        src={getAvatarUrl(safeCourse.seller?.avatar)} 
+                                                                        alt={safeCourse.seller?.name || "Giảng viên"} 
+                                                                        className="rounded-circle object-fit-cover flex-shrink-0" 
+                                                                        width="28" 
+                                                                        height="28" 
+                                                                        onError={(e) => { e.target.src = '/assets/frontend/img/default-avatar.jpg'; }}
+                                                                    />
+                                                                    <span className="fw-bold font-sm text-dark">{safeCourse.seller?.name || "Giảng viên"}</span>
+                                                                    <span className="badge bg-warning bg-opacity-25 text-dark font-sm px-2 py-1" style={{ fontSize: '0.72rem' }}>
+                                                                        <i className="fa-solid fa-chalkboard-user me-1 text-warning"></i> Giảng viên
+                                                                    </span>
+                                                                </div>
+                                                                {review.updated_at && (
+                                                                    <span className="text-muted font-sm" style={{ fontSize: '0.8rem' }}>
+                                                                        {new Date(review.updated_at).toLocaleDateString('vi-VN')}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <p className="mb-0 text-secondary font-sm ps-1" style={{ whiteSpace: 'pre-line', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                                                                {review.reply_content}
+                                                            </p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )) : (
@@ -324,18 +395,34 @@ export default function CourseDetailBlock({ block, editable = false, course, rel
 
                                     <div className="d-flex flex-column gap-2 mb-4">
                                         {safeIsEnrolled ? (
-                                            <Link href={!isMock ? route('frontend.course.learn', safeCourse.slug) : '#'} className="btn btn-success py-3 fw-bold fs-5 w-100 mb-2">
+                                            <ShimmerButton 
+                                                asLink={true}
+                                                href={!isMock ? route('frontend.course.learn', safeCourse.slug) : '#'} 
+                                                background="#198754"
+                                                className="py-3 fw-bold fs-5 w-100 mb-2"
+                                            >
                                                 <i className="fa-solid fa-circle-play me-2"></i> Vào học ngay
-                                            </Link>
+                                            </ShimmerButton>
                                         ) : safeCourse.is_free ? (
-                                            <Link href={!isMock ? route('frontend.course.enroll-free', safeCourse.slug) : '#'} method="post" as="button" type="button" className="btn btn-primary py-3 fw-bold fs-5 w-100 mb-2">
-                                                <i className="fa-solid fa-unlock me-2"></i> Mở khóa miễn phí
-                                            </Link>
+                                            <ShimmerButton 
+                                                onClick={handleEnrollFree}
+                                                disabled={enrolling}
+                                                background="#0284C7"
+                                                className="py-3 fw-bold fs-5 w-100 mb-2"
+                                            >
+                                                <i className="fa-solid fa-unlock me-2"></i> {enrolling ? 'Đang mở khóa...' : 'Mở khóa miễn phí'}
+                                            </ShimmerButton>
                                         ) : (
                                             <form onSubmit={handleAddToCart}>
                                                 <input type="hidden" name="course_id" value={safeCourse.id} />
-                                                <button type="submit" className="btn btn-fire py-3 fw-bold fs-5 w-100 mb-2">Mua ngay</button>
-                                                <button type="button" onClick={handleAddToCart} className="btn btn-outline-dark py-3 fw-semibold w-100" disabled={processing}>Thêm vào giỏ hàng</button>
+                                                <ShimmerButton 
+                                                    type="submit" 
+                                                    background="var(--fire, #EA580C)"
+                                                    className="py-3 fw-bold fs-5 w-100 mb-2"
+                                                >
+                                                    <i className="fa-solid fa-cart-shopping me-2"></i> Mua ngay
+                                                </ShimmerButton>
+                                                <button type="button" onClick={handleAddToCart} className="btn btn-outline-dark py-3 fw-semibold w-100 rounded-3" disabled={processing}>Thêm vào giỏ hàng</button>
                                             </form>
                                         )}
                                     </div>
@@ -369,27 +456,29 @@ export default function CourseDetailBlock({ block, editable = false, course, rel
                         <div className="row g-4">
                             {safeRelated.map((rcourse) => (
                                 <div className="col-12 col-md-6 col-lg-3" key={rcourse.id}>
-                                    <div className="course-card position-relative bg-white h-100">
-                                        <Link href={!isMock ? route('frontend.course.detail', { slug: rcourse.slug }) : '#'} className="text-decoration-none text-dark d-flex flex-column h-100">
-                                            <img src={rcourse.thumbnail ? `/storage/${rcourse.thumbnail}` : '/assets/frontend/img/no-thumbnail.png'} alt={rcourse.title} className="course-thumb w-100" style={{ height: '180px', objectFit: 'cover' }} loading="lazy" />
-                                            <div className="course-body flex-grow-1 p-3">
-                                                <span className="course-cat text-accent fw-semibold font-sm">{rcourse.category?.name}</span>
-                                                <h4 className="course-title fs-6 fw-bold mt-2 mb-3 line-clamp-2">{rcourse.title}</h4>
-                                                <div className="course-meta d-flex justify-content-between text-muted font-sm mb-3">
-                                                    <span className="course-rating">
-                                                        <i className="fa-solid fa-star text-warning"></i> {Number(rcourse.reviews_avg_rating || 0).toFixed(1)}
-                                                    </span>
-                                                    <span><i className="fa-solid fa-users"></i> {rcourse.students_count || 0} lượt mua</span>
+                                    <MagicCard className="h-100" gradientColor="rgba(2, 132, 199, 0.12)" borderColor="rgba(2, 132, 199, 0.3)">
+                                        <div className="course-card position-relative bg-white h-100 border-0 shadow-none">
+                                            <Link href={!isMock ? route('frontend.course.detail', { slug: rcourse.slug }) : '#'} className="text-decoration-none text-dark d-flex flex-column h-100">
+                                                <img src={rcourse.thumbnail ? `/storage/${rcourse.thumbnail}` : '/assets/frontend/img/no-thumbnail.png'} alt={rcourse.title} className="course-thumb w-100" style={{ height: '180px', objectFit: 'cover' }} loading="lazy" />
+                                                <div className="course-body flex-grow-1 p-3">
+                                                    <span className="course-cat text-accent fw-semibold font-sm">{rcourse.category?.name}</span>
+                                                    <h4 className="course-title fs-6 fw-bold mt-2 mb-3 line-clamp-2">{rcourse.title}</h4>
+                                                    <div className="course-meta d-flex justify-content-between text-muted font-sm mb-3">
+                                                        <span className="course-rating">
+                                                            <i className="fa-solid fa-star text-warning"></i> {Number(rcourse.reviews_avg_rating || 0).toFixed(1)}
+                                                        </span>
+                                                        <span><i className="fa-solid fa-users"></i> {rcourse.students_count || 0} lượt mua</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="course-footer p-3 border-top mt-auto d-flex flex-wrap align-items-baseline gap-2">
-                                                <span className="price-new fw-bold text-fire fs-5">{formatCurrency(rcourse.price)}</span>
-                                                {Number(rcourse.original_price) > Number(rcourse.price) && (
-                                                    <span className="price-old text-muted text-decoration-line-through font-sm">{formatCurrency(rcourse.original_price)}</span>
-                                                )}
-                                            </div>
-                                        </Link>
-                                    </div>
+                                                <div className="course-footer p-3 border-top mt-auto d-flex flex-wrap align-items-baseline gap-2">
+                                                    <span className="price-new fw-bold text-fire fs-5">{formatCurrency(rcourse.price)}</span>
+                                                    {rcourse.original_price && rcourse.original_price > rcourse.price && (
+                                                        <span className="price-old text-muted text-decoration-line-through font-sm">{formatCurrency(rcourse.original_price)}</span>
+                                                    )}
+                                                </div>
+                                            </Link>
+                                        </div>
+                                    </MagicCard>
                                 </div>
                             ))}
                         </div>

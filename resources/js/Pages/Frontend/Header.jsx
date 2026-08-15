@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import VipBadge from '@/Components/VipBadge';
+import Marquee from '@/Components/MagicUI/Marquee';
 import axios from 'axios';
 
 export default function Header() {
@@ -63,11 +64,9 @@ export default function Header() {
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery]);
 
-    // Đóng menu mobile khi chuyển trang (URL thay đổi)
     useEffect(() => {
-        setIsMobileMenuOpen(false); // Dùng state React để đóng
+        setIsMobileMenuOpen(false);
 
-        // Đóng các dropdown nếu đang mở
         const dropdowns = document.querySelectorAll('.dropdown-menu.show');
         dropdowns.forEach(dropdown => {
             dropdown.classList.remove('show');
@@ -87,26 +86,46 @@ export default function Header() {
     };
 
     return (
-        <nav className="navbar navbar-expand-lg">
-            <div className="container align-items-center">
+        <header className="header-wrapper">
+            {/* Top Announcement Marquee Bar */}
+            <div className="magic-top-announcement">
+                <Marquee speed={35} pauseOnHover={true} className="py-1">
+                    <span className="d-inline-flex align-items-center gap-2 mx-4">
+                        <span className="badge-pill">🔥 HOT</span>
+                        <span>Chào mừng bạn đến với <strong>EduFlow</strong> - Nền tảng học lập trình công nghệ tương tác cao</span>
+                    </span>
+                    <span className="d-inline-flex align-items-center gap-2 mx-4">
+                        <span className="badge-pill">🎁 ƯU ĐÃI</span>
+                        <span>Nhập mã <strong>HOCDI</strong> nhận ngay học bổng giảm tới 30% khóa học chuyên sâu</span>
+                    </span>
+                    <span className="d-inline-flex align-items-center gap-2 mx-4">
+                        <span className="badge-pill">⚡ TÍNH NĂNG</span>
+                        <span>Học trực tuyến với trình phát Video chống tua & hệ thống thi trắc nghiệm Quiz thông minh</span>
+                    </span>
+                </Marquee>
+            </div>
 
-                <Link className="navbar-brand" href={route('frontend.home')}>
-                    Edu<span>Flow</span>
-                </Link>
+            <nav className="navbar navbar-expand-lg">
+                <div className="container align-items-center">
 
-                <button
-                    className="navbar-toggler"
-                    type="button"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    aria-controls="mainNavbar"
-                    aria-expanded={isMobileMenuOpen ? "true" : "false"}
-                    aria-label="Mở menu điều hướng"
-                >
-                    <i className="fa-solid fa-bars fs-4"></i>
-                </button>
+                    <Link className="navbar-brand" href={route('frontend.home')}>
+                        Edu<span>Flow</span>
+                    </Link>
+
+                    <button
+                        className="navbar-toggler"
+                        type="button"
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        aria-controls="mainNavbar"
+                        aria-expanded={isMobileMenuOpen ? "true" : "false"}
+                        aria-label="Mở menu điều hướng"
+                    >
+                        <i className="fa-solid fa-bars fs-4"></i>
+                    </button>
 
 
-                <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} id="mainNavbar">
+                    <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} id="mainNavbar">
+
 
                     <ul className="navbar-nav main-nav mb-3 mb-lg-0 gap-lg-3">
                         {headerMenus && headerMenus.map((menu) => {
@@ -295,5 +314,7 @@ export default function Header() {
 
             </div>
         </nav>
+        </header>
     );
 }
+

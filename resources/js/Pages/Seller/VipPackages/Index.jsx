@@ -212,12 +212,12 @@ export default function VipPackages({ packages, activeSubscriptions }) {
                                 boxShadow: pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín') ? '0 10px 25px -5px rgba(234, 88, 12, 0.2)' : '0 4px 6px -1px rgba(0,0,0,0.05)',
                                 border: pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín') ? '2px solid #EA580C' : 'none'
                             }}>
-                                {pkg.badge_text && (
+                                {pkg.package_type !== 'storage' && pkg.badge_text && (
                                     <div className="position-absolute z-1" style={{ top: '20px', left: '-30px', transform: 'rotate(-45deg)', background: 'linear-gradient(45deg, #f97316, #ea580c)', color: '#fff', padding: '5px 40px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', fontSize: '12px' }}>
                                         {pkg.badge_text}
                                     </div>
                                 )}
-                                {(pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín')) && !pkg.badge_text && (
+                                {pkg.package_type !== 'storage' && (pkg.name.includes('Nâng Cao') || pkg.name.includes('Uy Tín')) && !pkg.badge_text && (
                                     <div className="position-absolute z-1" style={{ top: '20px', left: '-30px', transform: 'rotate(-45deg)', background: 'linear-gradient(45deg, #f97316, #ea580c)', color: '#fff', padding: '5px 40px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', fontSize: '12px' }}>
                                         HOT
                                     </div>
@@ -266,13 +266,15 @@ export default function VipPackages({ packages, activeSubscriptions }) {
                                                     <div className="text-muted fst-italic">"{pkg.description}"</div>
                                                 </li>
                                             )}
-                                            <li className="d-flex align-items-start gap-2">
-                                                <i className="fa-solid fa-crown text-warning fs-5 mt-1"></i>
-                                                <div>
-                                                    <strong className="d-block text-dark">Huy hiệu {pkg.badge_text || pkg.name.split(' (')[0]}</strong>
-                                                    <small className="text-muted">Hiển thị nổi bật trên gian hàng</small>
-                                                </div>
-                                            </li>
+                                            {pkg.package_type !== 'storage' && (
+                                                <li className="d-flex align-items-start gap-2">
+                                                    <i className="fa-solid fa-crown text-warning fs-5 mt-1"></i>
+                                                    <div>
+                                                        <strong className="d-block text-dark">Huy hiệu {pkg.badge_text || pkg.name.split(' (')[0]}</strong>
+                                                        <small className="text-muted">Hiển thị nổi bật trên gian hàng & header</small>
+                                                    </div>
+                                                </li>
+                                            )}
                                         </ul>
                                     </div>
                                     

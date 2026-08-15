@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SellerLayout from '@/Layouts/Seller/SellerLayout';
 import { Head, useForm, router } from '@inertiajs/react';
+import Swal from 'sweetalert2';
 
 export default function AdsIndex({ courses, wallet, auth }) {
     const formatCurrency = (amount) => {
@@ -11,6 +12,12 @@ export default function AdsIndex({ courses, wallet, auth }) {
         if (!dateStr) return '—';
         const d = new Date(dateStr);
         return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
+    const getThumbnailUrl = (thumbnail) => {
+        if (!thumbnail) return '/assets/frontend/img/default-course.png';
+        if (thumbnail.startsWith('http') || thumbnail.startsWith('/')) return thumbnail;
+        return `/storage/${thumbnail}`;
     };
 
     // Lấy ngày hôm nay dạng YYYY-MM-DD để set min cho input date
@@ -69,7 +76,7 @@ export default function AdsIndex({ courses, wallet, auth }) {
         configForm.post(route('seller.ads.store'), {
             onSuccess: () => {
                 closeAdModal();
-                window.Swal.fire({
+                Swal.fire({
                     icon: 'success',
                     title: 'Thành công',
                     text: 'Đã lưu cấu hình Quảng Cáo',
@@ -85,7 +92,7 @@ export default function AdsIndex({ courses, wallet, auth }) {
         topUpForm.post(route('seller.ads.top-up'), {
             onSuccess: () => {
                 closeAdModal();
-                window.Swal.fire({
+                Swal.fire({
                     icon: 'success',
                     title: 'Thành công',
                     text: 'Đã nạp tiền vào chiến dịch Quảng Cáo',
@@ -95,7 +102,7 @@ export default function AdsIndex({ courses, wallet, auth }) {
             },
             onError: (errors) => {
                 if(errors.error) {
-                    window.Swal.fire('Lỗi', errors.error, 'error');
+                    Swal.fire('Lỗi', errors.error, 'error');
                 }
             }
         });
@@ -109,7 +116,7 @@ export default function AdsIndex({ courses, wallet, auth }) {
         }, {
             preserveScroll: true,
             onSuccess: () => {
-                window.Swal.fire({
+                Swal.fire({
                     toast: true,
                     position: 'top-end',
                     icon: 'success',
@@ -120,7 +127,7 @@ export default function AdsIndex({ courses, wallet, auth }) {
             },
             onError: (errors) => {
                 if (errors.error) {
-                    window.Swal.fire('Lỗi', errors.error, 'error');
+                    Swal.fire('Lỗi', errors.error, 'error');
                 }
             }
         });
@@ -163,11 +170,11 @@ export default function AdsIndex({ courses, wallet, auth }) {
                                     <div className="card shadow-sm border-0 h-100" style={{ borderRadius: '15px', overflow: 'hidden' }}>
                                         <div className="position-relative">
                                             <img 
-                                                src={course.thumbnail} 
+                                                src={getThumbnailUrl(course.thumbnail)} 
                                                 alt={course.title} 
                                                 className="card-img-top object-fit-cover" 
                                                 style={{ height: '160px' }}
-                                                onError={(e) => { e.target.src = '/assets/frontend/img/default-course.jpg'; }}
+                                                onError={(e) => { e.target.src = '/assets/frontend/img/default-course.png'; }}
                                             />
                                             <div className="position-absolute top-0 end-0 p-3">
                                                 {adStatusBadge}

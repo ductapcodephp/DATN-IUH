@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
+import MagicCard from "@/Components/MagicUI/MagicCard";
 
 export default function FeaturedCourses({ block, editable, courses = [], enrolledCourseIds = [] }) {
     const { auth } = usePage().props;
@@ -58,59 +59,65 @@ export default function FeaturedCourses({ block, editable, courses = [], enrolle
                             
                             return (
                                 <div className="col-12 col-md-6 col-lg-3" key={course.id}>
-                                    <div className="course-card course-sponsored position-relative">
-                                        <button 
-                                            className="btn btn-light rounded-circle position-absolute border shadow-sm wishlist-btn" 
-                                            style={{ top: '10px', left: '10px', width: '35px', height: '35px', padding: '0', zIndex: 10 }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                            }}
-                                            title={isWishlisted ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}
-                                        >
-                                            <i className={`fa-heart ${isWishlisted ? 'fa-solid text-danger' : 'fa-regular text-muted'}`}></i>
-                                        </button>
-                                        
-                                        <Link 
-                                            href={course.ad_id ? route('frontend.ads.click', course.ad_id) : route('frontend.course.detail', course.slug || '#')} 
-                                            className="text-decoration-none text-dark d-block"
-                                        >
-                                            {course.ad_id && <div className="badge-sponsored">Tài trợ</div>}
-                                            <img 
-                                                src={course.thumbnail ? `/storage/${course.thumbnail}` : '/assets/frontend/img/default-course.png'} 
-                                                alt={course.title} 
-                                                className="course-thumb" 
-                                                loading="lazy" 
-                                                onError={(e) => { e.target.src = "/assets/frontend/img/default-course.png"; }}
-                                            />
-                                            <div className="course-body">
-                                                <span className="course-cat text-primary">
-                                                    {course.category?.name || 'Chưa phân loại'}
-                                                </span>
-                                                <h3 className="course-title">{course.title}</h3>
-                                                <div className="instructor-wrap mt-2 mb-3">
-                                                    <img 
-                                                        src={course.instructor?.avatar ? `/storage/${course.instructor.avatar}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(course.instructor?.name || 'U')}&background=random`} 
-                                                        alt={course.instructor?.name} 
-                                                    />
-                                                    <span className="text-muted font-sm text-truncate">
-                                                        {course.instructor?.name || 'Chưa cập nhật'}
+                                    <MagicCard
+                                        className="h-100"
+                                        gradientColor="rgba(234, 88, 12, 0.12)"
+                                        borderColor="rgba(234, 88, 12, 0.35)"
+                                    >
+                                        <div className="course-card course-sponsored position-relative border-0 shadow-none">
+                                            <button 
+                                                className="btn btn-light rounded-circle position-absolute border shadow-sm wishlist-btn" 
+                                                style={{ top: '10px', left: '10px', width: '35px', height: '35px', padding: '0', zIndex: 10 }}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                }}
+                                                title={isWishlisted ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}
+                                            >
+                                                <i className={`fa-heart ${isWishlisted ? 'fa-solid text-danger' : 'fa-regular text-muted'}`}></i>
+                                            </button>
+                                            
+                                            <Link 
+                                                href={course.ad_id ? route('frontend.ads.click', course.ad_id) : route('frontend.course.detail', course.slug || '#')} 
+                                                className="text-decoration-none text-dark d-block"
+                                            >
+                                                {course.ad_id && <div className="badge-sponsored">Tài trợ</div>}
+                                                <img 
+                                                    src={course.thumbnail ? `/storage/${course.thumbnail}` : '/assets/frontend/img/default-course.png'} 
+                                                    alt={course.title} 
+                                                    className="course-thumb" 
+                                                    loading="lazy" 
+                                                    onError={(e) => { e.target.src = "/assets/frontend/img/default-course.png"; }}
+                                                />
+                                                <div className="course-body">
+                                                    <span className="course-cat text-primary">
+                                                        {course.category?.name || 'Chưa phân loại'}
                                                     </span>
+                                                    <h3 className="course-title">{course.title}</h3>
+                                                    <div className="instructor-wrap mt-2 mb-3">
+                                                        <img 
+                                                            src={course.instructor?.avatar ? `/storage/${course.instructor.avatar}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(course.instructor?.name || 'U')}&background=random`} 
+                                                            alt={course.instructor?.name} 
+                                                        />
+                                                        <span className="text-muted font-sm text-truncate">
+                                                            {course.instructor?.name || 'Chưa cập nhật'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="course-meta">
+                                                        <span className="course-rating">
+                                                            <i className="fa-solid fa-star"></i> {Number(course.reviews_avg_rating || 5).toFixed(1)} 
+                                                            <span className="text-muted fw-normal"> ({course.students_count || 0})</span>
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                                <div className="course-meta">
-                                                    <span className="course-rating">
-                                                        <i className="fa-solid fa-star"></i> {Number(course.reviews_avg_rating || 5).toFixed(1)} 
-                                                        <span className="text-muted fw-normal"> ({course.students_count || 0})</span>
-                                                    </span>
+                                                <div className="course-footer">
+                                                    <span className="price-new">{formatCurrency(course.price)}</span>
+                                                    {course.original_price && course.original_price > course.price && (
+                                                        <span className="price-old">{formatCurrency(course.original_price)}</span>
+                                                    )}
                                                 </div>
-                                            </div>
-                                            <div className="course-footer">
-                                                <span className="price-new">{formatCurrency(course.price)}</span>
-                                                {course.original_price && course.original_price > course.price && (
-                                                    <span className="price-old">{formatCurrency(course.original_price)}</span>
-                                                )}
-                                            </div>
-                                        </Link>
-                                    </div>
+                                            </Link>
+                                        </div>
+                                    </MagicCard>
                                 </div>
                             );
                         })}

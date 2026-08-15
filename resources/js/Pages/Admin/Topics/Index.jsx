@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Head, router, useForm } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
-export default function Index({ topics }) {
+export default function Index({ topics, filterType }) {
     const [showModal, setShowModal] = useState(false);
     const [editingTopic, setEditingTopic] = useState(null);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         name: '',
-        type: 'report',
+        type: 'comment',
     });
 
     const openModal = (topic = null) => {
@@ -17,6 +17,7 @@ export default function Index({ topics }) {
         } else {
             setEditingTopic(null);
             reset();
+            setData({ name: '', type: 'comment' });
         }
         setShowModal(true);
     };
@@ -46,6 +47,10 @@ export default function Index({ topics }) {
         }
     };
 
+    const handleFilterType = (type) => {
+        router.get(route('admin.topics.index'), type ? { type } : {}, { preserveState: true });
+    };
+
     return (
         <AdminLayout>
             <Head title="Quản lý Chủ đề" />
@@ -53,14 +58,42 @@ export default function Index({ topics }) {
                 <div className="d-flex justify-content-between align-items-center section-block stagger-fade-up">
                     <div>
                         <h3 className="m-0 fw-bold text-dark">Quản lý Chủ đề</h3>
-                        <p className="text-muted mb-0">Quản lý các chủ đề liên hệ và báo cáo</p>
+                        <p className="text-muted mb-0">Quản lý các chủ đề liên hệ và lý do báo cáo</p>
                     </div>
                     <button onClick={() => openModal()} className="btn btn-primary btn-gradient-orange border-0 rounded-pill px-4 py-2">
                         <i className="fa-solid fa-plus me-2"></i>Thêm chủ đề
                     </button>
                 </div>
 
-                <div className="card border-0 shadow-none glass-card rounded-4 p-4 stagger-fade-up mt-4">
+                {/* Filter Tabs */}
+                <div className="d-flex gap-2 mt-4 stagger-fade-up">
+                    <button
+                        onClick={() => handleFilterType('')}
+                        className={`btn btn-sm rounded-pill px-3 ${!filterType ? 'btn-primary btn-gradient-orange border-0' : 'btn-outline-secondary'}`}
+                    >
+                        Tất cả
+                    </button>
+                    <button
+                        onClick={() => handleFilterType('comment')}
+                        className={`btn btn-sm rounded-pill px-3 ${filterType === 'comment' ? 'btn-primary btn-gradient-orange border-0' : 'btn-outline-secondary'}`}
+                    >
+                        Báo cáo bình luận
+                    </button>
+                    <button
+                        onClick={() => handleFilterType('report')}
+                        className={`btn btn-sm rounded-pill px-3 ${filterType === 'report' ? 'btn-primary btn-gradient-orange border-0' : 'btn-outline-secondary'}`}
+                    >
+                        Báo cáo chung
+                    </button>
+                    <button
+                        onClick={() => handleFilterType('contact')}
+                        className={`btn btn-sm rounded-pill px-3 ${filterType === 'contact' ? 'btn-primary btn-gradient-orange border-0' : 'btn-outline-secondary'}`}
+                    >
+                        Liên hệ
+                    </button>
+                </div>
+
+                <div className="card border-0 shadow-none glass-card rounded-4 p-4 stagger-fade-up mt-3">
                     <div className="table-responsive">
                         <table className="table table-hover align-middle mb-0">
                             <thead className="table-light">
@@ -84,8 +117,10 @@ export default function Index({ topics }) {
                                             <td className="py-3">
                                                 {topic.type === 'contact' ? (
                                                     <span className="badge bg-primary rounded-pill px-3 py-2">Liên hệ</span>
+                                                ) : topic.type === 'comment' ? (
+                                                    <span className="badge bg-warning text-dark rounded-pill px-3 py-2">Báo cáo bình luận</span>
                                                 ) : (
-                                                    <span className="badge bg-danger rounded-pill px-3 py-2">Báo cáo</span>
+                                                    <span className="badge bg-danger rounded-pill px-3 py-2">Báo cáo chung</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 text-end">
@@ -140,12 +175,27 @@ export default function Index({ topics }) {
                                             value={data.name}
                                             onChange={(e) => setData('name', e.target.value)}
                                             style={{ borderRadius: '8px' }}
+                                            placeholder="Ví dụ: Bình luận xúc phạm, Spam..."
                                             required
                                         />
                                         {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                                     </div>
 
-                                     
+                                    <div className="mb-3">
+                                        <label className="form-label fw-semibold" style={{ fontSize: '0.9rem' }}>Loại chủ đề <span className="text-danger">*</span></label>
+                                        <select
+                                            className={`form-select orange-input-focus ${errors.type ? 'is-invalid' : ''}`}
+                                            value={data.type}
+                                            onChange={(e) => setData('type', e.target.value)}
+                                            style={{ borderRadius: '8px' }}
+                                            required
+                                        >
+                                            <option value="comment">Báo cáo bình luận</option>
+                                            <option value="report">Báo cáo chung</option>
+                                            <option value="contact">Liên hệ</option>
+                                        </select>
+                                        {errors.type && <div className="invalid-feedback">{errors.type}</div>}
+                                    </div>
                                 </div>
                                 <div className="modal-footer border-top-0 pt-3">
                                     <button type="button" className="btn btn-light" onClick={closeModal} style={{ borderRadius: '8px' }}>Hủy</button>

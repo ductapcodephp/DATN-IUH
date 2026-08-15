@@ -114,6 +114,60 @@ body {
     border: 1px solid var(--border2);
 }
 
+.vip-badge-animated {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(90deg, #FFDF00, #D4AF37, #FFDF00, #D4AF37);
+    background-size: 300% 100%;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.85rem;
+    padding: 5px 15px;
+    border-radius: 20px;
+    animation: shine 3s infinite linear;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+    margin-right: 15px;
+}
+
+@keyframes shine {
+    0% { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+}
+
+.wallet-badge {
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 6px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #e2e8f0;
+    margin-right: 15px;
+}
+
+.vip-package-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.vip-package-card:hover {
+    border-color: #EA580C;
+}
+
+.vip-package-card.selected {
+    border-color: #EA580C;
+    background-color: #fff7ed;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+}
+
 .body-wrap { flex: 1; display: flex; overflow: hidden; }
 
 .sidebar {
@@ -465,48 +519,64 @@ tr:hover td { background: rgba(0,0,0,.01); }
     transform: translateY(-50%) scale(1.1);
 }
 
-/* --- RESPONSIVE DASHBOARD LAYOUT --- */
-@media (max-width: 991px) {
+/* ==========================================================
+   RESPONSIVE DRAWER & MOBILE LAYOUT
+   ========================================================== */
+.seller-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1040;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.seller-sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (max-width: 991.98px) {
     .body-wrap, .seller-app-layout {
         flex-direction: column;
         overflow: visible;
         height: auto;
-        min-height: calc(100vh - var(--nav-h));
+        min-height: 100vh;
     }
+    
     .sidebar {
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 10px;
-        align-items: center;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 270px;
+        height: 100vh;
+        background: #ffffff;
+        z-index: 1050;
+        transform: translateX(-100%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
     }
-    .sidebar-section {
-        display: none;
+
+    .sidebar.open {
+        transform: translateX(0);
     }
-    .nav-item {
-        white-space: nowrap;
-        margin: 0 4px;
-        padding: 8px 16px;
-        border-radius: 20px;
+
+    .seller-app-right {
+        width: 100% !important;
+        margin-left: 0 !important;
     }
-    .sidebar-bottom {
-        border-top: none;
-        border-left: 1px solid var(--border);
-        margin-top: 0;
-        margin-left: auto;
-        padding: 0 0 0 12px;
-        flex-direction: row;
-    }
-    .main, .seller-app-main {
-        overflow: visible;
-        height: auto;
-    }
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
     .charts-row {
         grid-template-columns: 1fr;
     }
@@ -514,7 +584,7 @@ tr:hover td { background: rgba(0,0,0,.01); }
 
 @media (max-width: 768px) {
     .topbar-search {
-        display: none; /* Hide search on very small screens to make room for brand/avatar */
+        display: none;
     }
     .stats-grid {
         grid-template-columns: 1fr;
@@ -522,5 +592,109 @@ tr:hover td { background: rgba(0,0,0,.01); }
     .page-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
     }
 }
+
+/* ==========================================================
+   MAGIC UI UTILITIES FOR SELLER
+   ========================================================== */
+.magic-number-ticker {
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+.magic-card-wrapper {
+    position: relative;
+    border-radius: var(--radius, 12px);
+    background: #ffffff;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.magic-card-wrapper:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(234, 88, 12, 0.12);
+}
+
+.magic-card-spotlight {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    transition: opacity 0.3s ease;
+}
+
+.magic-card-border {
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    z-index: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.magic-shimmer-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--bg, var(--fire, #EA580C));
+    color: #ffffff !important;
+    font-weight: 600;
+    border: 1px solid transparent;
+    padding: 0.65rem 1.4rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.25);
+}
+
+.magic-shimmer-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4);
+    color: #ffffff !important;
+}
+
+.magic-shimmer-button:active {
+    transform: translateY(0);
+}
+
+.magic-shimmer-sparkle {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.35) 50%,
+        transparent 100%
+    );
+    transform: skewX(-25deg);
+    animation: magic-shine-sweep var(--speed, 3.5s) infinite ease-in-out;
+    pointer-events: none;
+}
+
+.magic-shimmer-button:hover .magic-shimmer-sparkle {
+    animation-duration: 2s;
+}
+
+.magic-shimmer-content {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@keyframes magic-shine-sweep {
+    0% { left: -100%; }
+    30%, 100% { left: 200%; }
+}
+

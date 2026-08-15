@@ -1,6 +1,7 @@
 import React from 'react';
 import CMSLayout from '@/Layouts/CMS/CMSLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import ShimmerButton from '@/Components/MagicUI/ShimmerButton';
 
 export default function Index({ pages }) {
     const handleDelete = (id) => {
@@ -12,15 +13,16 @@ export default function Index({ pages }) {
         <CMSLayout>
             <Head title="Quản lý Trang - CMS" />
             
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                 <div>
                     <h2 className="wow-title mb-1">Danh sách Trang</h2>
                     <p className="m-0" style={{ color: 'var(--wow-text-muted)' }}>Quản lý nội dung các trang tĩnh và động của hệ thống.</p>
                 </div>
-                <Link href={route('cms.page.create')} className="wow-btn-primary">
-                    <i className="fa-solid fa-plus"></i> Tạo Trang Mới
-                </Link>
+                <ShimmerButton href={route('cms.page.create')} className="fw-bold px-4 py-2">
+                    <i className="fa-solid fa-plus me-2"></i> Tạo Trang Mới
+                </ShimmerButton>
             </div>
+
 
             <div className="wow-card">
                 <div className="wow-card-body p-0">

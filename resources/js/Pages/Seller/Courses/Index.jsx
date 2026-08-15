@@ -4,6 +4,7 @@ import Modal from '@/Components/Modal';
 import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import Pagination from "@/Components/Pagination.jsx";
 import SweetAlert from '@/Components/SweetAlert';
+import ShimmerButton from '@/Components/MagicUI/ShimmerButton';
 
 export default function Courses({ courses, filters, totalCoursesCount }) {
     const [search, setSearch] = useState(filters.search || '');
@@ -56,7 +57,7 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
 
     return (
         <>
-            <Head title="Quản lý khóa học" />
+            <Head title="Quản lý khóa học - Kênh Giảng Viên" />
 
             <SweetAlert
                 show={confirmDelete.show}
@@ -66,7 +67,7 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
                 text={`Khóa học "${confirmDelete.title}" sẽ bị xóa tạm thời vào hệ thống lưu trữ!`}
                 confirmButtonText="Đồng ý, xóa ngay!"
                 cancelButtonText="Hủy thao tác"
-                confirmButtonColor="#f97316"
+                confirmButtonColor="#EA580C"
                 onConfirm={() => {
                     router.delete(route('seller.courses.destroy', confirmDelete.id));
                 }}
@@ -94,49 +95,34 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
             </Modal>
 
             <div className="page">
-                <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
                     <div>
                         <div className="page-title">Danh sách khóa học giảng dạy ({totalCoursesCount || 0})</div>
                         <div className="page-sub">Xem, chỉnh sửa hoặc tạm dừng kinh doanh các bài giảng của bạn</div>
                     </div>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
                         {/* Thanh đo dung lượng */}
-                        <div style={{ width: '220px', backgroundColor: '#f1f5f9', borderRadius: '8px', padding: '10px 16px', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#475569' }}>
-                                <span>Lưu trữ (R2)</span>
+                        <div style={{ minWidth: '220px', backgroundColor: '#ffffff', borderRadius: '10px', padding: '10px 16px', border: '1px solid var(--border)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '12px', fontWeight: '600', color: '#475569' }}>
+                                <span>Lưu trữ Video (R2)</span>
                                 <span>{formatBytes(usedBytes)} / {formatBytes(limitBytes)}</span>
                             </div>
                             <div style={{ width: '100%', height: '6px', backgroundColor: '#e2e8f0', borderRadius: '99px', overflow: 'hidden' }}>
-                                <div style={{ width: `${Math.min(usedPercentage, 100)}%`, height: '100%', backgroundColor: isNearLimit ? '#ef4444' : '#f97316', transition: 'width 0.3s ease' }}></div>
+                                <div style={{ width: `${Math.min(usedPercentage, 100)}%`, height: '100%', backgroundColor: isNearLimit ? '#ef4444' : 'var(--fire, #EA580C)', transition: 'width 0.3s ease' }}></div>
                             </div>
                         </div>
 
                         {/* Nút Tạo khóa học */}
-                        <Link
+                        <ShimmerButton
                             href={route('seller.courses.create')}
-                            className="btn-primary"
-                            style={{
-                                textDecoration: 'none',
-                                backgroundColor: '#f97316',
-                                color: '#fff',
-                                border: 'none',
-                                transition: 'background-color 0.2s',
-                                padding: '10px 16px',
-                                borderRadius: '6px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                fontWeight: 'bold',
-                                cursor: 'pointer'
-                            }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#ea580c'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = '#f97316'}
+                            className="fw-bold px-4 py-2 text-white border-0 text-decoration-none shadow-sm"
                         >
-                            <i className="fa-solid fa-plus"></i> Tạo khóa học
-                        </Link>
+                            <i className="fa-solid fa-plus me-2"></i> Tạo khóa học
+                        </ShimmerButton>
                     </div>
                 </div>
+
 
                 <div className="table-card">
                     <div className="table-toolbar" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -283,7 +269,7 @@ export default function Courses({ courses, filters, totalCoursesCount }) {
                                                         <i className="fa-solid fa-star"></i>
                                                     </Link>
                                                     <Link
-                                                        href="#"
+                                                        href={route('seller.courses.comments.index', course.id)}
                                                         className="action-btn"
                                                         title="Quản lý bình luận"
                                                         style={{ color: '#3b82f6' }}

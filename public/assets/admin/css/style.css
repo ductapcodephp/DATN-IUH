@@ -449,3 +449,118 @@ body {
     align-items: center;
     justify-content: space-between;
 }
+
+/* ==========================================================
+   MAGIC UI UTILITIES & COMPONENTS FOR ADMIN PANEL
+   ========================================================== */
+
+/* 1. Number Ticker */
+.magic-number-ticker {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* 2. Magic Card (Spotlight) */
+.magic-card-wrapper {
+  position: relative;
+  border-radius: var(--radius, 16px);
+  background: transparent;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.magic-card-wrapper:hover {
+  transform: translateY(-2px);
+}
+
+.magic-card-spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  transition: opacity 0.3s ease;
+}
+
+.magic-card-border {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* 3. Shimmer Button */
+.magic-shimmer-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--bg, var(--primary-glow, #4facfe));
+  color: #ffffff !important;
+  font-weight: 600;
+  border: 1px solid transparent;
+  padding: 0.6rem 1.4rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(79, 172, 254, 0.3);
+}
+
+.magic-shimmer-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.45);
+  color: #ffffff !important;
+}
+
+.magic-shimmer-button:active {
+  transform: translateY(0);
+}
+
+.magic-shimmer-sparkle {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  animation: magic-shine-sweep var(--speed, 3.5s) infinite ease-in-out;
+  pointer-events: none;
+}
+
+.magic-shimmer-button:hover .magic-shimmer-sparkle {
+  animation-duration: 2s;
+}
+
+.magic-shimmer-content {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@keyframes magic-shine-sweep {
+  0% { transform: translateX(0); left: -100%; }
+  30%, 100% { left: 200%; }
+}
+
+
+/* 4. Circular Progress */
+.magic-circular-progress-wrap {
+  display: inline-flex;
+}
+
+.magic-circular-progress-svg {
+  transform: rotate(-90deg);
+}
+

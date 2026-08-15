@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import CMSLayout from '@/Layouts/CMS/CMSLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import ShimmerButton from '@/Components/MagicUI/ShimmerButton';
 
 export default function Index({ page, blocks: initialBlocks, blockTypes = {} }) {
     const [blocks, setBlocks] = useState(initialBlocks || []);
@@ -37,6 +38,28 @@ export default function Index({ page, blocks: initialBlocks, blockTypes = {} }) 
         }
     };
 
+    const handleToggleStatus = (block) => {
+        const newStatus = block.status === 'active' ? 'inactive' : 'active';
+        router.put(route('cms.block.update', block.id), {
+            title: block.title,
+            status: newStatus,
+            data: block.data
+        }, {
+            preserveScroll: true,
+            preserveState: true,
+        });
+    };
+
+    const handleDuplicate = (block) => {
+        router.post(route('cms.block.store', page.id), {
+            title: `${block.title || 'Block'} (Bản sao)`,
+            type: block.type,
+            status: 'active'
+        }, {
+            preserveScroll: true,
+        });
+    };
+
     const onDragEnd = useCallback((result) => {
         if (!result.destination) return;
         const sourceIndex = result.source.index;
@@ -59,18 +82,18 @@ export default function Index({ page, blocks: initialBlocks, blockTypes = {} }) 
         <CMSLayout>
             <Head title={`Quản lý Block: ${page.name} - CMS`} />
             
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                 <div>
                     <h2 className="wow-title mb-1">Cấu trúc trang: {page.name}</h2>
                     <p className="m-0" style={{ color: 'var(--wow-text-muted)' }}>Quản lý và sắp xếp các khối giao diện (Blocks) trên trang này.</p>
                 </div>
-                <div className="d-flex gap-3">
+                <div className="d-flex gap-3 align-items-center">
                     <Link href={route('cms.page.index')} className="wow-btn-light">
                         <i className="fa-solid fa-arrow-left"></i> Quay lại
                     </Link>
-                    <button onClick={() => setShowAddModal(true)} className="wow-btn-primary">
-                        <i className="fa-solid fa-plus"></i> Thêm Block mới
-                    </button>
+                    <ShimmerButton onClick={() => setShowAddModal(true)} className="fw-bold px-4 py-2">
+                        <i className="fa-solid fa-plus me-2"></i> Thêm Block mới
+                    </ShimmerButton>
                 </div>
             </div>
 
@@ -83,7 +106,7 @@ export default function Index({ page, blocks: initialBlocks, blockTypes = {} }) 
                                     <th style={{ width: '50px' }}>#</th>
                                     <th>Tiêu đề (Title)</th>
                                     <th>Loại (Type)</th>
-                                    <th>Trạng thái</th>
+                                    <th style={{ width: '130px' }}>Trạng thái</th>
                                     <th className="text-end">Hành động</th>
                                 </tr>
                             </thead>
@@ -116,9 +139,24 @@ export default function Index({ page, blocks: initialBlocks, blockTypes = {} }) 
                                                                 </td>
                                                                 <td style={{ color: 'var(--wow-primary)' }}>{blockTypes[block.type]?.name || block.type}</td>
                                                                 <td>
-                                                                    <span className="wow-badge">{block.status === 'active' ? 'Hiển thị' : 'Ẩn'}</span>
+                                                                    <div className="d-flex align-items-center gap-2">
+                                                                        <label className="wow-switch m-0" title={block.status === 'active' ? "Nhấn để Ẩn block" : "Nhấn để Bật block"}>
+                                                                            <input 
+                                                                                type="checkbox" 
+                                                                                checked={block.status === 'active'}
+                                                                                onChange={() => handleToggleStatus(block)}
+                                                                            />
+                                                                            <span className="wow-slider"></span>
+                                                                        </label>
+                                                                        <span className="small fw-semibold" style={{ color: block.status === 'active' ? '#22c55e' : '#94a3b8' }}>
+                                                                            {block.status === 'active' ? 'Bật' : 'Ẩn'}
+                                                                        </span>
+                                                                    </div>
                                                                 </td>
                                                                 <td className="text-end">
+                                                                    <button onClick={() => handleDuplicate(block)} className="wow-btn-icon me-2 text-info" title="Nhân bản Block này">
+                                                                        <i className="fa-regular fa-clone"></i>
+                                                                    </button>
                                                                     <Link href={route('cms.block.edit', block.id)} className="wow-btn-icon me-2" title="Cấu hình nội dung">
                                                                         <i className="fa-solid fa-gear"></i>
                                                                     </Link>

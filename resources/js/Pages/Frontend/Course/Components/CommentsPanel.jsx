@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import OverlayPanel from './OverlayPanel';
 import axios from 'axios';
 import { usePage } from '@inertiajs/react';
+import Swal from 'sweetalert2';
 
 const renderCommentContent = (content, parentName) => {
     if (!parentName || !content) return content;
@@ -150,7 +151,12 @@ export default function CommentsPanel({ isOpen, onClose, lessonId, courseSlug, r
                 if (onSuccess) onSuccess();
             }
         } catch (error) {
-            alert('Không thể gửi bình luận. Vui lòng thử lại!');
+            Swal.fire({
+                title: 'Lỗi',
+                text: 'Không thể gửi bình luận. Vui lòng thử lại!',
+                icon: 'error',
+                confirmButtonColor: '#ea580c',
+            });
         }
     };
 
@@ -164,13 +170,24 @@ export default function CommentsPanel({ isOpen, onClose, lessonId, courseSlug, r
                 details: reportDetails,
             });
             if (res.data.success) {
-                alert('Cảm ơn bạn! Đã gửi báo cáo bình luận thành công.');
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Cảm ơn bạn! Đã gửi báo cáo bình luận thành công.',
+                    icon: 'success',
+                    confirmButtonColor: '#ea580c',
+                });
                 setReportingComment(null);
                 setReportReason('');
                 setReportDetails('');
             }
         } catch (error) {
-            alert('Có lỗi xảy ra khi gửi báo cáo, vui lòng thử lại.');
+            const errorMsg = error.response?.data?.message || 'Có lỗi xảy ra khi gửi báo cáo, vui lòng thử lại.';
+            Swal.fire({
+                title: 'Thông báo',
+                text: errorMsg,
+                icon: 'warning',
+                confirmButtonColor: '#ea580c',
+            });
         } finally {
             setIsReporting(false);
         }
@@ -274,7 +291,7 @@ export default function CommentsPanel({ isOpen, onClose, lessonId, courseSlug, r
                                         >
                                             <option value="">-- Chọn lý do --</option>
                                             {reportTopics.map((t, idx) => (
-                                                <option key={idx} value={t.name}>{t.name}</option>
+                                                <option key={idx} value={t.name || t}>{t.name || t}</option>
                                             ))}
                                             <option value="Khác">Khác</option>
                                         </select>
