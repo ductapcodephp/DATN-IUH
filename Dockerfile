@@ -8,7 +8,9 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libzip-dev
+    libzip-dev \
+    nginx \
+    supervisor
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -23,12 +25,18 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 COPY . /var/www/html
+COPY docker/php/local.ini /usr/local/etc/php/conf.d/local.ini
+
+COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 
 RUN composer install --no-dev --optimize-autoloader
 
 RUN npm install --legacy-peer-deps
 
-RUN cp .env.example .env || true
 RUN npm run build
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+EXPOSE 80
+
+CMD php-fpm -D && nginx -g "daemon off;"
