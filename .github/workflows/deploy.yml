@@ -27,34 +27,11 @@ jobs:
           push: true
           tags: ductapdevops/datn-devops:latest 
 
-  deploy:
-    name: Deploy to Ubuntu Server
+  deploy-to-render:
+    name: Trigger Deploy sang Render
     needs: build-and-push 
-    runs-on: self-hosted   
+    runs-on: ubuntu-latest   
     steps:
-      - name: Fix permissions
+      - name: Gọi Deploy Webhook của Render
         run: |
-          sudo chown -R ductapdevops:ductapdevops ${{ github.workspace }} || true
-
-      - name: Checkout code (Lấy file docker-compose.yml)
-        uses: actions/checkout@v4
-        with:
-          clean: false
-      - name: Dọn dẹp file rác nhưng giữ lại file cấu hình quan trọng
-        run: |
-          git clean -ffdx \
-            -e .env \
-            -e docker/mysql/data      
-      - name: Triển khai ứng dụng (Pull & Run)
-        run: |
-          docker pull ductapdevops/datn-devops:latest
-          
-          docker compose down
-          
-          docker compose up -d
-      - name: Tối ưu hóa Laravel 
-        run: |
-          docker exec laravel_app php artisan storage:link || true
-          docker exec laravel_app php artisan config:cache
-          docker exec laravel_app php artisan route:cache
-          docker exec laravel_app php artisan view:cache
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
