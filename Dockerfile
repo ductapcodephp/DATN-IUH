@@ -35,7 +35,13 @@ RUN npm install --legacy-peer-deps
 
 RUN npm run build
 
+RUN echo "clear_env = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+
+RUN touch /var/www/html/.env
+# -------------------------------------------------------------
 
 EXPOSE 80
 
