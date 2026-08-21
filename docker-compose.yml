@@ -9,7 +9,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"    
     volumes:
-      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
       - ./.env:/var/www/html/.env
       - app_storage:/var/www/html/storage
       - app_public:/var/www/html/public
@@ -19,33 +18,35 @@ services:
       - laravel
 
   queue:
-      image: ductapdevops/datn-devops:latest
-      container_name: laravel_queue
-      restart: unless-stopped
-      working_dir: /var/www/html
-      command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
-      volumes:
-        - ./.env:/var/www/html/.env
-        - app_storage:/var/www/html/storage
-      depends_on:
-        - app
-        - redis
-      networks:
-        - laravel
+    image: ductapdevops/datn-devops:latest
+    container_name: laravel_queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    volumes:
+      - ./.env:/var/www/html/.env
+      - app_storage:/var/www/html/storage
+    depends_on:
+      - app
+      - redis
+    networks:
+      - laravel
+
   scheduler:
-      image: ductapdevops/datn-devops:latest
-      container_name: laravel_scheduler
-      restart: unless-stopped
-      working_dir: /var/www/html
-      command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
-      volumes:
-        - ./.env:/var/www/html/.env
-        - app_storage:/var/www/html/storage
-      depends_on:
-        - app
-        - redis
-      networks:
-        - laravel
+    image: ductapdevops/datn-devops:latest
+    container_name: laravel_scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
+    volumes:
+      - ./.env:/var/www/html/.env
+      - app_storage:/var/www/html/storage
+    depends_on:
+      - app
+      - redis
+    networks:
+      - laravel
+
   web:
     image: nginx:alpine
     container_name: laravel_nginx
