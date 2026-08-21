@@ -154,16 +154,29 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // HTTPS scheme is handled automatically by TrustProxies middleware
-        // which reads X-Forwarded-Proto header from the tunnel/reverse proxy.
-        // Only force HTTPS if the request actually came through HTTPS
-        // (detected via proxy headers or direct HTTPS connection).
-        if (
-            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+        // Detect scheme and host from reverse proxy / Cloudflare Tunnel
+        // This ensures all generated URLs (including Ziggy routes) use the correct origin
+        $isHttps = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
             || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
-            || str_contains((string) config('app.url'), 'https://')
-        ) {
+            || str_contains((string) config('app.url'), 'https://');
+
+        if ($isHttps) {
             URL::forceScheme('https');
+        }
+
+        // When behind a proxy/tunnel, update APP_URL to use the actual host
+        // so that Ziggy @routes and other URL generators use the correct domain
+        if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+            $scheme = $isHttps ? 'https' : 'http';
+            $host = $_SERVER['HTTP_X_FORWARDED_HOST'];
+            $tunnelUrl = $scheme . '://' . $host;
+            config(['app.url' => $tunnelUrl]);
+            URL::forceRootUrl($tunnelUrl);
+        } elseif (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] !== '127.0.0.1:8000' && $_SERVER['HTTP_HOST'] !== 'localhost:8000') {
+            $scheme = $isHttps ? 'https' : 'http';
+            $tunnelUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
+            config(['app.url' => $tunnelUrl]);
+            URL::forceRootUrl($tunnelUrl);
         }
 
         Event::listen(
