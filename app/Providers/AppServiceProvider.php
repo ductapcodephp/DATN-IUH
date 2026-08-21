@@ -154,8 +154,15 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Tự động ép giao thức HTTPS khi chạy trên Production hoặc URL cấu hình HTTPS
-        if ($this->app->environment('production') || str_contains((string) config('app.url'), 'https://')) {
+        // HTTPS scheme is handled automatically by TrustProxies middleware
+        // which reads X-Forwarded-Proto header from the tunnel/reverse proxy.
+        // Only force HTTPS if the request actually came through HTTPS
+        // (detected via proxy headers or direct HTTPS connection).
+        if (
+            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+            || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
+            || str_contains((string) config('app.url'), 'https://')
+        ) {
             URL::forceScheme('https');
         }
 
@@ -176,9 +183,6 @@ class AppServiceProvider extends ServiceProvider
             UserLoggedIn::class,
             IssueRefreshToken::class
         );
-        if (config('app.env') !== 'local' || isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
-            URL::forceScheme('https');
-        }
     }
     
 }
