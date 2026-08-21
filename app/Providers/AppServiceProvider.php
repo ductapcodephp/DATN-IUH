@@ -176,5 +176,9 @@ class AppServiceProvider extends ServiceProvider
             UserLoggedIn::class,
             IssueRefreshToken::class
         );
+        if (config('app.env') !== 'local' || isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+            URL::forceScheme('https');
+        }
     }
+    
 }
