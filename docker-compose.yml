@@ -14,6 +14,7 @@ services:
       - app_public:/var/www/html/public
     depends_on:
       - redis
+      - mysql
     networks:
       - laravel
 
@@ -29,6 +30,7 @@ services:
     depends_on:
       - app
       - redis
+      - mysql
     networks:
       - laravel
 
@@ -44,6 +46,7 @@ services:
     depends_on:
       - app
       - redis
+      - mysql
     networks:
       - laravel
 
@@ -72,11 +75,26 @@ services:
     networks:
       - laravel
 
+  mysql:
+    image: mysql:8.0
+    container_name: laravel_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: datn_db
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks:
+      - laravel
+
 networks:
   laravel:
     driver: bridge
 
 volumes:
   redisdata:
+  mysqldata:
   app_public:
   app_storage:
