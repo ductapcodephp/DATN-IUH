@@ -134,7 +134,7 @@ function SystemNoticeModal({ isOpen, onClose }) {
 
                         {/* Account 2: CMS */}
                         <div 
-                            className="p-3 rounded-3 border bg-light position-relative"
+                            className="p-3 mb-2 rounded-3 border bg-light position-relative"
                             style={{ borderColor: '#e2e8f0' }}
                         >
                             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -159,6 +159,47 @@ function SystemNoticeModal({ isOpen, onClose }) {
                                     title="Copy Email CMS"
                                 >
                                     {copiedField === 'cms_email' ? (
+                                        <>
+                                            <Check size={14} className="text-success" />
+                                            <span className="text-success">Đã copy email</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy size={14} />
+                                            <span>Copy Email</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Account 3: Seller */}
+                        <div 
+                            className="p-3 rounded-3 border bg-light position-relative"
+                            style={{ borderColor: '#e2e8f0' }}
+                        >
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                <div className="d-flex align-items-center gap-2">
+                                    <UserCheck size={18} className="text-success" />
+                                    <span className="fw-bold text-dark small">Tài khoản Người bán (Seller)</span>
+                                </div>
+                                <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1 small">
+                                    Seller
+                                </span>
+                            </div>
+                            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 bg-white p-2 rounded border">
+                                <div className="small">
+                                    <div className="text-muted">Email: <strong className="text-dark font-monospace">seller1@gmail.com</strong></div>
+                                    <div className="text-muted">Mật khẩu: <strong className="text-dark font-monospace">123</strong></div>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-1 py-1 px-2"
+                                    style={{ fontSize: '12px' }}
+                                    onClick={() => handleCopy('seller1@gmail.com', 'seller_email')}
+                                    title="Copy Email Seller"
+                                >
+                                    {copiedField === 'seller_email' ? (
                                         <>
                                             <Check size={14} className="text-success" />
                                             <span className="text-success">Đã copy email</span>
