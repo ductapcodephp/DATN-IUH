@@ -10,4 +10,5 @@ interface AdminDashboardRepositoryInterface
     public function getPendingReportsCount(): int;
     public function getAverageCompletionRate(): float;
     public function getRevenueChartData(array $filters = []): array;
+    public function getExportOrdersData(array $filters = []);
 }

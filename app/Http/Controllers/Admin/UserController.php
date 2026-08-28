@@ -84,4 +84,48 @@ class UserController extends Controller
         $chartFilterData = UserChartFilterData::fromRequest($request->all());
         return response()->json($this->service->getUserChartData($id, $chartFilterData));
     }
+
+    public function export(Request $request, $id)
+    {
+        $filters = $request->only(['type', 'start_date', 'end_date']);
+        if (empty($filters['type']) && empty($filters['start_date'])) {
+            $filters['type'] = 'week';
+        }
+        
+        $orders = $this->service->getExportOrdersData($id, $filters);
+        $user = $this->service->getUserDetails($id)['user'];
+        
+        $filename = "bao_cao_nguoi_dung_{$id}_" . date('Ymd_His') . ".csv";
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use($orders, $user) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for UTF-8 Excel support
+            fputs($file, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
+
+            fputcsv($file, ['Mã Đơn Hàng', 'Khóa Học/Dịch Vụ', 'Số Tiền (VNĐ)', 'Trạng Thái', 'Ngày Giao Dịch']);
+
+            foreach ($orders as $order) {
+                $itemName = $order->course ? $order->course->title : ($order->vipPackage ? $order->vipPackage->name : 'N/A');
+                fputcsv($file, [
+                    $order->id,
+                    $itemName,
+                    $order->amount_paid,
+                    $order->status,
+                    $order->created_at->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

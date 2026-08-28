@@ -115,4 +115,31 @@ class AdminDashboardRepository implements AdminDashboardRepositoryInterface
 
         return $chartData;
     }
+
+    public function getExportOrdersData(array $filters = [])
+    {
+        $type = $filters['type'] ?? 'week';
+        $startDate = $filters['start_date'] ?? null;
+        $endDate = $filters['end_date'] ?? null;
+
+        $query = Order::with('user')->where('status', 'completed');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+        } else {
+            switch ($type) {
+                case 'week':
+                    $query->where('created_at', '>=', Carbon::now()->subDays(6)->startOfDay());
+                    break;
+                case 'month':
+                    $query->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
+                    break;
+                case 'year':
+                    $query->whereBetween('created_at', [Carbon::now()->startOfYear(), Carbon::now()->endOfYear()]);
+                    break;
+            }
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
+    }
 }

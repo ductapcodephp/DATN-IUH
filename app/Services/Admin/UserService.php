@@ -159,4 +159,9 @@ class UserService
 
         return $chartData;
     }
+
+    public function getExportOrdersData(int $userId, array $filters = [])
+    {
+        return $this->repository->getExportOrdersData($userId, $filters);
+    }
 }

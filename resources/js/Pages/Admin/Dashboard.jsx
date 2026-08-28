@@ -89,6 +89,18 @@ export default function Dashboard({ stats, currentDays = 30 }) {
         router.get(route('admin.dashboard'), { days: e.target.value }, { preserveState: true, preserveScroll: true });
     };
 
+    const handleExportReport = () => {
+        let url = `/admin/dashboard/export?type=${chartFilter}`;
+        if (chartFilter === 'custom') {
+            if (!startDate || !endDate) {
+                alert("Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc.");
+                return;
+            }
+            url += `&start_date=${startDate}&end_date=${endDate}`;
+        }
+        window.location.href = url;
+    };
+
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -130,10 +142,10 @@ export default function Dashboard({ stats, currentDays = 30 }) {
                         <h3 className="m-0 fw-bold text-dark">Tổng quan hệ thống</h3>
                         <ShimmerButton 
                             className="fw-bold px-4 py-2"
-                            background="var(--primary-glow, #4facfe)"
-                            onClick={() => window.print()}
+                            background="var(--success-glow, #43e97b)"
+                            onClick={handleExportReport}
                         >
-                            <i className="fa-solid fa-wand-magic-sparkles me-2"></i> Xuất báo cáo
+                            <i className="fa-solid fa-file-csv me-2"></i> Xuất dữ liệu đơn hàng
                         </ShimmerButton>
                     </div>
                 )}
@@ -310,6 +322,14 @@ export default function Dashboard({ stats, currentDays = 30 }) {
                                                 <input type="date" className="form-control form-control-sm glass-input rounded-pill px-3" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                                             </div>
                                         )}
+                                        <ShimmerButton 
+                                            className="fw-bold px-3 py-1 ms-2"
+                                            background="var(--success-glow, #43e97b)"
+                                            style={{ minHeight: '32px' }}
+                                            onClick={handleExportReport}
+                                        >
+                                            <i className="fa-solid fa-file-csv me-2"></i> Xuất CSV
+                                        </ShimmerButton>
                                     </div>
                                 </div>
                                 <div className="card-body position-relative z-1">

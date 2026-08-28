@@ -150,4 +150,33 @@ class AdminUserRepository implements AdminUserRepositoryInterface
             DB::raw("SUM(total_revenue) as total")
         )->groupBy($alias)->orderBy($alias, 'asc')->get()->keyBy($alias);
     }
+
+    public function getExportOrdersData(int $userId, array $filters = [])
+    {
+        $type = $filters['type'] ?? 'week';
+        $startDate = $filters['start_date'] ?? null;
+        $endDate = $filters['end_date'] ?? null;
+
+        $query = Order::with(['course', 'vipPackage'])
+            ->where('user_id', $userId)
+            ->where('status', 'completed');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+        } else {
+            switch ($type) {
+                case 'week':
+                    $query->where('created_at', '>=', Carbon::now()->subDays(6)->startOfDay());
+                    break;
+                case 'month':
+                    $query->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
+                    break;
+                case 'year':
+                    $query->whereBetween('created_at', [Carbon::now()->startOfYear(), Carbon::now()->endOfYear()]);
+                    break;
+            }
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
+    }
 }

@@ -109,7 +109,19 @@ export default function UserDetail({ user, stats, chartData, filters, orders }) 
         };
         
         fetchChartData();
-    }, [chartFilter, startDate, endDate, user.id]);
+    }, [chartFilter, startDate, endDate, user.id, isUser]);
+
+    const handleExportReport = () => {
+        let url = `/admin/users/${user.id}/export?type=${chartFilter}`;
+        if (chartFilter === 'custom') {
+            if (!startDate || !endDate) {
+                alert("Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc.");
+                return;
+            }
+            url += `&start_date=${startDate}&end_date=${endDate}`;
+        }
+        window.location.href = url;
+    };
 
     const chartOptions = {
         responsive: true,
@@ -346,6 +358,12 @@ export default function UserDetail({ user, stats, chartData, filters, orders }) 
                                         <input type="date" className="form-control form-control-sm glass-input rounded-pill px-3" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                                     </div>
                                 )}
+                                <button 
+                                    className="btn btn-sm btn-success rounded-pill fw-bold px-3 shadow-sm d-flex align-items-center"
+                                    onClick={handleExportReport}
+                                >
+                                    <i className="fa-solid fa-file-csv me-2"></i> Xuất CSV
+                                </button>
                             </div>
                         </div>
                         <div className="card-body position-relative z-1">

@@ -39,4 +39,47 @@ class DashboardController extends Controller
         }
         return response()->json($this->service->getChartData($filters));
     }
+
+    public function export(Request $request)
+    {
+        $filters = $request->only(['type', 'start_date', 'end_date']);
+        if (empty($filters['type']) && empty($filters['start_date'])) {
+            $filters['type'] = 'week';
+        }
+        
+        $orders = $this->service->getExportOrdersData($filters);
+        
+        $filename = "bao_cao_doanh_thu_" . date('Ymd_His') . ".csv";
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use($orders) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for UTF-8 Excel support
+            fputs($file, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
+
+            fputcsv($file, ['Mã Đơn Hàng', 'Tên Khách Hàng', 'Email Khách Hàng', 'Số Tiền (VNĐ)', 'Trạng Thái', 'Ngày Giao Dịch']);
+
+            foreach ($orders as $order) {
+                fputcsv($file, [
+                    $order->id,
+                    $order->user ? $order->user->name : 'N/A',
+                    $order->user ? $order->user->email : 'N/A',
+                    $order->amount_paid,
+                    $order->status,
+                    $order->created_at->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

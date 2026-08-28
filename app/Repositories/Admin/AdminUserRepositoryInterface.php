@@ -30,4 +30,5 @@ interface AdminUserRepositoryInterface
 
     public function getStudentRevenues(int $userId, string $groupBy = 'DATE(created_at)', ?Carbon $startDate = null, ?Carbon $endDate = null): Collection;
     public function getSellerRevenues(int $sellerId, string $groupBy = 'DATE(date)', ?Carbon $startDate = null, ?Carbon $endDate = null): Collection;
+    public function getExportOrdersData(int $userId, array $filters = []);
 }

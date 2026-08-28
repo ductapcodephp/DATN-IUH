@@ -29,4 +29,9 @@ class DashboardService
     {
         return $this->repository->getRevenueChartData($filters);
     }
+
+    public function getExportOrdersData(array $filters = [])
+    {
+        return $this->repository->getExportOrdersData($filters);
+    }
 }

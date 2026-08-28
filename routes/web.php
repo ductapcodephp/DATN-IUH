@@ -286,6 +286,7 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,root'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])->name('dashboard.chart-data');
+    Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('dashboard.export');
     Route::patch('categories/{category}/approve', [AdminCategoryController::class, 'approve'])->name('categories.approve')->middleware('throttle:20,1');
     Route::delete('categories/{category}/reject', [AdminCategoryController::class, 'reject'])->name('categories.reject')->middleware('throttle:20,1');
     Route::resource('categories', AdminCategoryController::class)->except(['create', 'show', 'edit']);
@@ -301,6 +302,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,root'])-
     Route::post('/users', [UserController::class, 'store'])->name('users.store')->middleware('throttle:20,1');
     Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
     Route::get('/users/{id}/chart-data', [UserController::class, 'getChartData'])->name('users.chart-data');
+    Route::get('/users/{id}/export', [UserController::class, 'export'])->name('users.export');
     Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status')->middleware('throttle:20,1');
     Route::get('/vip-packages', [AdminVipPackageController::class, 'index'])->name('vip-packages');
     Route::post('/vip-packages', [AdminVipPackageController::class, 'store'])->name('vip-packages.store')->middleware('throttle:20,1');
