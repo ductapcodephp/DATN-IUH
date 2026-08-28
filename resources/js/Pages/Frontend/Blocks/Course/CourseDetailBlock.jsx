@@ -459,7 +459,7 @@ export default function CourseDetailBlock({ block, editable = false, course, rel
                                     <MagicCard className="h-100" gradientColor="rgba(2, 132, 199, 0.12)" borderColor="rgba(2, 132, 199, 0.3)">
                                         <div className="course-card position-relative bg-white h-100 border-0 shadow-none">
                                             <Link href={!isMock ? route('frontend.course.detail', { slug: rcourse.slug }) : '#'} className="text-decoration-none text-dark d-flex flex-column h-100">
-                                                <img src={rcourse.thumbnail ? `/storage/${rcourse.thumbnail}` : '/assets/frontend/img/no-thumbnail.png'} alt={rcourse.title} className="course-thumb w-100" style={{ height: '180px', objectFit: 'cover' }} loading="lazy" />
+                                                <img src={rcourse.thumbnail ? (rcourse.thumbnail.startsWith('/') || rcourse.thumbnail.startsWith('http') ? rcourse.thumbnail : `/storage/${rcourse.thumbnail}`) : '/assets/frontend/img/no-thumbnail.png'} alt={rcourse.title} className="course-thumb w-100" style={{ height: '180px', objectFit: 'cover' }} loading="lazy" />
                                                 <div className="course-body flex-grow-1 p-3">
                                                     <span className="course-cat text-accent fw-semibold font-sm">{rcourse.category?.name}</span>
                                                     <h4 className="course-title fs-6 fw-bold mt-2 mb-3 line-clamp-2">{rcourse.title}</h4>

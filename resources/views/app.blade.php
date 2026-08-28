@@ -18,6 +18,22 @@
         @inertia
 
         @if(app()->environment('local', 'development'))
+        <script>
+          if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for (let registration of registrations) {
+                      registration.unregister();
+                  }
+              });
+          }
+          if ('caches' in window) {
+              caches.keys().then(function(names) {
+                  for (let name of names) {
+                      caches.delete(name);
+                  }
+              });
+          }
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/vconsole@latest/dist/vconsole.min.js"></script>
         <script>
           var vConsole = new VConsole();

@@ -66,7 +66,7 @@ function FeaturedCoursesPreview({ block, onChange }) {
                                         <div className="text-decoration-none text-dark d-block">
                                             <div className="badge-sponsored">Tài trợ</div>
                                             <img 
-                                                src={course.thumbnail ? `/storage/${course.thumbnail}` : 'https://placehold.co/600x400/png'} 
+                                                src={course.thumbnail ? (course.thumbnail.startsWith('/') || course.thumbnail.startsWith('http') ? course.thumbnail : `/storage/${course.thumbnail}`) : 'https://placehold.co/600x400/png'} 
                                                 alt={course.title} 
                                                 className="course-thumb" 
                                                 loading="lazy" 

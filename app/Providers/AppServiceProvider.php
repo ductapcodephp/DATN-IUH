@@ -154,27 +154,26 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Detect scheme and host from reverse proxy / Cloudflare Tunnel
-        // This ensures all generated URLs (including Ziggy routes) use the correct origin
-        $isHttps = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
-            || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
-            || str_contains((string) config('app.url'), 'https://');
+        // Luôn đồng bộ URL và Scheme theo APP_URL trong file .env
+        $appUrl = config('app.url');
+        if (!empty($appUrl)) {
+            URL::forceRootUrl($appUrl);
+            if (str_starts_with($appUrl, 'https://')) {
+                URL::forceScheme('https');
+            } else {
+                URL::forceScheme('http');
+            }
+        }
 
-        if ($isHttps) {
+        // Tự động nhận diện HTTPS / Tunnel nếu có reverse proxy header
+        if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
             URL::forceScheme('https');
         }
 
-        // When behind a proxy/tunnel, update APP_URL to use the actual host
-        // so that Ziggy @routes and other URL generators use the correct domain
         if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
-            $scheme = $isHttps ? 'https' : 'http';
+            $proto = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'http';
             $host = $_SERVER['HTTP_X_FORWARDED_HOST'];
-            $tunnelUrl = $scheme . '://' . $host;
-            config(['app.url' => $tunnelUrl]);
-            URL::forceRootUrl($tunnelUrl);
-        } elseif (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] !== '127.0.0.1:8000' && $_SERVER['HTTP_HOST'] !== 'localhost:8000') {
-            $scheme = $isHttps ? 'https' : 'http';
-            $tunnelUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
+            $tunnelUrl = $proto . '://' . $host;
             config(['app.url' => $tunnelUrl]);
             URL::forceRootUrl($tunnelUrl);
         }

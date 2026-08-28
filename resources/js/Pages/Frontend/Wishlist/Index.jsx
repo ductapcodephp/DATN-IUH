@@ -52,7 +52,7 @@ export default function Index({ wishlistCourses }) {
                                                 </button>
                                                 
                                                 <Link href={route('frontend.course.detail', { slug: course.slug })} className="text-decoration-none text-dark d-flex flex-column h-100">
-                                                    <img src={course.thumbnail ? `/storage/${course.thumbnail}` : '/assets/frontend/img/no-thumbnail.png'} alt={course.title} className="course-thumb" loading="lazy" />
+                                                    <img src={course.thumbnail ? (course.thumbnail.startsWith('/') || course.thumbnail.startsWith('http') ? course.thumbnail : `/storage/${course.thumbnail}`) : '/assets/frontend/img/no-thumbnail.png'} alt={course.title} className="course-thumb" loading="lazy" />
                                                     
                                                     <div className="course-body flex-grow-1">
                                                         <span className="course-cat">{course.category?.name}</span>
