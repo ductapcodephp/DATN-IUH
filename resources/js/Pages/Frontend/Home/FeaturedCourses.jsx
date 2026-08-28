@@ -82,7 +82,7 @@ export default function FeaturedCourses({ block, editable, courses = [], enrolle
                                             >
                                                 {course.ad_id && <div className="badge-sponsored">Tài trợ</div>}
                                                 <img 
-                                                    src={course.thumbnail ? (course.thumbnail.startsWith('/') ? course.thumbnail : `/storage/${course.thumbnail}`) : '/assets/frontend/img/default-course.png'} 
+                                                    src={course.thumbnail ? (course.thumbnail.startsWith('http') || course.thumbnail.startsWith('/') ? course.thumbnail : `/storage/${course.thumbnail}`) : '/assets/frontend/img/default-course.png'} 
                                                     alt={course.title} 
                                                     className="course-thumb" 
                                                     loading="lazy" 
@@ -95,7 +95,7 @@ export default function FeaturedCourses({ block, editable, courses = [], enrolle
                                                     <h3 className="course-title">{course.title}</h3>
                                                     <div className="instructor-wrap mt-2 mb-3">
                                                         <img 
-                                                            src={course.seller?.avatar ? (course.seller.avatar.startsWith('/') ? course.seller.avatar : `/storage/${course.seller.avatar}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(course.seller?.name || 'U')}&background=random`} 
+                                                            src={course.seller?.avatar ? (course.seller.avatar.startsWith('http') || course.seller.avatar.startsWith('/') ? course.seller.avatar : `/storage/${course.seller.avatar}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(course.seller?.name || 'U')}&background=random`} 
                                                             alt={course.seller?.name} 
                                                         />
                                                         <span className="text-muted font-sm text-truncate">

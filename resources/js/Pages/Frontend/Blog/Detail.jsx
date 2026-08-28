@@ -155,10 +155,11 @@ export default function Detail({ article, post }) {
                             </div>
 
                             <img 
-                                src={post.thumbnail ? `/storage/${post.thumbnail}` : "/storage/cms/media/DbMY9bnfvMUIrtfAn7smm5Wbwb0d3MyZR8Ygy6E7.jpg"} 
+                                src={post.thumbnail ? (post.thumbnail.startsWith('http') || post.thumbnail.startsWith('/') ? post.thumbnail : `/storage/${post.thumbnail}`) : "/assets/frontend/img/blog-ai-dev.jpg"} 
                                 alt={post.title}
                                 className="img-fluid rounded-4 mb-5 shadow-sm w-100" 
                                 style={{ maxHeight: '450px', objectFit: 'cover' }} 
+                                onError={(e) => { e.target.src = "/assets/frontend/img/blog-ai-dev.jpg"; }}
                             />
 
                             <div 

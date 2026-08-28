@@ -111,7 +111,7 @@ export default function BlogListBlock({ block, editable, onChange, articles: pro
             slug: post.slug,
             category: post.category?.name || 'Chưa phân loại',
             categoryColorClass: "text-primary",
-            image: post.thumbnail ? `/storage/${post.thumbnail}` : "/storage/cms/media/DbMY9bnfvMUIrtfAn7smm5Wbwb0d3MyZR8Ygy6E7.jpg",
+            image: post.thumbnail ? (post.thumbnail.startsWith('http') || post.thumbnail.startsWith('/') ? post.thumbnail : `/storage/${post.thumbnail}`) : "/assets/frontend/img/blog-ai-dev.jpg",
             summary: post.description,
             date: new Date(article.created_at).toLocaleDateString('vi-VN'),
             readTime: "5 phút đọc", // placeholder
@@ -180,7 +180,7 @@ export default function BlogListBlock({ block, editable, onChange, articles: pro
                                             className="course-thumb w-100 object-fit-cover" 
                                             style={{ height: "200px" }}
                                             loading="lazy"
-                                            onError={(e) => { e.target.src = "/storage/cms/media/DbMY9bnfvMUIrtfAn7smm5Wbwb0d3MyZR8Ygy6E7.jpg"; }}
+                                            onError={(e) => { e.target.src = "/assets/frontend/img/blog-ai-dev.jpg"; }}
                                         />
                                     </Link>
                                     <div className="course-body d-flex flex-column flex-grow-1 p-4">

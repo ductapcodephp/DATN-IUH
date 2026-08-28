@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "@inertiajs/react";
 
 export default function BecomeSeller({ block }) {
-    const getImageUrl = (path) => path ? (path.startsWith('http') ? path : `/storage/${path}`) : null;
+    const getImageUrl = (path) => path ? (path.startsWith('http') || path.startsWith('/') ? path : `/storage/${path}`) : null;
     const imgUrl = getImageUrl(block?.image) || "/assets/frontend/img/become-seller.jpg";
 
     const parsedContent = typeof block?.content === 'string' ? JSON.parse(block.content) : (block?.content || {});

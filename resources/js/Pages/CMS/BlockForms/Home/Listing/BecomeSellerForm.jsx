@@ -5,7 +5,7 @@ import InlineEditableImage from '@/Components/CMS/InlineEditableImage';
 import { Link } from '@inertiajs/react';
 
 function BecomeSellerPreview({ block, onChange }) {
-    const getImageUrl = (path) => path ? (path.startsWith('http') ? path : `/storage/${path}`) : null;
+    const getImageUrl = (path) => path ? (path.startsWith('http') || path.startsWith('/') ? path : `/storage/${path}`) : null;
     const imgUrl = getImageUrl(block?.image) || "/assets/frontend/img/become-seller.jpg";
 
     const features = block?.listing_item || [];
