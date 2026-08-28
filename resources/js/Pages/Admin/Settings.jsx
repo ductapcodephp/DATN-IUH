@@ -44,6 +44,9 @@ export default function Settings({ settings = [], flash }) {
 
         cron_video_progress_sync_enabled: initialData.cron_video_progress_sync_enabled ?? '1',
         cron_video_progress_sync_freq: initialData.cron_video_progress_sync_freq || 'everyFiveMinutes',
+
+        cron_vip_distribute_coupons_enabled: initialData.cron_vip_distribute_coupons_enabled ?? '1',
+        cron_vip_distribute_coupons_time: initialData.cron_vip_distribute_coupons_time || '03:00',
     });
 
     const [alert, setAlert] = useState({ show: false, type: 'success', title: '' });
@@ -673,6 +676,64 @@ export default function Settings({ settings = [], flash }) {
                                                         onClick={() => handleRunCron('video-progress:sync', 'Đồng bộ tiến độ Video')}
                                                     >
                                                         {runningCron === 'video-progress:sync' ? (
+                                                            <><span className="spinner-border spinner-border-sm"></span> Đang chạy...</>
+                                                        ) : (
+                                                            <><i className="fa-solid fa-play"></i> Chạy ngay</>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 7. vip:distribute-coupons */}
+                                    <div className="col-12 col-lg-6">
+                                        <div className="p-4 bg-light rounded-4 h-100 border border-secondary border-opacity-10 d-flex flex-column justify-content-between" style={{ borderLeft: '4px solid #F59E0B' }}>
+                                            <div>
+                                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        <div className="p-2 bg-warning bg-opacity-10 text-warning rounded-3">
+                                                            <i className="fa-solid fa-gift fs-5"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h6 className="fw-bold text-dark mb-0">Phát mã giảm giá VIP</h6>
+                                                            <code className="small text-muted">vip:distribute-coupons</code>
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-check form-switch">
+                                                        <input 
+                                                            className="form-check-input" 
+                                                            type="checkbox" 
+                                                            style={{ cursor: 'pointer', transform: 'scale(1.3)' }}
+                                                            checked={data.cron_vip_distribute_coupons_enabled == '1'}
+                                                            onChange={e => setData('cron_vip_distribute_coupons_enabled', e.target.checked ? '1' : '0')}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <p className="text-muted small mb-3">
+                                                    Tự động phát mã giảm giá hàng tháng cho Học Viên VIP đang có subscription còn hiệu lực. Mỗi tháng mỗi học viên nhận 1 mã giảm 10%.
+                                                </p>
+                                            </div>
+
+                                            <div className="pt-3 border-top d-flex justify-content-between align-items-center gap-3">
+                                                <div className="flex-grow-1">
+                                                    <label className="form-label small fw-bold text-dark mb-1">Giờ chạy hàng ngày</label>
+                                                    <input 
+                                                        type="time" 
+                                                        className="form-control form-control-sm rounded-3 shadow-none bg-white"
+                                                        value={data.cron_vip_distribute_coupons_time}
+                                                        onChange={e => setData('cron_vip_distribute_coupons_time', e.target.value)}
+                                                        disabled={data.cron_vip_distribute_coupons_enabled != '1'}
+                                                    />
+                                                </div>
+                                                <div className="pt-3">
+                                                    <button 
+                                                        type="button" 
+                                                        className="btn btn-sm btn-outline-warning rounded-pill px-3 fw-bold d-flex align-items-center gap-1 text-dark"
+                                                        disabled={runningCron === 'vip:distribute-coupons'}
+                                                        onClick={() => handleRunCron('vip:distribute-coupons', 'Phát mã giảm giá VIP')}
+                                                    >
+                                                        {runningCron === 'vip:distribute-coupons' ? (
                                                             <><span className="spinner-border spinner-border-sm"></span> Đang chạy...</>
                                                         ) : (
                                                             <><i className="fa-solid fa-play"></i> Chạy ngay</>

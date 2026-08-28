@@ -5,7 +5,7 @@ import axios from 'axios';
 import CouponModal from '@/Pages/Frontend/Cart/CouponModal';
 import InlineEditable from '@/Components/CMS/InlineEditable';
 
-export default function CartBlock({ block, editable, cartItems: propCartItems, totalAmount: propTotalAmount, discountAmount: propDiscountAmount, appliedCoupons: propAppliedCoupons, popularCourses: propPopularCourses, courseCoupons, instructorCoupons, platformCoupons, onChange }) {
+export default function CartBlock({ block, editable, cartItems: propCartItems, totalAmount: propTotalAmount, discountAmount: propDiscountAmount, appliedCoupons: propAppliedCoupons, popularCourses: propPopularCourses, courseCoupons, instructorCoupons, platformCoupons, vipCoupons: propVipCoupons, onChange }) {
     const isMock = editable || !propCartItems;
 
     const parsedContent = typeof block?.content === 'string' ? JSON.parse(block.content) : (block?.content || {});
@@ -32,6 +32,7 @@ export default function CartBlock({ block, editable, cartItems: propCartItems, t
     const discountAmount = isMock ? 150000 : (propDiscountAmount || 0);
     const appliedCoupons = isMock ? [{ code: 'MOCK150K', id: 1 }] : (propAppliedCoupons || []);
     const popularCourses = isMock ? [] : (propPopularCourses || []);
+    const vipCoupons = isMock ? [] : (propVipCoupons || []);
 
     const handleSelectWallet = () => {
         if (!hasWallet && !isMock) {
@@ -53,6 +54,13 @@ export default function CartBlock({ block, editable, cartItems: propCartItems, t
     };
 
     const finalTotal = totalAmount - discountAmount;
+
+    const applyVipCoupon = (vipCode) => {
+        if (isMock) return;
+        const currentCodes = appliedCoupons.map(c => c.code);
+        if (currentCodes.includes(vipCode)) return;
+        router.post(route('frontend.cart.apply-coupons'), { codes: [...currentCodes, vipCode] }, { preserveScroll: true });
+    };
 
     const removeFromCart = (cartItemId) => {
         if (isMock) return;
@@ -355,6 +363,51 @@ export default function CartBlock({ block, editable, cartItems: propCartItems, t
                             <i className="fa-solid fa-chevron-right" style={{ fontSize: '12px' }}></i>
                         </div>
                     </>
+                )}
+
+                {/* VIP COUPONS SECTION */}
+                {!isMock && vipCoupons && vipCoupons.length > 0 && (
+                    <div className="mt-3 mb-2">
+                        <div className="d-flex align-items-center gap-2 mb-2">
+                            <i className="fa-solid fa-crown" style={{ color: '#F59E0B', fontSize: '16px' }}></i>
+                            <span className="fw-bold" style={{ fontSize: '14px', color: '#92400E' }}>Ưu đãi dành cho VIP</span>
+                        </div>
+                        <div className="d-flex flex-column gap-2" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                            {vipCoupons.filter(vc => !appliedCoupons.some(ac => ac.code === vc.code)).map((vip, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className="d-flex justify-content-between align-items-center p-2 rounded-3"
+                                    style={{ 
+                                        background: 'linear-gradient(135deg, #FEF3C7, #FDE68A)', 
+                                        border: '1px solid #F59E0B',
+                                        borderRadius: '10px'
+                                    }}
+                                >
+                                    <div>
+                                        <div className="fw-bold" style={{ fontSize: '13px', color: '#92400E' }}>
+                                            <i className="fa-solid fa-ticket me-1"></i>{vip.code}
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: '#B45309' }}>
+                                            Giảm {Number(vip.value)}%{vip.max_discount_amount ? ` (tối đa ${new Intl.NumberFormat('vi-VN').format(vip.max_discount_amount)}đ)` : ''}
+                                        </div>
+                                    </div>
+                                    <button 
+                                        className="btn btn-sm fw-bold rounded-pill px-3"
+                                        style={{ 
+                                            background: '#F59E0B', 
+                                            color: '#fff', 
+                                            border: 'none',
+                                            fontSize: '12px',
+                                            boxShadow: '0 2px 4px rgba(245,158,11,0.3)'
+                                        }}
+                                        onClick={() => applyVipCoupon(vip.code)}
+                                    >
+                                        Áp dụng
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 )}
 
                 <div className="cart-divider"></div>

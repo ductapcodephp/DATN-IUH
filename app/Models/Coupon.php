@@ -76,6 +76,9 @@ class Coupon extends Model
         'starts_at',
         'expires_at',
         'is_active',
+        'is_vip_coupon',
+        'vip_subscription_id',
+        'user_id_owner',
     ];
 
     protected $casts = [
@@ -83,6 +86,7 @@ class Coupon extends Model
         'min_order_amount' => 'decimal:2',
         'max_discount_amount' => 'decimal:2',
         'is_active' => 'boolean',
+        'is_vip_coupon' => 'boolean',
         'starts_at' => 'datetime',
         'expires_at' => 'datetime',
     ];
@@ -100,6 +104,26 @@ class Coupon extends Model
     public function usages(): HasMany
     {
         return $this->hasMany(CouponUsage::class);
+    }
+
+    public function vipSubscription(): BelongsTo
+    {
+        return $this->belongsTo(VipSubscription::class);
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id_owner');
+    }
+
+    public function scopeVipCoupons($query)
+    {
+        return $query->where('is_vip_coupon', true);
+    }
+
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id_owner', $userId);
     }
 
     public function scopeActive($query)

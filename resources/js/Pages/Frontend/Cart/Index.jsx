@@ -5,7 +5,7 @@ import BlockRenderer from "@/Pages/Frontend/Blocks/BlockRenderer";
 import CartBlock from "@/Pages/Frontend/Blocks/Cart/CartBlock";
 import SweetAlert from '@/Components/SweetAlert';
 
-export default function Index({ cart, cartItems = [], totalAmount, popularCourses = [] , courseCoupons = [], instructorCoupons = [], platformCoupons = [], discountAmount = 0, appliedCoupons = [], blocks = [] }) {
+export default function Index({ cart, cartItems = [], totalAmount, popularCourses = [] , courseCoupons = [], instructorCoupons = [], platformCoupons = [], discountAmount = 0, appliedCoupons = [], vipCoupons = [], blocks = [] }) {
     const { flash } = usePage().props;
 
     return (
@@ -31,7 +31,7 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                     extraData={{ 
                         cart, cartItems, totalAmount, popularCourses, 
                         courseCoupons, instructorCoupons, platformCoupons, 
-                        discountAmount, appliedCoupons 
+                        discountAmount, appliedCoupons, vipCoupons 
                     }} 
                 />
             )) : (
@@ -45,6 +45,7 @@ export default function Index({ cart, cartItems = [], totalAmount, popularCourse
                     platformCoupons={platformCoupons}
                     discountAmount={discountAmount}
                     appliedCoupons={appliedCoupons}
+                    vipCoupons={vipCoupons}
                 />
             )}
         </FrontendLayout>

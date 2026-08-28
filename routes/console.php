@@ -113,3 +113,10 @@ $scheduleCommand('video-progress:sync', 'cron_video_progress_sync', [
     'type' => 'frequency',
     'freq' => 'everyFiveMinutes',
 ]);
+
+// 7. Tự động phát mã giảm giá hàng tháng cho Học Viên VIP
+$scheduleCommand('vip:distribute-coupons', 'cron_vip_distribute_coupons', [
+    'enabled' => '1',
+    'type' => 'daily',
+    'time' => '03:00',
+]);

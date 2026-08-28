@@ -46,7 +46,7 @@ class SettingController extends Controller
     public function runCron(Request $request)
     {
         $request->validate([
-            'command' => 'required|string|in:payments:cancel-abandoned,seller:release-earnings,vip:check-expiring,ads:reset-daily,coupons:expire,video-progress:sync',
+            'command' => 'required|string|in:payments:cancel-abandoned,seller:release-earnings,vip:check-expiring,ads:reset-daily,coupons:expire,video-progress:sync,vip:distribute-coupons',
         ]);
 
         try {
