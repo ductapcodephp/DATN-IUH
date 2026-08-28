@@ -32,8 +32,17 @@ jobs:
     needs: build-and-push
     runs-on: self-hosted
     steps:
-      - name: Pull Image mới & Deploy Docker
+      - name: Checkout code (để sync config files)
+        uses: actions/checkout@v4
+        with:
+          path: repo
+
+      - name: Sync config files & Deploy
         run: |
+          # Sync nginx config từ repo sang server
+          cp repo/docker/nginx/default.conf ~/app/docker/nginx/default.conf
+
+          # Pull image mới và deploy
           cd ~/app
           docker compose pull
           docker compose up -d --remove-orphans
