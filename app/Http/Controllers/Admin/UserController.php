@@ -110,14 +110,16 @@ class UserController extends Controller
             // Add BOM for UTF-8 Excel support
             fputs($file, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
 
-            fputcsv($file, ['Mã Đơn Hàng', 'Khóa Học/Dịch Vụ', 'Số Tiền (VNĐ)', 'Trạng Thái', 'Ngày Giao Dịch']);
+            fputcsv($file, ['Mã Đơn Hàng', 'Khóa Học/Dịch Vụ', 'Tiền Gốc (VNĐ)', 'Hoa Hồng (VNĐ)', 'Đã Trừ (VNĐ)', 'Trạng Thái', 'Ngày Giao Dịch']);
 
             foreach ($orders as $order) {
                 $itemName = $order->course ? $order->course->title : ($order->vipPackage ? $order->vipPackage->name : 'N/A');
                 fputcsv($file, [
                     $order->id,
                     $itemName,
-                    $order->amount_paid,
+                    $order->amount_paid ?? 0,
+                    $order->commission_amount ?? 0,
+                    $order->seller_amount ?? 0,
                     $order->status,
                     $order->created_at->format('Y-m-d H:i:s')
                 ]);

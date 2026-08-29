@@ -64,14 +64,16 @@ class DashboardController extends Controller
             // Add BOM for UTF-8 Excel support
             fputs($file, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
 
-            fputcsv($file, ['Mã Đơn Hàng', 'Tên Khách Hàng', 'Email Khách Hàng', 'Số Tiền (VNĐ)', 'Trạng Thái', 'Ngày Giao Dịch']);
+            fputcsv($file, ['Mã Đơn Hàng', 'Tên Khách Hàng', 'Email Khách Hàng', 'Tiền Gốc (VNĐ)', 'Hoa Hồng (VNĐ)', 'Đã Trừ (VNĐ)', 'Trạng Thái', 'Ngày Giao Dịch']);
 
             foreach ($orders as $order) {
                 fputcsv($file, [
                     $order->id,
                     $order->user ? $order->user->name : 'N/A',
                     $order->user ? $order->user->email : 'N/A',
-                    $order->amount_paid,
+                    $order->amount_paid ?? 0,
+                    $order->commission_amount ?? 0,
+                    $order->seller_amount ?? 0,
                     $order->status,
                     $order->created_at->format('Y-m-d H:i:s')
                 ]);
