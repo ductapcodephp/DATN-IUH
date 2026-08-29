@@ -22,6 +22,9 @@ class CouponResource extends JsonResource
             'max_uses' => $this->max_uses,
             'used_count' => $this->used_count ?? 0,
             'course_id' => $this->course_id,
+            'vip_package_ids' => $this->whenLoaded('vipPackages', function () {
+                return $this->vipPackages->pluck('id')->toArray();
+            }, []),
             'is_active' => (bool) $this->is_active,
 
             'starts_at' => $this->starts_at,

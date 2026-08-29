@@ -102,4 +102,13 @@ class VipPackage extends Model
 
         return "{$this->duration_days} ngày";
     }
+
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class, 'coupon_vip_package');
+    }
 }
+
+
+
+

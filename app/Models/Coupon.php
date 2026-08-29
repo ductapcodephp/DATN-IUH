@@ -116,6 +116,11 @@ class Coupon extends Model
         return $this->belongsTo(User::class, 'user_id_owner');
     }
 
+    public function vipPackages()
+    {
+        return $this->belongsToMany(VipPackage::class, 'coupon_vip_package');
+    }
+
     public function scopeVipCoupons($query)
     {
         return $query->where('is_vip_coupon', true);

@@ -61,6 +61,16 @@ $scheduleCommand = function (string $command, string $settingPrefix, array $defa
                 'daily' => $event->daily(),
                 default => $event->{$defaults['freq']}(),
             };
+        } elseif ($type === 'monthlyOn') {
+            $day = $cronSettings["{$settingPrefix}_day"] ?? $defaults['day'];
+            $time = $cronSettings["{$settingPrefix}_time"] ?? $defaults['time'];
+            $day = is_numeric($day) && $day >= 1 && $day <= 31 ? (int)$day : $defaults['day'];
+            $time = trim((string) $time);
+            if (preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $time)) {
+                $event->monthlyOn($day, $time);
+            } else {
+                $event->monthlyOn($day, $defaults['time']);
+            }
         }
     } catch (\Throwable $e) {
         if ($defaults['type'] === 'daily') {
@@ -68,6 +78,8 @@ $scheduleCommand = function (string $command, string $settingPrefix, array $defa
         } elseif ($defaults['type'] === 'frequency') {
             $freq = $defaults['freq'];
             Schedule::command($command)->$freq();
+        } elseif ($defaults['type'] === 'monthlyOn') {
+            Schedule::command($command)->monthlyOn($defaults['day'], $defaults['time']);
         }
     }
 };
@@ -117,6 +129,7 @@ $scheduleCommand('video-progress:sync', 'cron_video_progress_sync', [
 // 7. Tự động phát mã giảm giá hàng tháng cho Học Viên VIP
 $scheduleCommand('vip:distribute-coupons', 'cron_vip_distribute_coupons', [
     'enabled' => '1',
-    'type' => 'daily',
+    'type' => 'monthlyOn',
+    'day' => 1,
     'time' => '03:00',
 ]);

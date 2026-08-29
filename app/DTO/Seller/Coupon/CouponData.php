@@ -16,6 +16,7 @@ readonly class CouponData
         public ?string $startsAt,
         public ?string $expiresAt,
         public ?int $courseId,
+        public ?array $vipPackageIds,
         public bool $isActive,
     ) {}
 
@@ -29,6 +30,7 @@ readonly class CouponData
             startsAt: $request->filled('starts_at') ? (string) $request->input('starts_at') : null,
             expiresAt: $request->filled('expires_at') ? (string) $request->input('expires_at') : null,
             courseId: $request->filled('course_id') ? (int) $request->input('course_id') : null,
+            vipPackageIds: $request->input('vip_package_ids', []),
             isActive: $request->boolean('is_active', true),
         );
     }
@@ -45,6 +47,7 @@ readonly class CouponData
             'expires_at' => $this->expiresAt,
             'course_id' => $this->courseId,
             'is_active' => $this->isActive,
+            // Note: vipPackageIds are not included in toArray for mass assignment
         ];
     }
 }

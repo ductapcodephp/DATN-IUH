@@ -146,7 +146,8 @@ class CartController extends Controller
             return [];
         }
 
-        return Coupon::where('is_vip_coupon', true)
+        // Coupons where user is owner
+        $ownedCoupons = Coupon::where('is_vip_coupon', true)
             ->where('user_id_owner', $userId)
             ->where('is_active', true)
             ->where(function ($q) {
@@ -161,7 +162,35 @@ class CartController extends Controller
                 $q->where('user_id', $userId);
             })
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->toArray();
+            ->get();
+
+        // Shared VIP coupons from active subscriptions
+        $activePackageIds = \App\Models\VipSubscription::where('user_id', $userId)
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->pluck('vip_package_id');
+
+        $sharedCoupons = collect();
+        if ($activePackageIds->isNotEmpty()) {
+            $sharedCoupons = Coupon::whereHas('vipPackages', function ($q) use ($activePackageIds) {
+                $q->whereIn('vip_packages.id', $activePackageIds);
+            })
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('max_uses')
+                    ->orWhereRaw('used_count < max_uses');
+            })
+            ->whereDoesntHave('usages', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+        }
+
+        return $ownedCoupons->merge($sharedCoupons)->unique('id')->values()->toArray();
     }
 }

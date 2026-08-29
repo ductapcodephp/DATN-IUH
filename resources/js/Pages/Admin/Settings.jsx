@@ -5,7 +5,7 @@ import SweetAlert from '@/Components/SweetAlert';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-export default function Settings({ settings = [], flash }) {
+export default function Settings({ settings = [], vipPackages = [], flash }) {
     const [activeTab, setActiveTab] = useState('general');
     const [runningCron, setRunningCron] = useState(null);
 
@@ -47,6 +47,7 @@ export default function Settings({ settings = [], flash }) {
 
         cron_vip_distribute_coupons_enabled: initialData.cron_vip_distribute_coupons_enabled ?? '1',
         cron_vip_distribute_coupons_time: initialData.cron_vip_distribute_coupons_time || '03:00',
+        cron_vip_distribute_coupons_day: initialData.cron_vip_distribute_coupons_day || '1',
     });
 
     const [alert, setAlert] = useState({ show: false, type: 'success', title: '' });
@@ -711,35 +712,44 @@ export default function Settings({ settings = [], flash }) {
                                                     </div>
                                                 </div>
                                                 <p className="text-muted small mb-3">
-                                                    Tự động phát mã giảm giá hàng tháng cho Học Viên VIP đang có subscription còn hiệu lực. Mỗi tháng mỗi học viên nhận 1 mã giảm 10%.
+                                                    Tự động phát mã giảm giá hàng tháng cho Học Viên VIP đang có subscription còn hiệu lực.
                                                 </p>
                                             </div>
 
                                             <div className="pt-3 border-top d-flex justify-content-between align-items-center gap-3">
                                                 <div className="flex-grow-1">
-                                                    <label className="form-label small fw-bold text-dark mb-1">Giờ chạy hàng ngày</label>
+                                                    <label className="form-label small fw-bold text-dark mb-1">Ngày phát hàng tháng</label>
+                                                    <input 
+                                                        type="number" 
+                                                        className="form-control form-control-sm rounded-3 shadow-none bg-white mb-2"
+                                                        value={data.cron_vip_distribute_coupons_day}
+                                                        onChange={e => setData('cron_vip_distribute_coupons_day', e.target.value)}
+                                                        disabled={data.cron_vip_distribute_coupons_enabled != '1'}
+                                                        min="1" max="31"
+                                                    />
+                                                    <label className="form-label small fw-bold text-dark mb-1">Giờ chạy</label>
                                                     <input 
                                                         type="time" 
-                                                        className="form-control form-control-sm rounded-3 shadow-none bg-white"
+                                                        className="form-control form-control-sm rounded-3 shadow-none bg-white mb-3"
                                                         value={data.cron_vip_distribute_coupons_time}
                                                         onChange={e => setData('cron_vip_distribute_coupons_time', e.target.value)}
                                                         disabled={data.cron_vip_distribute_coupons_enabled != '1'}
                                                     />
                                                 </div>
-                                                <div className="pt-3">
-                                                    <button 
-                                                        type="button" 
-                                                        className="btn btn-sm btn-outline-warning rounded-pill px-3 fw-bold d-flex align-items-center gap-1 text-dark"
-                                                        disabled={runningCron === 'vip:distribute-coupons'}
-                                                        onClick={() => handleRunCron('vip:distribute-coupons', 'Phát mã giảm giá VIP')}
-                                                    >
-                                                        {runningCron === 'vip:distribute-coupons' ? (
-                                                            <><span className="spinner-border spinner-border-sm"></span> Đang chạy...</>
-                                                        ) : (
-                                                            <><i className="fa-solid fa-play"></i> Chạy ngay</>
-                                                        )}
-                                                    </button>
-                                                </div>
+                                            </div>
+                                            <div className="pt-2">
+                                                <button 
+                                                    type="button" 
+                                                    className="btn btn-sm btn-outline-warning rounded-pill px-3 fw-bold d-flex align-items-center gap-1 text-dark w-100 justify-content-center"
+                                                    disabled={runningCron === 'vip:distribute-coupons'}
+                                                    onClick={() => handleRunCron('vip:distribute-coupons', 'Phát mã giảm giá VIP')}
+                                                >
+                                                    {runningCron === 'vip:distribute-coupons' ? (
+                                                        <><span className="spinner-border spinner-border-sm"></span> Đang chạy...</>
+                                                    ) : (
+                                                        <><i className="fa-solid fa-play"></i> Chạy ngay lệnh phát mã</>
+                                                    )}
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

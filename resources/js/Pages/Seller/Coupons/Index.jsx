@@ -4,7 +4,7 @@ import SellerLayout from "@/Layouts/Seller/SellerLayout.jsx";
 import Pagination from "@/Components/Pagination.jsx";
 import FormModal from "@/Components/FormModal.jsx";
 
-export default function Coupons({ coupons, courses }) {
+export default function Coupons({ coupons, courses, vipPackages }) {
     const [showModal, setShowModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(null);
@@ -17,6 +17,7 @@ export default function Coupons({ coupons, courses }) {
         starts_at: '',
         expires_at: '',
         course_id: '',
+        vip_package_ids: [],
         is_active: true,
     });
 
@@ -33,6 +34,7 @@ export default function Coupons({ coupons, courses }) {
                 starts_at: coupon.starts_at ? new Date(coupon.starts_at).toISOString().slice(0, 16) : '',
                 expires_at: coupon.expires_at ? new Date(coupon.expires_at).toISOString().slice(0, 16) : '',
                 course_id: coupon.course_id || '',
+                vip_package_ids: coupon.vip_package_ids || [],
                 is_active: coupon.is_active,
             });
         } else {
@@ -233,6 +235,35 @@ export default function Coupons({ coupons, courses }) {
                         </select>
                         {errors.course_id && <div className="form-modal-error"><i className="fa-solid fa-circle-exclamation"></i> {errors.course_id}</div>}
                     </div>
+                </div>
+
+                <div className="form-modal-group border p-3 rounded bg-light mb-3">
+                    <label className="form-modal-label fw-bold mb-2">Áp dụng cho Gói VIP Học Viên (Tùy chọn)</label>
+                    <div className="d-flex flex-wrap gap-3">
+                        {vipPackages?.map(pkg => (
+                            <div key={pkg.id} className="form-check">
+                                <input 
+                                    className="form-check-input" 
+                                    type="checkbox" 
+                                    id={`vip-pkg-${pkg.id}`}
+                                    checked={data.vip_package_ids.includes(pkg.id)}
+                                    onChange={(e) => {
+                                        const newIds = e.target.checked 
+                                            ? [...data.vip_package_ids, pkg.id]
+                                            : data.vip_package_ids.filter(id => id !== pkg.id);
+                                        setData('vip_package_ids', newIds);
+                                    }}
+                                />
+                                <label className="form-check-label small" htmlFor={`vip-pkg-${pkg.id}`}>
+                                    {pkg.name}
+                                </label>
+                            </div>
+                        ))}
+                        {(!vipPackages || vipPackages.length === 0) && (
+                            <div className="text-muted small">Không có gói VIP nào.</div>
+                        )}
+                    </div>
+                    {errors.vip_package_ids && <div className="form-modal-error mt-2"><i className="fa-solid fa-circle-exclamation"></i> {errors.vip_package_ids}</div>}
                 </div>
 
                 <div className="form-modal-row">

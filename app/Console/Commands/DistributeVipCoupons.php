@@ -31,7 +31,8 @@ class DistributeVipCoupons extends Command
         $startOfMonth = $now->copy()->startOfMonth();
         $endOfMonth = $now->copy()->endOfMonth();
 
-        $activeSubscriptions = VipSubscription::where('status', 'active')
+        $activeSubscriptions = VipSubscription::with(['vipPackage', 'user'])
+            ->where('status', 'active')
             ->where('expires_at', '>', $now)
             ->whereHas('vipPackage', function ($query) {
                 $query->where('role_type', 'user');
@@ -41,30 +42,34 @@ class DistributeVipCoupons extends Command
         $distributedCount = 0;
 
         foreach ($activeSubscriptions as $subscription) {
-            $existingCoupon = Coupon::where('is_vip_coupon', true)
-                ->where('vip_subscription_id', $subscription->id)
-                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                ->first();
+            $user = $subscription->user;
+            $vipPackage = $subscription->vipPackage;
+            
+            if (!$user || !$vipPackage) continue;
 
-            if (! $existingCoupon) {
-                Coupon::create([
-                    'code' => 'VIP_'.$subscription->user_id.'_'.$now->format('Ym').'_'.strtoupper(Str::random(4)),
-                    'type' => 'percent',
-                    'value' => 10.00,
-                    'max_discount_amount' => 50000.00,
-                    'max_uses' => 1,
-                    'used_count' => 0,
-                    'seller_id' => null,
-                    'course_id' => null,
-                    'starts_at' => $now,
-                    'expires_at' => $now->copy()->addDays(30),
-                    'is_active' => true,
-                    'is_vip_coupon' => true,
-                    'vip_subscription_id' => $subscription->id,
-                    'user_id_owner' => $subscription->user_id,
-                ]);
+            $coupons = $vipPackage->coupons()->where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereNull('expires_at')
+                        ->orWhere('expires_at', '>=', now());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('max_uses')
+                        ->orWhereRaw('used_count < max_uses');
+                })
+                ->get();
 
-                $distributedCount++;
+            foreach ($coupons as $coupon) {
+                // Kiểm tra xem tháng này user đã nhận thông báo về coupon này chưa
+                $alreadyNotifiedThisMonth = $user->notifications()
+                    ->where('type', \App\Notifications\VipCouponDistributedNotification::class)
+                    ->where('data->coupon_code', $coupon->code)
+                    ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+                    ->exists();
+
+                if (!$alreadyNotifiedThisMonth) {
+                    $user->notify(new \App\Notifications\VipCouponDistributedNotification($coupon, $vipPackage));
+                    $distributedCount++;
+                }
             }
         }
 

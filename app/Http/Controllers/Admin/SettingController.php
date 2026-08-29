@@ -23,8 +23,10 @@ class SettingController extends Controller
     public function index()
     {
         $settings = SystemSetting::all();
+        $vipPackages = \App\Models\VipPackage::where('role_type', 'user')->active()->get();
         return Inertia::render('Admin/Settings', [
-            'settings' => $settings
+            'settings' => $settings,
+            'vipPackages' => $vipPackages
         ]);
     }
 

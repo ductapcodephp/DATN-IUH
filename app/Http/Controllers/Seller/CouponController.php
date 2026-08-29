@@ -25,11 +25,15 @@ class CouponController extends Controller
     public function index(): Response
     {
         $coupons = $this->couponService->getSellerCoupons((int) auth()->id());
+        // Load vipPackages relationship for the coupons
+        $coupons->load('vipPackages');
         $courses = Course::where('seller_id', auth()->id())->select('id', 'title')->get();
+        $vipPackages = \App\Models\VipPackage::where('role_type', 'user')->active()->select('id', 'name')->get();
 
         return Inertia::render('Seller/Coupons/Index', [
             'coupons' => CouponResource::collection($coupons),
             'courses' => $courses,
+            'vipPackages' => $vipPackages,
         ]);
 
     }

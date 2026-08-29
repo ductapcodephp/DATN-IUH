@@ -22,12 +22,20 @@ class CouponService
 
     public function createCoupon(int $sellerId, CouponData $dto): Coupon
     {
-        return $this->couponRepository->create($dto->toArray($sellerId));
+        $coupon = $this->couponRepository->create($dto->toArray($sellerId));
+        if ($dto->vipPackageIds !== null) {
+            $coupon->vipPackages()->sync($dto->vipPackageIds);
+        }
+        return $coupon;
     }
 
     public function updateCoupon(Coupon $coupon, int $sellerId, CouponData $dto): bool
     {
-        return $this->couponRepository->update($coupon, $dto->toArray($sellerId));
+        $updated = $this->couponRepository->update($coupon, $dto->toArray($sellerId));
+        if ($dto->vipPackageIds !== null) {
+            $coupon->vipPackages()->sync($dto->vipPackageIds);
+        }
+        return $updated;
     }
 
     public function deleteCoupon(Coupon $coupon): bool

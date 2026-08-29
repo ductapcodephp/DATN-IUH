@@ -23,6 +23,8 @@ class StoreCouponRequest extends FormRequest
             'starts_at' => ['nullable', 'date'],
             'expires_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+            'vip_package_ids' => ['nullable', 'array'],
+            'vip_package_ids.*' => ['integer', 'exists:vip_packages,id'],
             'is_active' => ['boolean'],
         ];
     }
