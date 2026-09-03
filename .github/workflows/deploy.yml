@@ -46,7 +46,10 @@ jobs:
           cd ~/app
           docker compose pull
           docker compose up -d --remove-orphans
+
+          # Chạy migrate tự động sau khi deploy code mới
+          docker exec laravel_app php artisan migrate --force
+
           docker image prune -f
 
-          # Đảm bảo storage symlink tồn tại
           docker exec laravel_app php artisan storage:link 2>/dev/null || true

@@ -138,7 +138,7 @@ class CartController extends Controller
     }
 
     /**
-     * Lấy danh sách mã giảm giá VIP chưa sử dụng của user
+     * Lấy danh sách mã giảm giá VIP đã phát cho user (chưa sử dụng)
      */
     private function getVipCouponsForUser(?int $userId): array
     {
@@ -146,51 +146,31 @@ class CartController extends Controller
             return [];
         }
 
-        // Coupons where user is owner
-        $ownedCoupons = Coupon::where('is_vip_coupon', true)
-            ->where('user_id_owner', $userId)
-            ->where('is_active', true)
+        return \App\Models\DistributedCoupon::with('coupon')
+            ->where('user_id', $userId)
+            ->where('is_used', false)
             ->where(function ($q) {
                 $q->whereNull('expires_at')
                     ->orWhere('expires_at', '>=', now());
             })
-            ->where(function ($q) {
-                $q->whereNull('max_uses')
-                    ->orWhereRaw('used_count < max_uses');
-            })
-            ->whereDoesntHave('usages', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('distributed_at', 'desc')
+            ->get()
+            ->map(function ($dc) {
+                $coupon = $dc->coupon;
 
-        // Shared VIP coupons from active subscriptions
-        $activePackageIds = \App\Models\VipSubscription::where('user_id', $userId)
-            ->where('status', 'active')
-            ->where('expires_at', '>', now())
-            ->pluck('vip_package_id');
-
-        $sharedCoupons = collect();
-        if ($activePackageIds->isNotEmpty()) {
-            $sharedCoupons = Coupon::whereHas('vipPackages', function ($q) use ($activePackageIds) {
-                $q->whereIn('vip_packages.id', $activePackageIds);
+                return [
+                    'id' => $dc->id,
+                    'code' => $dc->code,
+                    'type' => $coupon->type ?? 'percent',
+                    'value' => $coupon->value ?? 0,
+                    'min_order_amount' => $coupon->min_order_amount ?? 0,
+                    'max_discount_amount' => $coupon->max_discount_amount ?? null,
+                    'course_id' => $coupon->course_id ?? null,
+                    'seller_id' => null,
+                    'expires_at' => $dc->expires_at?->toISOString(),
+                    'is_vip' => true,
+                ];
             })
-            ->where('is_active', true)
-            ->where(function ($q) {
-                $q->whereNull('expires_at')
-                    ->orWhere('expires_at', '>=', now());
-            })
-            ->where(function ($q) {
-                $q->whereNull('max_uses')
-                    ->orWhereRaw('used_count < max_uses');
-            })
-            ->whereDoesntHave('usages', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
-        }
-
-        return $ownedCoupons->merge($sharedCoupons)->unique('id')->values()->toArray();
+            ->toArray();
     }
 }

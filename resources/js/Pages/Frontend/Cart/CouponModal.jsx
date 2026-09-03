@@ -47,7 +47,13 @@ export default function CouponModal({ courseCoupons = [], instructorCoupons = []
 
     const handleAddFromInput = (e) => {
         e.preventDefault();
-        alert('Mã ưu đãi không hợp lệ hoặc không khả dụng.');
+        const code = inputValue.trim().toUpperCase();
+        if (code) {
+            if (!selectedCodes.includes(code)) {
+                setSelectedCodes(prev => [...prev, code]);
+            }
+            setInputValue('');
+        }
     };
 
     const handleSubmit = () => {
@@ -128,29 +134,33 @@ export default function CouponModal({ courseCoupons = [], instructorCoupons = []
                     </div>
                     <div className="modal-body px-4 pb-0">
 
-                        {selectedCodes.filter(code => availableCoupons?.some(c => c.code === code)).length > 0 && (
+                        {selectedCodes.length > 0 && (
                             <>
                                 <div className="mb-0 p-3 rounded" style={{ background: '#f8f9fa', border: '1px solid #e9ecef' }}>
                                     <div className="d-flex justify-content-between align-items-center mb-2">
-                                        <h6 className="fw-bold mb-0" style={{ fontSize: '14px', color: '#1F2937' }}>Mã áp dụng từ mục này:</h6>
+                                        <h6 className="fw-bold mb-0" style={{ fontSize: '14px', color: '#1F2937' }}>Mã giảm giá đang áp dụng:</h6>
                                     </div>
                                     <div className="d-flex flex-wrap gap-2">
-                                        {selectedCodes.filter(code => availableCoupons?.some(c => c.code === code)).map((code, idx) => {
+                                        {selectedCodes.map((code, idx) => {
                                             const couponInfo = availableCoupons.find(c => c.code === code);
                                             let badgeStyle = { background: '#f8f9fa', color: '#1F2937', border: '1px solid #E5E7EB' };
-                                            if (couponInfo) {
-                                                if (couponInfo.course_id !== null) {
-                                                    badgeStyle = { background: '#fff7ed', color: '#D97706', border: '1px solid #D97706' };
-                                                } else if (couponInfo.seller_id !== null) {
-                                                    badgeStyle = { background: '#eff6ff', color: '#2563EB', border: '1px solid #2563EB' };
-                                                } else {
-                                                    badgeStyle = { background: '#fef2f2', color: '#DC2626', border: '1px solid #DC2626' };
-                                                }
+                                            
+                                            // Mã nhập tay (VIP hoặc khác) không có trong availableCoupons -> cho màu riêng
+                                            if (!couponInfo && code.startsWith('VIP-')) {
+                                                badgeStyle = { background: '#fef3c7', color: '#92400e', border: '1px solid #f59e0b' }; // Màu vàng cho VIP
+                                            } else if (!couponInfo) {
+                                                badgeStyle = { background: '#f3f4f6', color: '#374151', border: '1px dashed #9ca3af' };
+                                            } else if (couponInfo.course_id !== null) {
+                                                badgeStyle = { background: '#fff7ed', color: '#D97706', border: '1px solid #D97706' };
+                                            } else if (couponInfo.seller_id !== null) {
+                                                badgeStyle = { background: '#eff6ff', color: '#2563EB', border: '1px solid #2563EB' };
+                                            } else {
+                                                badgeStyle = { background: '#fef2f2', color: '#DC2626', border: '1px solid #DC2626' };
                                             }
 
                                             return (
                                                 <div key={idx} className="badge rounded-pill d-flex align-items-center gap-2" style={{ ...badgeStyle, padding: '6px 12px', fontSize: '13px', fontWeight: '600' }}>
-                                                    <i className="fa-solid fa-ticket"></i>
+                                                    {code.startsWith('VIP-') ? <i className="fa-solid fa-crown text-warning"></i> : <i className="fa-solid fa-ticket"></i>}
                                                     {code}
                                                     <i className="fa-solid fa-xmark ms-1" style={{ cursor: 'pointer', fontSize: '14px' }} onClick={() => handleRemoveCoupon(code)} title="Xóa"></i>
                                                 </div>

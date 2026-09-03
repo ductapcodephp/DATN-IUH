@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ReportController;
 
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\AdminSellerController;
+use App\Http\Controllers\Admin\DistributedCouponController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Frontend\BlogController;
@@ -336,6 +337,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,root'])-
     Route::post('/topics', [AdminTopicController::class, 'store'])->name('topics.store')->middleware('throttle:20,1');
     Route::put('/topics/{id}', [AdminTopicController::class, 'update'])->name('topics.update')->middleware('throttle:20,1');
     Route::delete('/topics/{id}', [AdminTopicController::class, 'destroy'])->name('topics.destroy')->middleware('throttle:20,1');
+
+    // --- Distributed Coupons (Mã giảm giá VIP đã phát) ---
+    Route::get('/distributed-coupons', [DistributedCouponController::class, 'index'])->name('distributed-coupons.index');
 });
 
 // CMS Routes

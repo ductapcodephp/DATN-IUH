@@ -4,6 +4,7 @@ namespace App\Services\Finance\Payment\Pipes\Checkout;
 
 use App\DTO\Payment\CheckoutData;
 use App\Models\CouponUsage;
+use App\Models\DistributedCoupon;
 use App\Models\Order;
 use App\Models\SystemSetting;
 use Closure;
@@ -86,6 +87,17 @@ class CreateOrders
 
         if (! empty($couponUsagesToInsert)) {
             CouponUsage::insert($couponUsagesToInsert);
+        }
+
+        // Đánh dấu mã VIP distributed đã sử dụng
+        if (! empty($data->distributedCouponIds)) {
+            $firstOrderId = $insertedOrders->first()?->id;
+            foreach ($data->distributedCouponIds as $distributedId) {
+                $distributed = DistributedCoupon::find($distributedId);
+                if ($distributed && $firstOrderId) {
+                    $distributed->markAsUsed($firstOrderId);
+                }
+            }
         }
 
         return $next($data);

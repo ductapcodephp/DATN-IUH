@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Coupon;
+use App\Jobs\DistributeVipCouponForUser;
 use App\Models\VipSubscription;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
 class DistributeVipCoupons extends Command
 {
@@ -20,7 +19,7 @@ class DistributeVipCoupons extends Command
      *
      * @var string
      */
-    protected $description = 'Tự động phát mã giảm giá hàng tháng cho Học Viên VIP';
+    protected $description = 'Tự động phát mã giảm giá hàng tháng cho Học Viên VIP (đẩy vào hàng đợi)';
 
     /**
      * Execute the console command.
@@ -28,51 +27,27 @@ class DistributeVipCoupons extends Command
     public function handle()
     {
         $now = Carbon::now();
-        $startOfMonth = $now->copy()->startOfMonth();
-        $endOfMonth = $now->copy()->endOfMonth();
 
-        $activeSubscriptions = VipSubscription::with(['vipPackage', 'user'])
-            ->where('status', 'active')
+        $activeSubscriptions = VipSubscription::where('status', 'active')
             ->where('expires_at', '>', $now)
             ->whereHas('vipPackage', function ($query) {
                 $query->where('role_type', 'user');
             })
-            ->get();
+            ->pluck('id');
 
-        $distributedCount = 0;
+        if ($activeSubscriptions->isEmpty()) {
+            $this->info('Không có học viên VIP nào đang hoạt động.');
 
-        foreach ($activeSubscriptions as $subscription) {
-            $user = $subscription->user;
-            $vipPackage = $subscription->vipPackage;
-            
-            if (!$user || !$vipPackage) continue;
-
-            $coupons = $vipPackage->coupons()->where('is_active', true)
-                ->where(function ($q) {
-                    $q->whereNull('expires_at')
-                        ->orWhere('expires_at', '>=', now());
-                })
-                ->where(function ($q) {
-                    $q->whereNull('max_uses')
-                        ->orWhereRaw('used_count < max_uses');
-                })
-                ->get();
-
-            foreach ($coupons as $coupon) {
-                // Kiểm tra xem tháng này user đã nhận thông báo về coupon này chưa
-                $alreadyNotifiedThisMonth = $user->notifications()
-                    ->where('type', \App\Notifications\VipCouponDistributedNotification::class)
-                    ->where('data->coupon_code', $coupon->code)
-                    ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                    ->exists();
-
-                if (!$alreadyNotifiedThisMonth) {
-                    $user->notify(new \App\Notifications\VipCouponDistributedNotification($coupon, $vipPackage));
-                    $distributedCount++;
-                }
-            }
+            return;
         }
 
-        $this->info("Đã phát {$distributedCount} mã giảm giá VIP trong tháng này.");
+        $this->info("Đang đẩy {$activeSubscriptions->count()} job phát mã giảm giá vào hàng đợi...");
+
+        foreach ($activeSubscriptions as $subscriptionId) {
+            DistributeVipCouponForUser::dispatch($subscriptionId)
+                ->onQueue('vip-coupons');
+        }
+
+        $this->info("Đã đẩy {$activeSubscriptions->count()} job vào hàng đợi 'vip-coupons' thành công.");
     }
 }

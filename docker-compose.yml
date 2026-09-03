@@ -14,8 +14,10 @@ services:
       - ./.env:/var/www/html/.env
       - app_storage:/var/www/html/storage
     depends_on:
-      - redis
-      - mysql
+      redis:
+        condition: service_started
+      mysql:
+        condition: service_healthy
     networks:
       - laravel
 
@@ -29,9 +31,12 @@ services:
       - ./.env:/var/www/html/.env
       - app_storage:/var/www/html/storage
     depends_on:
-      - app
-      - redis
-      - mysql
+      app:
+        condition: service_started
+      redis:
+        condition: service_started
+      mysql:
+        condition: service_healthy
     networks:
       - laravel
 
@@ -45,9 +50,12 @@ services:
       - ./.env:/var/www/html/.env
       - app_storage:/var/www/html/storage
     depends_on:
-      - app
-      - redis
-      - mysql
+      app:
+        condition: service_started
+      redis:
+        condition: service_started
+      mysql:
+        condition: service_healthy
     networks:
       - laravel
 
@@ -72,6 +80,25 @@ services:
       - "127.0.0.1:3306:3306"
     volumes:
       - mysqldata:/var/lib/mysql
+    networks:
+      - laravel
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Dịch vụ chỉ chạy một lần lúc khởi động để tự động migrate
+  migrator:
+    image: ductapdevops/datn-devops:latest
+    container_name: laravel_migrator
+    working_dir: /var/www/html
+    command: php artisan migrate --force
+    volumes:
+      - ./.env:/var/www/html/.env
+    depends_on:
+      mysql:
+        condition: service_healthy
     networks:
       - laravel
 

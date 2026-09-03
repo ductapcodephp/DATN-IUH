@@ -45,7 +45,9 @@ class CheckDeviceSession
             }
 
             if ($tokenRecord->is_revoked || $tokenRecord->expires_at->isPast()) {
-                return $this->forceLogout($request);
+                // TẠM TẮT CHỐNG ĐĂNG NHẬP NHIỀU NƠI ĐỂ TEST
+                // return $this->forceLogout($request);
+                return $next($request);
             }
 
             $session = [
@@ -62,13 +64,19 @@ class CheckDeviceSession
         }
 
         if ($session['device_id'] !== $deviceId || $session['token'] !== $tokenHash) {
-            return $this->forceLogout($request);
+            // TẠM TẮT CHỐNG ĐĂNG NHẬP NHIỀU NƠI ĐỂ TEST
+            // return $this->forceLogout($request);
+            // Cho phép đi tiếp:
+            return $next($request);
         }
 
         if ($session['is_revoked'] || Carbon::parse($session['expires_at'])->isPast()) {
             Redis::del($redisKey);
 
-            return $this->forceLogout($request);
+            // TẠM TẮT CHỐNG ĐĂNG NHẬP NHIỀU NƠI ĐỂ TEST
+            // return $this->forceLogout($request);
+            // Cho phép đi tiếp:
+            return $next($request);
         }
 
         $now = now();
