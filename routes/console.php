@@ -119,14 +119,22 @@ $scheduleCommand('coupons:expire', 'cron_coupons_expire', [
     'time' => '00:00',
 ]);
 
-// 6. Đồng bộ tiến độ xem video từ Redis về Database
+// 6. Flush tiến độ xem video từ Redis về Database (batch, mỗi phút)
+$scheduleCommand('video-progress:flush', 'cron_video_progress_flush', [
+    'enabled' => '1',
+    'type' => 'frequency',
+    'freq' => 'everyMinute',
+
+]);
+
+// 7. Safety net: đồng bộ tiến độ bị kẹt trong Redis (fallback, mỗi 10 phút)
 $scheduleCommand('video-progress:sync', 'cron_video_progress_sync', [
     'enabled' => '1',
     'type' => 'frequency',
-    'freq' => 'everyFiveMinutes',
+    'freq' => 'everyTenMinutes',
 ]);
 
-// 7. Tự động phát mã giảm giá hàng tháng cho Học Viên VIP
+// 8. Tự động phát mã giảm giá hàng tháng cho Học Viên VIP
 $scheduleCommand('vip:distribute-coupons', 'cron_vip_distribute_coupons', [
     'enabled' => '1',
     'type' => 'monthlyOn',

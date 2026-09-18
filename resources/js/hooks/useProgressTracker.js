@@ -32,7 +32,7 @@ export const useProgressTracker = ({
             
             let totalSkipped = localProgresses[activeLesson.id]?.skipped_seconds || 0;
             const maxSkipPerSeek = 20; 
-            const updateInterval = 10; 
+            const updateInterval = 30; // Tối ưu: 30s thay vì 10s, giảm 3x HTTP requests
 
             const onTimeUpdate = () => {
                 if (!player) return;
@@ -121,12 +121,45 @@ export const useProgressTracker = ({
             player.on('timeupdate', onTimeUpdate);
             player.on('seeking', onSeeking);
 
+            // Fix 2: sendBeacon — gửi nốt progress cuối khi user đóng tab/chuyển bài
+            const sendFinalProgress = () => {
+                if (!player || isAlreadyCompleted) return;
+                const currentTime = player.currentTime();
+                const duration = player.duration();
+                if (!duration || currentTime <= 0) return;
+
+                const safeTime = Math.min(currentTime, maxWatchedTime);
+                const url = route('frontend.course.update_video_progress_beacon', {
+                    slug: course.slug,
+                    lessonId: activeLesson.id
+                });
+
+                navigator.sendBeacon(
+                    url,
+                    new Blob([JSON.stringify({
+                        watched_seconds: safeTime,
+                        skipped_seconds: totalSkipped,
+                        duration_seconds: duration
+                    })], { type: 'application/json' })
+                );
+            };
+
+            window.addEventListener('beforeunload', sendFinalProgress);
+            const onVisibilityChange = () => {
+                if (document.visibilityState === 'hidden') {
+                    sendFinalProgress();
+                }
+            };
+            document.addEventListener('visibilitychange', onVisibilityChange);
+
             // Return cleanup function
             cleanupTracker = () => {
                 if (player) {
                     player.off('timeupdate', onTimeUpdate);
                     player.off('seeking', onSeeking);
                 }
+                window.removeEventListener('beforeunload', sendFinalProgress);
+                document.removeEventListener('visibilitychange', onVisibilityChange);
             };
         };
 

@@ -4,7 +4,6 @@ namespace App\Services\Frontend;
 
 use App\DTO\Frontend\Course\SubmitQuizData;
 use App\DTO\Frontend\Course\VideoProgressData;
-use App\Jobs\UpdateVideoProgressJob;
 use App\Models\CourseProgress;  
 use App\Repositories\Frontend\Learning\LearningRepositoryInterface;
 use Illuminate\Support\Facades\Redis;
@@ -166,8 +165,9 @@ class LearningService
 
         Redis::setex($redisKey, 3600, $payload);
 
-        UpdateVideoProgressJob::dispatch($userId, $lessonId, $course->id)
-            ->delay(now()->addSeconds(30));
+        // Fix 4: Bỏ hẳn per-request job dispatch.
+        // Controller chỉ ghi Redis rồi return.
+        // Scheduler batch (video-progress:flush) chạy everyMinute sẽ flush tất cả vào DB.
 
         return $newWatched;
     }

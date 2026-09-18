@@ -17,15 +17,15 @@ export default function Footer() {
     const col1Title = core_settings?.footer_col_1_title || 'Khám phá';
     const col1Links = parseJson(core_settings?.footer_col_1_links, [
         { label: 'Trang chủ', url: '/' },
-        { label: 'Khóa học', url: '/courses' },
-        { label: 'Blog', url: '/blog' }
+        { label: 'Khóa học', url: '/tech-education/courses' },
+        { label: 'Blog', url: '/tech-education/blog' }
     ]);
 
     const col2Title = core_settings?.footer_col_2_title || 'Hỗ trợ';
     const col2Links = parseJson(core_settings?.footer_col_2_links, [
-        { label: 'Giới thiệu', url: '/about' },
-        { label: 'Câu hỏi thường gặp', url: '/faqs' },
-        { label: 'Liên hệ', url: '/contact' }
+        { label: 'Giới thiệu', url: '/tech-education/ve-chung-toi.html' },
+        { label: 'Câu hỏi thường gặp', url: '/tech-education/faqs' },
+        { label: 'Liên hệ', url: '/tech-education/contact' }
     ]);
 
     return (

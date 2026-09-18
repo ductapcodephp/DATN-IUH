@@ -273,6 +273,12 @@ Route::prefix('tech-education')->name('frontend.')->group(function () {
         Route::post('/courses/{slug}/learn/quiz/{quiz}', [LearningController::class, 'submitQuiz'])->name('course.learn.submit-quiz')->middleware(['auth', 'throttle:10,1']);
         Route::post('/courses/{slug}/learn/lesson/{lessonId}/progress', [LearningController::class, 'updateVideoProgress'])
             ->name('course.update_video_progress')->middleware('throttle:60,1');
+        
+        // Beacon route (sendBeacon khi đóng tab) — không cần CSRF vì beacon không gửi custom header
+        Route::post('/courses/{slug}/learn/lesson/{lessonId}/progress-beacon', [LearningController::class, 'updateVideoProgress'])
+            ->name('course.update_video_progress_beacon')
+            ->middleware('throttle:60,1')
+            ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
         // Course Comments
         Route::get('/courses/{slug}/learn/lesson/{lessonId}/comments', [CommentController::class, 'getComments'])->name('course.comments.get');
